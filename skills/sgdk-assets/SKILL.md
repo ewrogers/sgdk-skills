@@ -28,7 +28,7 @@ Run `docker run --rm IMAGE cat /opt/sgdk/bin/rescomp.txt`, replacing `IMAGE` wit
 
 - Separate **hardware limits**, **SGDK implementation choices** and **game policy** when explaining a restriction. Refer to the budget table in the reference.
 - Count used pixel indices and per-tile palette needs. A PNG's palette table can contain unused entries; its table length alone does not prove an invalid image.
-- Budget shared palettes, unique tiles, decompression/upload work and scanline sprite pressure. SGDK logical sprites may contain several hardware sprites. Compression saves ROM; it does not make the decoded tiles free in VRAM.
+- Budget shared palettes, resident tile patterns, decompression/upload work and scanline sprite pressure. Standard 8 by 8 patterns have 2048 theoretical addresses; tables and SGDK reservations leave less room for art. Check the actual allocated range before uploads. SGDK logical sprites may contain several hardware sprites. Compression saves ROM; it does not make the decoded tiles free in VRAM.
 - Prefer preparing and loading shared data once. Do not decompress images, reload whole palettes or recreate sprites each update without a measured reason. Use SGDK's supported DMA/VBlank flow and check allocation failures.
 - Keep generated assembly, headers, objects and ROMs out of source control unless the project explicitly needs them. Retain the authored `.res`, source exports and asset license/provenance.
 - For audio, inspect the selected driver's documentation and the `WAV`, `XGM` or `XGM2` declarations in the installed manual. Do not mix driver-specific resources or assume every WAV rate and channel layout is accepted. Audio conversion succeeding does not prove playback quality.

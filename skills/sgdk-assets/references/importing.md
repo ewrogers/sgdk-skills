@@ -52,14 +52,30 @@ Keep palette sharing explicit. Two images having similar colors does not mean th
 | Kind | Limit or cost | What to account for |
 | --- | --- | --- |
 | Hardware | 64 KiB VRAM | Pattern graphics, plane tables, sprite table and other VDP allocations share it. |
-| Hardware | Four 16-entry palette banks | A tile or hardware sprite selects one bank; index 0 is transparent. The backdrop color is selected separately. |
-| Hardware | 8 by 8, 4 bpp patterns | One uncompressed pattern is 32 bytes; flipped/repeated patterns may be shared. |
+| Hardware | Four 16-entry palette banks | A tile or hardware sprite selects one bank, with 15 opaque indices and transparent index 0. The backdrop color is selected separately. |
+| Hardware | Up to 2048 standard 8 by 8 pattern addresses | Each 4 bpp pattern is 32 bytes. This is the theoretical 64 KiB capacity, before reserving tables and other data. |
 | Hardware, H40 / 320-wide | 80 hardware sprites total, 20 per scanline, 320 sprite pixels per scanline | Count hardware pieces and their scanline coverage, not just game objects. Transparent areas can still consume sprite processing budget. |
 | Hardware, H32 / 256-wide | 64 hardware sprites total, 16 per scanline, 256 sprite pixels per scanline | The mode changes the limits. H40 figures are not universal. |
 | SGDK | Sprite engine allocations and resource layout | Read the configured engine and VDP layout; not all 64 KiB is available to your art. Check `SPR_addSprite` for `NULL`. |
 | Game policy | Chosen upload, palette and object budgets | State them as project choices. Test on crowded frames instead of promising every composition fits. |
 
 ROM data, decoded RAM, VRAM residency and per-frame DMA traffic are different totals. Do not add compressed file sizes and call the result VRAM use. Palette colors may change over time; raster effects and shadow/highlight have additional behavior beyond this basic budget.
+
+### Tile count is about what is loaded
+
+In the usual non-interlaced mode, a tile pattern is 8 by 8 pixels at 4 bits per pixel. That takes 32 bytes, so 64 KiB of VRAM has **2048 possible pattern addresses, numbered 0 through 2047**. Backgrounds and sprites share that memory.
+
+You cannot use all 2048 for artwork. Plane tilemaps, the sprite attribute table and the horizontal scroll table need VRAM too. SGDK also reserves system tiles, fonts and, when initialized, a sprite graphics region. Check the current layout in `inc/vdp.h`: `TILE_USER_INDEX`, `TILE_USER_LENGTH` and `TILE_USER_MAX_INDEX` describe the range available to user-managed graphics. Changing plane sizes or sprite reservations changes that range. Do not turn a rough percentage into a fixed project limit.
+
+A large spritesheet or level can contain far more tiles in ROM than fit in VRAM at once. What matters is which patterns are resident together, how they are shared and how much replacement data is uploaded each frame. A 16 by 16 frame covers four tile cells; its full sheet dimensions do not describe its current VRAM use. ResComp's deduplication, sprite cutting and the runtime loading strategy affect the actual count.
+
+### Keep uploads inside the allocated range
+
+Tile attributes have an 11-bit pattern index, so valid indices are 0 through 2047. Also validate that the entire upload fits the **part of VRAM you own**, using a wide type to calculate its end. An index that fits 11 bits can still point into a table, font or another object's graphics.
+
+SGDK's `TILE_ATTR_FULL` combines the fields without checking the index; an out-of-range value can alter attribute bits. `VDP_loadTileData` forwards the transfer at `index * 32` without checking your allocation. A write beyond 64 KiB can wrap around VRAM and overwrite earlier graphics or tables. Do not rely on these low-level calls to report a capacity failure. Prevent the overlap before submitting a CPU or DMA transfer.
+
+[Plutiedev's tiles and palettes guide](https://plutiedev.com/tiles-and-palettes#loading-tiles) explains the pattern addressing and shared VRAM budget. Its assembly examples are useful for understanding the hardware; use SGDK's verified loading APIs in an SGDK project.
 
 ## Diagnose the first failure
 
@@ -85,6 +101,8 @@ Create `out` first. Conversion may create intermediate files, so do not treat it
 - [SGDK 2.11 ResComp manual](https://github.com/Stephane-D/SGDK/blob/v2.11/bin/rescomp.txt): resource syntax, indexed/RGB images, frame layout, compression and cutting limits.
 - [SGDK sprite engine header](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/sprite_eng.h): allocation, animation and upload behavior.
 - [SGDK VDP sprite header](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_spr.h) and [palette header](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/pal.h): hardware-facing structures and palette API.
+- [SGDK VDP layout header](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp.h), [tile header](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_tile.h) and [tile implementation](https://github.com/Stephane-D/SGDK/blob/v2.11/src/vdp_tile.c): reserved tile ranges, attribute construction and transfer behavior.
+- [Plutiedev: tiles and palettes](https://plutiedev.com/tiles-and-palettes): hardware pattern format, 2048 theoretical tile addresses and palette loading.
 - [Sega Genesis Software Manual](https://segaretro.org/images/a/a2/Genesis_Software_Manual.pdf), VDP chapters: mode-dependent sprite limits, CRAM and VRAM. Consult the hardware manual before extending the basic assumptions to raster or interlace modes.
 
 The bundled example is compiled in the published ARM64 and AMD64 Docker images by the repository's integration tests. Those tests exercise actual ResComp and headers, including rejected input and a PNG with unused palette entries. They do not replace emulator or hardware review.

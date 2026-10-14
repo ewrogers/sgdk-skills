@@ -22,6 +22,8 @@ def inspect_rom(data):
     initial_sp, reset_pc = struct.unpack_from(">II", data)
     rom_start, rom_end, ram_start, ram_end = struct.unpack_from(">IIII", data, 0x1A0)
     warnings = []
+    if len(data) > 4 * 1024 * 1024:
+        warnings.append("ROM exceeds the normal 4 MiB cartridge window; verify mapper/header, emulator and cartridge support.")
     declared_bytes = rom_end - rom_start + 1 if rom_end >= rom_start else None
     if declared_bytes != len(data):
         warnings.append("Header ROM range differs from file size; SGDK sample headers may use a fixed range.")

@@ -48,6 +48,11 @@ The guidance accounts for CPU work, RAM, VRAM, palettes, sprite scanlines and
 transfer bandwidth separately. It helps you use SGDK directly and leaves your
 game's architecture to you.
 
+The references also cover cartridge mapping and padding, 68000 assembly
+investigations, Z80 bus ownership and FM/PSG interactions. They link to the
+selected SGDK source and [Plutiedev](https://plutiedev.com/) for deeper hardware
+explanations, rather than treating every build as a low-level driver project.
+
 ## Tested support
 
 Host helpers are tested on Windows, macOS and Linux. ROM/resource examples are

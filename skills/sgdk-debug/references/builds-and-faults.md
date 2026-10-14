@@ -54,6 +54,35 @@ command-line switches. Include `<kdebug.h>` explicitly for SGDK's `KDebug_*`
 functions, which target Gens KMod-style debug
 support; they do not create a universal console, USB link, or Docker log stream.
 
+## Investigate a 68000 hot path
+
+Inspect the optimized function with `m68k-elf-objdump -d -S` before replacing C
+with assembly. Look for repeated work, division, register spills, and library
+calls, then measure that path in the game. The Mega Drive uses the original
+68000 without an FPU. SGDK's build passes `-m68000`; 68020, ColdFire, and 68881
+instructions are not shortcuts available on this hardware. Wider integer
+operations or floating-point expressions can require costly software routines.
+
+SGDK compiles `.s` sources through GCC's assembler-with-preprocessor mode and
+GNU `as`. Its makefile enables optional register prefixes and bitwise-or syntax.
+Check that toolchain's syntax instead of pasting code written for a different
+assembler. Plutiedev's [multiply/divide guide](https://plutiedev.com/multiplication-division)
+explains the real operand widths, quotient limits, and division traps; translate
+examples deliberately rather than assuming every notation is interchangeable.
+
+For an assembly function called from C, match the active ABI: argument and
+return layout, callee-saved registers, and a balanced, correctly aligned stack.
+Check compiler-generated callers and a matching C declaration. For inline
+assembly, declare inputs, outputs, changed registers, condition codes, and any
+memory effects using GCC's operand/clobber rules. `volatile` alone does not
+describe those effects or synchronize a hardware bus. Optimized/LTO builds can
+expose mistakes that seem harmless in a debug build.
+
+Test the C and assembly versions against the same edge cases, including signed
+values, operand limits, rounding, and intentional wrapping. Retain the original
+behavior and remeasure the full workload. Successful assembly and linking prove
+tool compatibility, not correctness, cycle savings, or hardware performance.
+
 ## Account for bytes honestly
 
 ```sh
@@ -86,3 +115,6 @@ Verified against the pinned SGDK 2.11 container. Recheck these when changing SDK
 - [Default ROM header](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/src/boot/rom_head.c)
 - [KDebug declarations](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/inc/kdebug.h)
 - [GNU addr2line documentation](https://sourceware.org/binutils/docs/binutils/addr2line.html)
+- [GCC M680x0 target options](https://gcc.gnu.org/onlinedocs/gcc/M680x0-Options.html)
+- [GCC inline assembly contracts](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html)
+- [GNU assembler M680x0 options](https://sourceware.org/binutils/docs/as/M68K_002dOpts.html)

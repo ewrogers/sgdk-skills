@@ -31,6 +31,8 @@ explains the evidence. Keep a working ROM for comparison.
   for clean builds, exact-ELF address lookup, memory accounting, and emulator limits.
 - **Slow game or visual corruption:** read [performance.md](references/performance.md)
   for SGDK's measurement semantics, VBlank/DMA and sprite limits, and useful comparisons.
+- **Large ROM or sound/bus fault:** read [banking-and-audio.md](references/banking-and-audio.md)
+  for cartridge mapping, padding, mapped-pointer lifetimes and FM/PSG ownership.
 - **Which ROM is this?** Run `python3 scripts/rom_report.py /path/to/rom.bin`
   from this skill's directory, adding `--json` for automation. This only reads
   header facts and file size/hash. Its notes are advisory; it cannot prove that a

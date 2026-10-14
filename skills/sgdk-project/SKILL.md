@@ -51,6 +51,11 @@ separately. Reuse unchanged graphics rather than uploading or redrawing them
 every frame. See [runtime decisions](references/runtime-decisions.md) when
 choosing a frame loop, numeric types or memory strategy.
 
+For large ROMs, mapper changes or low-level audio, read
+[cartridge and sound boundaries](references/cartridge-and-sound.md). The normal
+4 MiB ROM window, SGDK's padding, Z80 bus ownership and FM/PSG register ownership
+are separate questions; do not assume linking or a helper name makes them safe.
+
 ## Verify and hand off
 
 - Confirm the intended target built successfully and identify the new ROM.

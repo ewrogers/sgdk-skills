@@ -68,6 +68,14 @@ class RomReportTests(unittest.TestCase):
         self.assertEqual(len(report["warnings"]), 1)
         self.assertIn("fixed range", report["warnings"][0])
 
+    def test_large_rom_is_advisory_and_needs_mapping_review(self):
+        report = ROM_REPORT.inspect_rom(make_rom(4 * 1024 * 1024 + 1))
+        self.assertEqual(len(report["warnings"]), 1)
+        self.assertIn("mapper/header", report["warnings"][0])
+
+    def test_four_mib_boundary_does_not_require_a_mapper_warning(self):
+        self.assertEqual(ROM_REPORT.inspect_rom(make_rom(4 * 1024 * 1024))["warnings"], [])
+
     def test_bad_vector_warns_without_claiming_emulation(self):
         rom = make_rom()
         struct.pack_into(">I", rom, 4, 0x4001)
