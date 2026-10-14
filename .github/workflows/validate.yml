@@ -1,0 +1,102 @@
+name: Validate skills
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skills-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SGDK_IMAGE: ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34
+
+jobs:
+  helpers:
+    name: Host helpers (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - run: python -m unittest discover -s tests -v
+
+  distribution:
+    name: Skill installation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - run: python tests/distribution.py
+
+  containers:
+    name: SGDK examples (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    env:
+      SGDK_PLATFORM: linux/${{ matrix.arch }}
+      SGDK_SKILLS_INTEGRATION: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - run: docker pull --platform "$SGDK_PLATFORM" "$SGDK_IMAGE"
+      - run: python -m unittest discover -s tests -v
+      - run: python tests/integration.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: integration-${{ matrix.arch }}
+          path: |
+            build/integration/**/report.json
+            build/integration/**/*.log
+
+  compare:
+    name: Compare generated ROMs
+    needs: containers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: integration-*
+          path: reports
+      - name: Compare both build modes
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          reports = {arch: list(Path(f"reports/integration-{arch}").rglob("report.json"))
+                     for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in reports.values()), reports
+          results = {arch: json.loads(paths[0].read_text()) for arch, paths in reports.items()}
+          assert all(result["passed"] for result in results.values())
+          for mode in ["release_rom", "debug_rom"]:
+              assert results["amd64"][mode] == results["arm64"][mode], mode
+          print("Release and debug ROMs match across native ARM64 and AMD64.")
