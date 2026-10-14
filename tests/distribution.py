@@ -9,7 +9,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ["sgdk-project", "sgdk-assets", "sgdk-debug"]
+SKILLS = ["sgdk-planning", "sgdk-project", "sgdk-assets", "sgdk-debug"]
 
 
 def main():
@@ -44,7 +44,7 @@ def main():
                        (destination / relative).read_bytes() == file.read_bytes()
                        for destination in installed):
                 raise RuntimeError(f"CLI lost or changed {name}/{relative}")
-    print(f"Discovered and copied all three skills with their resources: {scratch}")
+    print(f"Discovered and copied all {len(SKILLS)} skills with their resources: {scratch}")
     return 0
 
 

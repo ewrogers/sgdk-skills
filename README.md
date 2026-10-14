@@ -7,6 +7,7 @@ on your computer, and use an agent to help with setup, assets and debugging.
 
 | Skill | What to ask it for |
 | --- | --- |
+| [sgdk-planning](skills/sgdk-planning/SKILL.md) | Turn a game idea into a first playable milestone, hardware budgets and practical tests. |
 | [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
 | [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
@@ -27,7 +28,8 @@ npx skills add ewrogers/sgdk-skills --list
 npx skills add ewrogers/sgdk-skills --skill sgdk-project
 ```
 
-The current installer needs Node.js 22.20 or later. The build workflow needs
+The current installer needs Node.js 22.20 or later. Planning works without Docker.
+The build workflow needs
 Docker running with Linux containers. The optional helpers need Python 3.10+
 and use its standard library. No native SGDK installation or API key is needed.
 
@@ -36,6 +38,7 @@ and use its standard library. No native SGDK installation or API key is needed.
 Ask your agent to use a skill for a concrete task. For example:
 
 - "Use sgdk-project to create a Hello World ROM in a new folder."
+- "Use sgdk-planning to plan a small platformer and identify what to prove first."
 - "Use sgdk-assets to import this spritesheet and check its palette budget."
 - "Use sgdk-debug to investigate this fault using the matching ELF file."
 
@@ -47,6 +50,10 @@ verified SGDK 2.11 image digest; an existing project's pin takes precedence.
 The guidance accounts for CPU work, RAM, VRAM, palettes, sprite scanlines and
 transfer bandwidth separately. It helps you use SGDK directly and leaves your
 game's architecture to you.
+
+Planning includes an optional static budget checker for RAM, VRAM, palettes,
+sprite peaks, padded ROM size and a declared DMA allowance. It keeps unknown
+costs visible. It does not predict frame rate or certify that a game will fit.
 
 The references also cover cartridge mapping and padding, 68000 assembly
 investigations, Z80 bus ownership and FM/PSG interactions. They link to the
