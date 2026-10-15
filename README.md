@@ -14,6 +14,7 @@ on your computer, and use an agent to help with setup, assets and debugging.
 | [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
+| [sgdk-save](skills/sgdk-save/SKILL.md) | Save progress to SRAM, recover damaged saves and add controller-friendly passwords. |
 | [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
 
 ## Install
@@ -48,6 +49,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-audio to add music, prioritized effects and a pause-menu transition."
 - "Use sgdk-input to add 3/6-button pad and mouse controls, with Team Player support."
 - "Use sgdk-gameplay to add a scrolling player, wall collision and reusable bullets."
+- "Use sgdk-save to add checkpoint saves, a backup slot and password entry."
 - "Use sgdk-debug to investigate this fault using the matching ELF file."
 
 Each skill works on its own. It includes focused references and, where useful,
