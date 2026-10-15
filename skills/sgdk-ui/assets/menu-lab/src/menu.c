@@ -27,7 +27,7 @@ static void enter(Menu *menu, MenuScreen screen)
 {
     menu->screen = screen;
     menu->selected = 0;
-    menu->input.direction = 0;
+    /* Keep held directions consumed across entry, then restart their delay. */
     menu->input.repeat_ms = 0;
     menu->input.repeating = false;
 }

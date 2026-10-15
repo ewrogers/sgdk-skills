@@ -32,6 +32,10 @@ static void navigation(void)
     menu_step(&m, MENU_DOWN, 17); assert(m.selected == 0);
     menu_step(&m, MENU_UP, 17); assert(m.selected == 2);
     menu_step(&m, 0, 17); menu_step(&m, MENU_DOWN, 17); assert(m.selected == 0);
+    tap(&m, MENU_DOWN); assert(m.selected == 1);
+    menu_step(&m, MENU_DOWN | MENU_ACCEPT, 17);
+    assert(m.screen == MENU_OPTIONS && m.selected == 0);
+    menu_step(&m, MENU_DOWN, 17); assert(m.selected == 0);
 }
 
 static void options(void)

@@ -39,7 +39,11 @@ void VDP_setPlaneSize(u16 w, u16 h, bool setup) { assert(w == 64 && h == 32 && s
 void VDP_setWindowHPos(u16 right, u16 pos) { assert(!right && pos == 0); }
 void VDP_setWindowVPos(u16 down, u16 pos) { assert(!down && pos == 4); }
 void PAL_setColor(u16 index, u16 value)
-{ assert(!enabled && (index == 0 || index == 15 || index == 31 || index == 33)); (void)value; palettes++; }
+{
+    assert(!enabled && (index == 0 || index == 15 || index == 31 || index == 33));
+    assert(value == (index == 0 ? 0x222 : index == 15 ? 0xEEC : index == 31 ? 0xEC8 : 0x422));
+    palettes++;
+}
 void VDP_loadTileData(const u32 *data, u16 index, u16 count, TransferMethod tm)
 { assert(!enabled && data && index == TILE_USER_INDEX && count == 1 && tm == DMA); }
 u16 VDP_loadFont(const TileSet *value, TransferMethod tm)
