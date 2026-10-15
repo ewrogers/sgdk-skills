@@ -32,7 +32,7 @@ void game_enemy_kill(Game *game,u16 index)
     game->kills++; game->events|=EVENT_KILL;
     game_effect(game,enemy->x,enemy->y);
     if (game->kills%3) return;
-    u8 kind=(game->kills/3-1)%(game->stage==2?4:3);
+    u8 kind=(game->kills/3-1)%(game->stage==2?5:3);
     if (!(kind==2 && game->shield) && !(kind==3 && game->twins==2))
         for (u16 i=0;i<PICKUP_COUNT;i++)
             if (!game->pickups[i].active)
@@ -52,7 +52,7 @@ void game_hurt(Game *game)
         game->events|=EVENT_SHIELD_BREAK; game_effect(game,game->x,game->y); return;
     }
     game->events|=EVENT_HURT; game->combo=0;
-    game->power=1; game->twins=0; game->shield=false; game->shield_time=0;
+    game->power=1; game->twins=0; game->spread=false; game->shield=false; game->shield_time=0;
     for (u16 i=0;i<BULLET_COUNT;i++) game->bullets[i].active=false;
     game_effect(game,game->x,game->y);
     if (--game->lives==0) { game->state=OVER; game->phase_time=0; return; }
@@ -71,7 +71,7 @@ void game_boss_damage(Game *game,u16 damage)
     for (u16 i=0;i<BULLET_COUNT;i++) game->bullets[i].active=false;
 }
 
-static bool hit_shot(Game *game,s16 x,s16 y,u16 candidates)
+static bool hit_shot(Game *game,s16 x,s16 y,u16 candidates,u8 damage)
 {
     if (candidates) for (u16 i=0;i<ENEMY_COUNT;i++)
     {
@@ -79,14 +79,15 @@ static bool hit_shot(Game *game,s16 x,s16 y,u16 candidates)
         if ((candidates&(1U<<i)) && enemy->active && inside(x,y,enemy->x,enemy->y,10*UNIT,10*UNIT))
         {
             enemy->flash=6;
-            if (--enemy->hp==0) game_enemy_kill(game,i);
+            if (enemy->hp<=damage) game_enemy_kill(game,i);
+            else enemy->hp-=damage;
             return true;
         }
     }
     Boss *boss=&game->boss;
     if (boss->active && boss->age>=BOSS_READY_TICKS && inside(x,y,boss->x,boss->y,15*UNIT,13*UNIT))
     {
-        game_boss_damage(game,1);
+        game_boss_damage(game,damage);
         return true;
     }
     return false;
@@ -134,7 +135,7 @@ static void move(Game *game,Bullet *bullet,bool player)
             s16 offset_x=progress_x>>shift,offset_y=progress_y>>shift;
             bullet->x=x+(bullet->vx<0?-offset_x:offset_x);
             bullet->y=y+(bullet->vy<0?-offset_y:offset_y);
-            if (player?hit_shot(game,bullet->x,bullet->y,candidates):
+            if (player?hit_shot(game,bullet->x,bullet->y,candidates,bullet->damage?bullet->damage:DAMAGE_UNIT):
                 (!game->invulnerable && inside(bullet->x,bullet->y,game->x,game->y,4*UNIT,4*UNIT)))
             {
                 bullet->active=false;

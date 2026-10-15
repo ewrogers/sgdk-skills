@@ -3,6 +3,7 @@
 #include "resources.h"
 #include "view.h"
 const u8 title_music[8]={10},stage2_music[8]={17},over_music[8]={18},stage_music[8]={1},boss_music[8]={9},clear_music[8]={2};
+const u8 reaver_music[8]={20},credits_music[8]={21},voice_spread[8]={22};
 const u8 empty_sound[8]={16};
 const u8 fire_sound[8]={3},pickup_sound[8]={4},bomb_sound[8]={5},warning_sound[8]={6},hit_sound[8]={7},kill_sound[8]={8};
 const u8 voice_twin[8]={19},voice_bomb[8]={11},voice_power[8]={12},voice_shield[8]={13},voice_boss[8]={14},voice_over[8]={15};
@@ -53,5 +54,9 @@ int main(void)
     busy=false; game.state=PLAY; game.stage=2; game.events=EVENT_START; sound_frame(&game);
     assert(music==stage2_music && loops==-1);
     game.events=EVENT_PICKUP; game.pickup_kind=3; sound_frame(&game); assert(channel3==voice_twin);
+    game.pickup_kind=4; sound_frame(&game); assert(channel3==voice_spread);
+    game.state=CREDITS; game.events=0; sound_frame(&game); assert(music==credits_music && loops==-1);
+    game.state=TITLE; sound_frame(&game); assert(music==title_music);
+    game.state=BOSS; game.boss.age=90; sound_frame(&game); assert(music==reaver_music);
     return 0;
 }

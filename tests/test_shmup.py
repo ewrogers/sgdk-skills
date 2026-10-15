@@ -49,6 +49,8 @@ class ShooterBehaviorTests(unittest.TestCase):
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertEqual(result.stdout.strip(),name)
 
+    def test_spread_quarter_damage_clear_movement_credits_and_targeted_arc(self): self.check('finale')
+
     def test_parallel_lasers_pickup_caps_refresh_and_deferred_enrage(self): self.check('upgrades')
 
     def test_h40_window_alignment_plane_ranges_and_overlap(self): self.check('layout')
@@ -86,7 +88,7 @@ class ShooterBehaviorTests(unittest.TestCase):
 class ShooterAssetsTests(unittest.TestCase):
     def test_native_indexed_art_sizes_palettes_checksums_and_reproduction(self):
         sizes={'ship.png':(64,16),'enemies.png':(96,16),'boss.png':(224,32),'reaver.png':(224,32),
-               'bullets.png':(64,8),'pickups.png':(64,16),'effects.png':(64,16),'utility.png':(128,32),'twins.png':(32,16),'font.png':(768,8),'stars.png':(256,256)}
+               'bullets.png':(64,8),'pickups.png':(80,16),'guard.png':(96,24),'effects.png':(64,16),'utility.png':(128,32),'twins.png':(32,16),'font.png':(768,8),'stars.png':(256,256)}
         for name,data in load_generator('make_assets').assets().items():
             self.assertEqual(data,(LAB/'res'/name).read_bytes())
             offset,compressed=8,bytearray()
@@ -144,10 +146,10 @@ class ShooterAssetsTests(unittest.TestCase):
                     else: self.fail(f'Unexpected VGM command {command}')
                 self.assertEqual(frames*735,struct.unpack_from('<I',data,0x18)[0])
                 self.assertGreater(fm,100); self.assertGreater(psg,10)
-                self.assertEqual(bool(struct.unpack_from('<I',data,0x1C)[0]),name in ('title.vgm','course.vgm','stage2.vgm','game_over.vgm','boss.vgm'))
+                self.assertEqual(bool(struct.unpack_from('<I',data,0x1C)[0]),name in ('title.vgm','course.vgm','stage2.vgm','game_over.vgm','boss.vgm','boss2.vgm','credits.vgm'))
 
     def test_voice_clips_are_bounded_pcm_and_not_silent(self):
-        for name in ['bomb','power','shield','boss','over','twin']:
+        for name in ['bomb','power','shield','boss','over','twin','spread']:
             with wave.open(str(LAB/'res'/('voice_'+name+'.wav'))) as wav:
                 self.assertEqual((wav.getnchannels(),wav.getsampwidth(),wav.getframerate()),(1,2,13300))
                 self.assertGreater(wav.getnframes(),3000)

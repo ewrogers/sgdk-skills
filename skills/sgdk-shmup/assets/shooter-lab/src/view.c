@@ -4,14 +4,17 @@
 #include "sprite_list.h"
 
 #define CACHE_TILES FRAME_CACHE_TILES
-static Actor actors[78];
+#if SHOOTER_PROFILE
+u16 profile_simulation,profile_audio,profile_draw;
+#endif
+static Actor actors[81];
 static u16 actor_count;
 static Actor *ship,*boss,*enemies[ENEMY_COUNT],*shots[SHOT_COUNT],*bullets[BULLET_COUNT];
 static Actor *pickups[PICKUP_COUNT],*effects[EFFECT_COUNT];
-static Actor *barrier,*boss_guard,*payload,*blast[8],*twins[2];
+static Actor *barrier,*boss_guard[4],*payload,*blast[8],*twins[2];
 static u16 twin_tiles[2];
 static u16 old_guard=65535;
-static u16 ship_tiles[4],enemy_tiles[6],boss_tiles[7],bullet_tiles[8],reaver_tiles[7],pickup_tiles[4],effect_tiles[4],utility_tiles[4];
+static u16 ship_tiles[4],enemy_tiles[6],boss_tiles[7],bullet_tiles[8],reaver_tiles[7],pickup_tiles[5],guard_tiles[4],effect_tiles[4],utility_tiles[4];
 
 static bool clear_banner;
 static u16 title_tile,hud_gold,hud_blue;
@@ -42,7 +45,7 @@ static bool cache(const SpriteDefinition *definition,u16 *indices,u16 length,u16
 }
 static Actor *make_actor(const SpriteDefinition *definition,u16 palette)
 {
-    if (actor_count>=78) return NULL;
+    if (actor_count>=81) return NULL;
     Actor *actor=&actors[actor_count++];
     *actor=(Actor){definition,palette};
     return actor;
@@ -102,7 +105,7 @@ bool view_start(void)
     u16 tile=TILE_FONT_INDEX-CACHE_TILES;
     if (!cache(&ship_image,ship_tiles,4,&tile) || !cache(&enemy_image,enemy_tiles,6,&tile) ||
         !cache(&boss_image,boss_tiles,7,&tile) || !cache(&reaver_image,reaver_tiles,7,&tile) || !cache(&bullet_image,bullet_tiles,8,&tile) ||
-        !cache(&pickup_image,pickup_tiles,4,&tile) || !cache(&effect_image,effect_tiles,4,&tile) || !cache(&utility_image,utility_tiles,4,&tile) || !cache(&twin_image,twin_tiles,2,&tile)) FAIL("FRAME CACHE RESERVATION");
+        !cache(&guard_image,guard_tiles,4,&tile) || !cache(&pickup_image,pickup_tiles,5,&tile) || !cache(&effect_image,effect_tiles,4,&tile) || !cache(&utility_image,utility_tiles,4,&tile) || !cache(&twin_image,twin_tiles,2,&tile)) FAIL("FRAME CACHE RESERVATION");
     ship=make_actor(&ship_image,PAL1);
     boss=make_actor(&boss_image,PAL2);
     if (!ship || !boss) FAIL("PLAYER/BOSS SPRITE ALLOCATION");
@@ -118,10 +121,11 @@ bool view_start(void)
     { effects[i]=make_actor(&effect_image,PAL3); if (!effects[i]) FAIL("EFFECT SPRITE ALLOCATION"); }
     for (u16 i=0;i<2;i++)
     { twins[i]=make_actor(&twin_image,PAL1); if (!twins[i]) FAIL("TWIN SPRITE ALLOCATION"); }
-    boss_guard=make_actor(&utility_image,PAL3);
+    for (u16 i=0;i<4;i++)
+    { boss_guard[i]=make_actor(&guard_image,PAL3); if (!boss_guard[i]) FAIL("BOSS SHIELD ALLOCATION"); }
     barrier=make_actor(&utility_image,PAL3);
     payload=make_actor(&utility_image,PAL3);
-    if (!boss_guard || !barrier || !payload) FAIL("UTILITY SPRITE ALLOCATION");
+    if (!barrier || !payload) FAIL("UTILITY SPRITE ALLOCATION");
     for (u16 i=0;i<8;i++)
     { blast[i]=make_actor(&effect_image,PAL3); if (!blast[i]) FAIL("BLAST SPRITE ALLOCATION"); }
     return true;
@@ -175,8 +179,15 @@ static void hud(const Game *game,u16 hz,u16 fps)
     }
     else { sprintf(line,"WAVE %u/%u",game->wave,WAVE_COUNT); text(line,16); text("",17); }
     text(game->paused?"PAUSED":game->state==CLEAR?"CLEAR!":game->state==OVER?"GAMEOVER":"",19);
+#if SHOOTER_PROFILE
     sprintf(line,"%uF %uHZ",fps,hz); text(line,21);
     sprintf(line,"LOAD %u",SYS_getCPULoad()); text(line,22);
+#endif
+#if SHOOTER_PROFILE
+    sprintf(line,"SIM %u",profile_simulation); text(line,20);
+    sprintf(line,"AUD %u",profile_audio); text(line,18);
+    sprintf(line,"DRAW %u",profile_draw); text(line,23);
+#endif
     text("A FIRE",24); text("B BOMB",25); text("C FOCUS",26);
 }
 static void banner(const Game *game)
@@ -187,6 +198,16 @@ static void banner(const Game *game)
         VDP_drawText("S H O O T E R   L A B",10,2);
         VDP_drawText("> START <",16,22);
         VDP_drawText("A / START TO LAUNCH",11,25);
+    }
+    else if (game->state==CREDITS)
+    {
+        VDP_drawImageEx(BG_A,&title_image,TILE_ATTR_FULL(PAL1,FALSE,FALSE,FALSE,title_tile),6,4,FALSE,TRUE);
+        VDP_drawText("MISSION COMPLETE",12,2);
+        VDP_drawText("SHOOTER LAB",15,19);
+        VDP_drawText("CODE / ART / MUSIC",11,21);
+        VDP_drawText("SGDK SKILLS",15,23);
+        VDP_drawText("THANK YOU FOR PLAYING",10,25);
+        VDP_drawText("A / START: TITLE",12,27);
     }
     else if (game->state==OVER)
     {
@@ -223,7 +244,7 @@ static void boss_bar(const Game *game)
 
 void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
 {
-    sprite_list_begin(game->state==TITLE?320:FIELD_W);
+    sprite_list_begin((game->state==TITLE || game->state==CREDITS)?320:FIELD_W);
     boss->definition=game->stage==2?&reaver_image:&boss_image;
     const u16 *current_boss_tiles=game->stage==2?reaver_tiles:boss_tiles;
     bool changed=!drawn || game->state!=old_state;
@@ -233,7 +254,7 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
         for (u16 i=0;i<BULLET_COUNT;i++) bullets[i]->palette=game->state==TITLE?PAL1:PAL3;
         /* BG_A is a stationary message layer; stars scroll on BG_B. */
         VDP_setTextPlane(BG_A); VDP_clearTextArea(0,0,40,28);
-        VDP_setWindowHPos(game->state!=TITLE,game->state==TITLE?0:15);
+        VDP_setWindowHPos(game->state!=TITLE && game->state!=CREDITS,(game->state==TITLE || game->state==CREDITS)?0:15);
         banner(game); VDP_setTextPlane(WINDOW);
     }
     if (game->state==BOSS)
@@ -252,15 +273,15 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
     if (game->state==CLEAR && game->phase_time>=BOSS_DEATH_TICKS && !clear_banner)
     {
         VDP_drawTextEx(BG_A,"STAGE CLEAR!",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),9,11,DMA_QUEUE);
-        VDP_drawTextEx(BG_A,game->stage==1?"A / START: NEXT STAGE":"A / START: PLAY AGAIN",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),5,15,DMA_QUEUE);
+        VDP_drawTextEx(BG_A,game->stage==1?"A / START: NEXT STAGE":"A / START: CREDITS",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),5,15,DMA_QUEUE);
         clear_banner=true;
     }
     if (game->state==TITLE && frame%30==0)
         VDP_drawTextEx(BG_A,(frame/30)&1?"  START  ":"> START <",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),16,22,DMA_QUEUE);
-    VDP_setVerticalScroll(BG_B,-(s16)((game->state==TITLE?frame/3:game->ticks/2)&255));
+    VDP_setVerticalScroll(BG_B,-(s16)(((game->state==TITLE || game->state==CREDITS)?frame/3:game->ticks/2)&255));
     bool running=game->state==PLAY || game->state==BOSS;
     u16 phase=(game->ticks/5)&1;
-    sprite_list_place(ship,game->x,game->y,16,running && (!game->invulnerable || !(game->ticks&4)),phase+((held&C)?2:0),ship_tiles);
+    sprite_list_place(ship,game->x,game->y,16,(running || game->state==CLEAR) && (game->state==CLEAR || !game->invulnerable || !(game->ticks&4)),phase+((held&C)?2:0),ship_tiles);
     /* Player first, then damaging bullets, before decorative blast effects. */
     for (u16 i=0;i<BULLET_COUNT;i++)
         if (game->state==TITLE)
@@ -278,7 +299,9 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
     }
     else sprite_list_place(boss,game->boss.x,game->boss.y,32,running && game->boss.active && game->boss.age>=BOSS_WARNING_TICKS,
           game->boss.hp<=BOSS_HEALTH/2?2:(game->ticks/12)&1,current_boss_tiles);
-    sprite_list_place(boss_guard,game->boss.x,game->boss.y,32,running && game_boss_guarded(game),phase,utility_tiles);
+    for (u16 i=0;i<4;i++)
+        sprite_list_place(boss_guard[i],game->boss.x+((s16)(i%2)*24-12)*UNIT,
+            game->boss.y+((s16)(i/2)*24-12)*UNIT,24,running && game_boss_guarded(game),i,guard_tiles);
     for (u16 i=0;i<2;i++)
     {
         s16 x=0,y=0;
@@ -304,7 +327,7 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
     for (u16 i=0;i<SHOT_COUNT;i++) sprite_list_place(shots[i],game->shots[i].x,game->shots[i].y,8,running && game->shots[i].active,0,bullet_tiles);
     for (u16 i=0;i<PICKUP_COUNT;i++)
     {
-        pickups[i]->palette=game->pickups[i].kind==3?PAL2:PAL3;
+        pickups[i]->palette=game->pickups[i].kind>=3?PAL2:PAL3;
         sprite_list_place(pickups[i],game->pickups[i].x,game->pickups[i].y,16,running && game->pickups[i].active,game->pickups[i].kind,pickup_tiles);
     }
     for (u16 i=0;i<EFFECT_COUNT;i++)
@@ -330,7 +353,7 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
         u16 color=game->bomb_flash && (game->bomb_flash&4)?RGB24_TO_VDPCOLOR(0x49496D):game->stage==2?RGB24_TO_VDPCOLOR(0x240024):RGB24_TO_VDPCOLOR(0x000024);
         PAL_setColors(1,&color,1,DMA_QUEUE_COPY);
     }
-    if (game->state!=TITLE && (!(frame%10) || changed || game->paused!=old_pause)) hud(game,hz,fps);
+    if (game->state!=TITLE && game->state!=CREDITS && (!(frame%10) || changed || game->paused!=old_pause)) hud(game,hz,fps);
     frame++;
     sprite_list_end();
     old_state=game->state; old_pause=game->paused; drawn=true;

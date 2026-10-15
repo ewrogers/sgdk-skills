@@ -14,7 +14,7 @@ import tempfile
 import wave
 
 PHRASES = {'voice_bomb':'Bomb', 'voice_power':'Power up', 'voice_shield':'Shield',
-           'voice_boss':'Boss incoming', 'voice_over':'Game. Over!', 'voice_twin':'Twin'}
+           'voice_boss':'Boss incoming', 'voice_over':'Game. Over!', 'voice_twin':'Twin', 'voice_spread':'Three way shot'}
 
 
 def generate(output):
@@ -64,7 +64,7 @@ def main():
     args = parser.parse_args()
     try: generate(args.output)
     except ValueError as error: parser.error(str(error))
-    print('Created six short robot announcements')
+    print(f'Created {len(PHRASES)} short robot announcements')
 
 
 if __name__ == '__main__': main()

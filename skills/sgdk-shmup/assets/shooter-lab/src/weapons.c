@@ -32,7 +32,7 @@ void game_bomb_step(Game *game)
         reached(payload,game->boss.x,game->boss.y))
     {
         /* A bomb helps, but normal fire must finish the boss. */
-        u16 damage=game->boss.hp>20?20:game->boss.hp>1?game->boss.hp-1:0;
+        u16 damage=game->boss.hp>20*DAMAGE_UNIT?20*DAMAGE_UNIT:game->boss.hp>DAMAGE_UNIT?game->boss.hp-DAMAGE_UNIT:0;
         game_boss_damage(game,damage); payload->boss_hit=true;
     }
     if (payload->age>=BOMB_ARM_TICKS+BOMB_BLAST_TICKS) payload->active=false;
@@ -45,14 +45,22 @@ void game_blast_point(const Game *game,u16 index,s16 *x,s16 *y)
     *y=game->payload.y+(s32)direction_y[angle]*game->payload.radius*UNIT/256;
 }
 
+/* Native Q4 offsets avoid per-frame wide multiplication/division. The
+ * 64 samples interpolate the shared 16-direction orbit at a 20-pixel radius. */
+static const s16 orbit_x[64]={
+    0,30,61,91,122,148,174,200,226,243,261,278,296,302,308,314,
+    320,314,308,302,296,278,261,243,226,200,174,148,122,91,61,30,
+    0,-30,-61,-91,-122,-148,-174,-200,-226,-243,-261,-278,-296,-302,-308,-314,
+    -320,-314,-308,-302,-296,-278,-261,-243,-226,-200,-174,-148,-122,-91,-61,-30,
+};
+static const s16 orbit_y[64]={
+    -320,-314,-308,-302,-296,-278,-261,-243,-226,-200,-174,-148,-122,-91,-61,-30,
+    0,30,61,91,122,148,174,200,226,243,261,278,296,302,308,314,
+    320,314,308,302,296,278,261,243,226,200,174,148,122,91,61,30,
+    0,-30,-61,-91,-122,-148,-174,-200,-226,-243,-261,-278,-296,-302,-308,-314,
+};
 void game_twin_point(const Game *game,u16 index,s16 *x,s16 *y)
 {
-    /* Interpolate the shared 16-direction table to 64 orbit positions. Two
-     * companions stay opposite; offsets are always relative to the ship. */
-    u16 phase=(game->ticks/2+index*32)%64;
-    u16 at=phase/4,fraction=phase%4,next=(at+1)%16;
-    s32 dx=direction_x[at]*(4-fraction)+direction_x[next]*fraction;
-    s32 dy=direction_y[at]*(4-fraction)+direction_y[next]*fraction;
-    *x=game->x+dx*20*UNIT/1024;
-    *y=game->y+dy*20*UNIT/1024;
+    u16 phase=((u16)(game->ticks>>1)+index*32)&63;
+    *x=game->x+orbit_x[phase]; *y=game->y+orbit_y[phase];
 }

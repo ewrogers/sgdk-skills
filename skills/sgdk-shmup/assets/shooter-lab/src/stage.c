@@ -20,7 +20,7 @@ void game_stage(Game *game)
                 s16 x=game->stage==2?FIELD_W-spawn->x:spawn->x;
                 EnemyKind kind=game->stage==2?(EnemyKind)((spawn->kind+1)%3):spawn->kind;
                 game->enemies[i]=(Enemy){.x=x*UNIT,.home=x*UNIT,.y=-12*UNIT,
-                    .hp=kind==TURRET?5:kind==SWEEPER?3:2,.kind=kind,.active=true};
+                    .hp=(kind==TURRET?5:kind==SWEEPER?3:2)*DAMAGE_UNIT,.kind=kind,.active=true};
                 game->wave=1+game->spawn_index/4; game->spawn_index++;
                 break;
             }
@@ -108,9 +108,9 @@ void game_enemies(Game *game)
         if (time<240 && phase%cadence==0)
             game_pattern(game,FAN,boss->x,boss->y+16*UNIT,game->x,game->y,0);
         else if (time>=240 && time<480 && phase%60==0)
-            game_pattern(game,RING,boss->x,boss->y,game->x,game->y,phase/60);
+            game_pattern(game,game->stage==2?ARC:RING,boss->x,boss->y,game->x,game->y,phase/60);
         else if (time>=480 && phase%12==0)
-            game_pattern(game,SPIRAL,boss->x,boss->y,game->x,game->y,phase/12);
+            game_pattern(game,game->stage==2?AIMED:SPIRAL,boss->x,boss->y,game->x,game->y,phase/12);
     }
     if (boss->x-game->x<18*UNIT && boss->x-game->x>-18*UNIT &&
         boss->y-game->y<18*UNIT && boss->y-game->y>-18*UNIT) game_hurt(game);

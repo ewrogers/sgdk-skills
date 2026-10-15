@@ -27,7 +27,7 @@ illustration. Starting a run switches to a more driving, hopeful space track.
 
 | Control | Action |
 | --- | --- |
-| A or Start at title/end | Start a new run |
+| A or Start | Start, advance after a clear, or return from Credits |
 | D-pad | Move |
 | Hold A | Fire |
 | B | Bomb, spending one stock |
@@ -56,10 +56,10 @@ The green S pickup gives a ten-second bubble that absorbs one hit. Its rim
 flashes near expiry. A fresh S refreshes it rather than stacking extra hits.
 
 Normal fire delivers the final hit. The boss erupts, loses hull fragments and
-becomes a bright star before the clear banner and fanfare;
+becomes a bright star before the clear banner and fanfare.
 After Stage 1, the star/fanfare leads into Stage 2 after six seconds; A or Start
-can advance once the destruction finishes. The second clear waits for a new
-run, with the final star still pulsing and bobbing. The lab is a demonstration, not a complete campaign.
+can advance once the destruction finishes. The second clear leads to a
+credits screen, with its own celebratory loop and space background. The lab is a demonstration, not a complete campaign.
 
 ## Playtest checklist
 
@@ -74,7 +74,7 @@ run, with the final star still pulsing and bobbing. The lab is a demonstration, 
 - Take a hit, recover and confirm lives/power. Lose all lives and restart.
 - Reach the boss, watch the warning, music handoff, expanding bar and three attack phrases, defeat it and restart.
 - Check title particles, the squared bitmap font, music and the robot
-  announcements for BOMB, POWER UP, SHIELD, BOSS INCOMING and GAME OVER.
+  announcements for BOMB, POWER UP, SHIELD, BOSS INCOMING, THREE WAY SHOT and GAME OVER.
 - Defeat the boss and check the explosions, dissolving hull, star and fanfare.
 - Pause during a dense pattern; actors, attacks, scroll and music should stop.
   Resume without replaying a held bomb.
@@ -97,7 +97,7 @@ or per-instance animation uploads are needed.
 size. `tools/make_audio.py NEW_FOLDER` regenerates the original VGM/WAV sources.
 Both refuse to overwrite existing source files.
 
-The six committed robot WAVs are ordinary assets on every build host. Optional
+The seven committed robot WAVs are ordinary assets on every build host. Optional
 `tools/make_voices.py NEW_FOLDER` uses eSpeak NG to regenerate them; it is
 not needed to build on any host. The title particles reuse the hostile
 bullet sprites while gameplay is inactive, rather than allocating another pool. The lab does not load sibling
@@ -130,7 +130,37 @@ Game Over has its own sad looping track and delayed robot announcement.
 The lab now builds one compact hardware sprite list, using SGDK's compiled
 frame geometry and VBlank SAT transfer. It avoids general Sprite-engine object
 updates for its single-piece art. The 48 projectile slots are split into 20
-player lasers and 28 hostile shots; the full scene still reserves 78 pieces.
+player lasers and 28 hostile shots; the largest coexisting set is 76 pieces. The boss guard uses four separate
+24×24 quadrants around its H-shaped hull.
 Each boss attack has its own projectile shape. Aegis Reaver has a separate
 H-shaped hull. Test the crowded case with both Twins and maximum Power; a
 successful build alone does not prove 60 FPS.
+
+## Spread fire and the finale
+
+A red `3` pickup changes the main gun to three-way fire for the current life.
+P still increases Power; the satellites keep their own parallel lasers.
+
+| Main weapon | Power 1 damage/shot | Power 2 | Power 3 |
+| --- | --- | --- | --- |
+| Focused | 1 | 1 | 1.25 |
+| Three-way | 0.5 | 0.75 | 1 |
+
+Focused fire has one, two, then three parallel lasers. Three-way always has
+three projectiles. Damage uses integer quarter-units internally, without
+floating point. Even all three spread hits at maximum Power remain below a
+focused maximum-Power volley. Losing a life restores the focused gun.
+
+The player stays visible and can move while the boss explodes. Movement stops
+when the next-screen prompt appears. Stage 2's boss has a larger shield,
+player-directed fans/arcs/aimed bursts and its own heavier music. Its defeat
+leads into the credits, then A/Start returns to the title.
+
+## Optional phase measurements
+
+Build an optimized release with `make release EXTRA_FLAGS=-DSHOOTER_PROFILE=1`
+to show SIM, AUD and DRAW. These estimate each phase's percentage of a display
+frame using SGDK's `getSubTick()`. DRAW reports the preceding rendered frame.
+Sampling and HUD work add overhead; the timer is coarse during VBlank, and
+these figures are not cycle counts. The normal build omits all FPS/load and phase counters.
+Use them to locate a busy phase, then compare normal release FPS/load too.

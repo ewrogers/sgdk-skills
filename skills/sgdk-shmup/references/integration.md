@@ -57,9 +57,9 @@ PAL3 for bullets/pickups/effects/font. Every sheet stays within sixteen entries,
 with index zero transparent for sprites. These colors and the space theme are
 specific to Shooter Lab; the skill does not prescribe an aesthetic.
 
-A 512-tile sprite reservation is 16,384 VRAM bytes. The lab preloads every
+A 576-tile sprite reservation is 18,432 VRAM bytes. The lab preloads every
 frame and shares the resulting indices. Its native frame canvases need at most
-476 tiles before ResComp cropping and duplicate sharing. A target probe sums
+516 tiles before ResComp cropping and duplicate sharing. A target probe sums
 actual compiled frame tile counts and checks them against the reservation.
 Background/title/HUD patterns must end below that reservation; the normal font
 and VDP tables consume additional VRAM.
@@ -74,10 +74,12 @@ or SGDK's general Sprite engine. Startup rejects unsupported frame geometry.
 
 ## Frame and scanline limits
 
-The fixed records reserve at most 78 one-piece hardware sprites: player, boss,
-six enemies, twenty player shots, 28 hostile shots, three pickups, six effects,
-two Twins, player/boss shields, a payload and eight blast-front effects.
-Some states do not show all those categories at once. Total H40 capacity is
+There are 81 fixed visual records, but at most 76 coexist onscreen: the six
+ordinary enemies never coexist with the boss and its four-piece guard. Player
+fire reserves twenty slots and hostile fire 28. Three pickups, six effects,
+two Twins, the player shield, a payload and eight blast-front effects share the
+remaining budget. The guard is four 24×24 quadrants, each one hardware piece.
+Target checks cover both ordinary-wave and boss maxima. Total H40 capacity is
 80 sprites, but each scanline has its own limit of 20 sprites and 320 sprite
 pixels. An 80-object budget is not a promise that a crowded row can draw them.
 
@@ -133,8 +135,8 @@ load still needs a release-ROM check with rendering, audio and effects active.
 
 The title replaces isolated painted specks with 28 moving one-pixel sprites,
 reusing hostile-bullet objects while the game is inactive. Gameplay adds two
-utility sprites (shield and payload) and eight blast-front effects, plus two Twins and a boss guard, for 78
-reserved hardware pieces at maximum. A configured cache holds all frames;
+utility sprites (shield and payload) and eight blast-front effects, plus two Twins and a four-piece boss guard. Their state-dependent maximum is
+76 hardware pieces. A configured cache holds all frames;
 there is still no per-frame image upload or allocation. Scanline tests include
 active shields and payloads, not just ordinary shots.
 
@@ -143,7 +145,7 @@ freezes it with the rest of the model. Do not use a cosmetic ring's sprite
 positions as the collision rule. The destruction presentation starts immediately
 at boss defeat; its star/banner/fanfare wait for the two-second sequence.
 
-The example's six short robot announcements share PCM channel 3. Ordinary
+The example's seven short robot announcements share PCM channel 3. Ordinary
 kill/hit cues do not interrupt a voice already playing; boss/game-over messages
 and new pickup announcements can preempt it. Firing stays on channel 2. Music keeps FM/PSG, so these choices
 avoid taking a music PCM channel. Choose different priorities or no speech for
@@ -167,10 +169,21 @@ it remains animated after the fanfare.
 Stage 2 carries score, lives and remaining upgrades from the first clear. Its
 boss guard is a model-side timed rule, not just a drawn aura. Tests check that
 protected hits consume shots without reducing health, and that exposed windows
-accept damage. Twin offsets interpolate the existing direction table, remain
+accept damage. Twin offsets use a precomputed 64-position table derived from the direction
+vectors, remain
 relative to the ship and stay opposite for two satellites. Their firing is
 at half the main cadence and shares a twenty-shot pool. At Power 3, each Twin
 fires two parallel lasers. The total projectile reserve remains 48 pieces;
 28 slots belong to hostiles. A life loss resets power
 and removes Twins; shield absorption preserves both. The second backdrop and
 music are lab presentation choices, not required shooter conventions.
+
+The second boss has its own music, and the final credits loop is separate from
+the short clear fanfare. Movement remains available during the two-second boss
+destruction, then stops at the next-screen prompt. Credits use the title's
+resident art over the scrolling starfield, with no new palette or sprite pool.
+
+For phase profiling, the optional `SHOOTER_PROFILE` release flag measures the
+model, sound dispatch and drawing with SGDK's `getSubTick()`. Its counter is
+coarse in VBlank, so the HUD percentages are diagnostic estimates. Profiling
+is omitted from the normal release and is not part of the gameplay timing rule.

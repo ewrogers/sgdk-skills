@@ -8,12 +8,12 @@ import struct
 import wave
 
 
-def music(victory=False, boss=False, combat=False, second=False, over=False):
-    step=12 if victory else 24 if boss else 40 if second else 30 if combat else 60
+def music(victory=False, boss=False, combat=False, second=False, over=False, reaver=False, celebration=False):
+    step=18 if reaver or celebration else 12 if victory else 24 if boss else 40 if second else 30 if combat else 60
     notes=([644,810,964,1287,964,1287,1445,1620,1445,1287,964,1287] if victory else
            [644,766,964,766,1082,964,766,722,860,1082,1287,1082,964,860,766,722,
             644,810,964,1287,1217,1082,964,810,860,964,1082,1217,1082,964,722,644])
-    beats=len(notes) if victory else 32
+    beats=32 if celebration else len(notes) if victory else 32
     frames=step*beats
     header=bytearray(256); header[:4]=b'Vgm '
     for offset,value in [(8,0x160),(12,3579545),(0x18,frames*735),
@@ -30,14 +30,20 @@ def music(victory=False, boss=False, combat=False, second=False, over=False):
             for reg,value in [(0x30,multiple),(0x40,level),(0x50,31),(0x60,7),(0x70,3),(0x80,0x48),(0x90,0)]:
                 ym(reg+slot+ch, (10 if reg==0x50 and ch!=0 else 4 if reg==0x60 else 1 if reg==0x70 else value) if not victory else value)
         ym(0xB0+ch,4); ym(0xB4+ch,0xC0)
-    if not victory:
+    if not victory or celebration:
         struct.pack_into('<I',header,0x1C,256+len(data)-0x1C)
         struct.pack_into('<I',header,0x20,frames*735)
     for frame in range(frames):
         if frame%step==0:
             beat=frame//step
             root=((644,574,511,574) if over else (644,574,766,608) if second else (644,860,964,766) if combat else (644,766,574,722))[(beat//8)%4]
-            if victory:
+            if reaver:
+                # Low syncopated ostinato with dissonant answering brass.
+                root=(483,511,430,455)[(beat//8)%4]
+                voices=[(1,root,2)]
+                if beat%2==0: voices.append((0,(766,722,608,574,644,608,511,483)[(beat//2)%8],3))
+                if beat%4==3: voices.append((2,root*3//2,3))
+            elif victory:
                 voices=[(0,notes[beat%len(notes)],4),(1,root,2),(2,notes[(beat+4)%len(notes)],3)]
             elif combat:
                 # Optimistic climbing motifs over a steady low pulse. Leave
@@ -54,12 +60,12 @@ def music(victory=False, boss=False, combat=False, second=False, over=False):
             for ch,note,block in voices:
                 ym(0x28,ch); ym(0xA4+ch,(block<<3)|(note>>8)); ym(0xA0+ch,note&255)
                 ym(0x28,0xF0|ch)
-            if victory or boss:
+            if victory or boss or reaver:
                 data.extend((0x50,0xE4,0x50,0xFC))
             elif beat%4==0:
                 # Quiet sustained PSG shimmer.
                 data.extend((0x50,0x85,0x50,0x24,0x50,0x9C))
-        if (victory or boss) and frame%step==3: data.extend((0x50,0xFF))
+        if (victory or boss or reaver) and frame%step==3: data.extend((0x50,0xFF))
         if victory and frame%step==step-3:
             for ch in range(3): ym(0x28,ch)
         data.append(0x62)
@@ -103,7 +109,7 @@ def sound(kind):
 
 
 def assets():
-    return {'title.vgm':music(),'stage2.vgm':music(combat=True,second=True),'game_over.vgm':music(over=True),'course.vgm':music(combat=True),'victory.vgm':music(True),'boss.vgm':music(boss=True),
+    return {'boss2.vgm':music(reaver=True),'credits.vgm':music(victory=True,celebration=True),'title.vgm':music(),'stage2.vgm':music(combat=True,second=True),'game_over.vgm':music(over=True),'course.vgm':music(combat=True),'victory.vgm':music(True),'boss.vgm':music(boss=True),
             **{name+'.wav':sound(name) for name in ['fire','coin','bomb','warning','hit','kill','empty']}}
 
 

@@ -43,7 +43,7 @@ for every enemy to leave, or retain specific threats during entry.
 
 ## Bosses and game states
 
-The lab distinguishes Title, Play, Boss, Clear and Game Over, with pause as a
+The lab distinguishes Title, Play, Boss, Clear, Credits and Game Over, with pause as a
 separate flag. The warning and fly-in leave player movement active. The health bar then
 expands before the boss becomes vulnerable or starts firing. Its attack
 cycle moves through aimed fans, rings and a rotating spiral. Below half
@@ -54,10 +54,11 @@ Defeat awards its bonus once, clears hostile bullets, and starts two seconds
 of explosions and hull dissolution. The resulting star, banner and fanfare
 make the finish distinct from a stopped game.
 
-The end states stop gameplay while keeping display and restart input alive.
+The destruction sequence permits player movement until its next-screen prompt.
+The clear/credits screens keep display and advance/restart input alive.
 The first clear carries score/lives/upgrades into Stage 2 after six seconds
 (or A/Start once the destruction finishes). After the second clear, A/Start
-begins a new run. Game Over keeps display/input alive with a sad looping track. Pause freezes actor movement, attack clocks and
+opens Credits, then returns to the title. Game Over keeps display/input alive with a sad looping track. Pause freezes actor movement, attack clocks and
 background scroll; music pauses and active PCM effects are stopped.
 
 ## Scoring and recovery

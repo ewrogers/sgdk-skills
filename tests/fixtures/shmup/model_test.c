@@ -100,26 +100,26 @@ static void waves(void)
 }
 static void boss_test(void)
 {
-    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.age=10,.hp=90,.active=true};
-    game_boss_damage(&g,100); assert(g.boss.hp==90); /* Entry is telegraphed, not vulnerable. */
-    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=-24*UNIT,.hp=90,.active=true};
+    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.age=10,.hp=BOSS_HEALTH,.active=true};
+    game_boss_damage(&g,100); assert(g.boss.hp==BOSS_HEALTH); /* Entry is telegraphed, not vulnerable. */
+    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=-24*UNIT,.hp=BOSS_HEALTH,.active=true};
     for (u16 i=0;i<BOSS_READY_TICKS-1;i++)
     {
         game_boss_damage(&g,100); game_enemies(&g);
-        assert(g.boss.hp==90);
+        assert(g.boss.hp==BOSS_HEALTH);
         for (u16 j=0;j<BULLET_COUNT;j++) assert(!g.bullets[j].active);
     }
     Game saved=g; g.paused=true; frames(0,100,60); assert(g.boss.age==saved.boss.age); g.paused=false;
-    g.boss.hp=45; g.boss.age=BOSS_READY_TICKS+119;
+    g.boss.hp=BOSS_HEALTH/2; g.boss.age=BOSS_READY_TICKS+119;
     s16 previous_x=g.boss.x,previous_y=g.boss.y;
     game_enemies(&g); assert(!g.boss.enraged);
     assert(g.boss.x-previous_x<=3*UNIT && previous_x-g.boss.x<=3*UNIT);
     assert(g.boss.y-previous_y<=3*UNIT && previous_y-g.boss.y<=3*UNIT);
     g.boss.age=BOSS_READY_TICKS+239; game_enemies(&g); assert(g.boss.enraged);
-    g.boss.hp=90;
+    g.boss.hp=BOSS_HEALTH;
     for (u16 i=0;i<BULLET_COUNT;i++) g.bullets[i].active=false;
-    g.boss.age=BOSS_READY_TICKS+10; game_boss_damage(&g,44); assert(g.boss.hp==46);
-    game_boss_damage(&g,1); assert(g.boss.hp==45);
+    g.boss.age=BOSS_READY_TICKS+10; game_boss_damage(&g,44*DAMAGE_UNIT); assert(g.boss.hp==46*DAMAGE_UNIT);
+    game_boss_damage(&g,DAMAGE_UNIT); assert(g.boss.hp==45*DAMAGE_UNIT);
     g.boss.age=BOSS_READY_TICKS+299; game_enemies(&g);
     u16 count=0; for (u16 i=0;i<BULLET_COUNT;i++) if (g.bullets[i].active) count++;
     assert(count==8); /* Second phrase: a complete ring. */
@@ -131,12 +131,12 @@ static void boss_test(void)
     g.boss.age=BOSS_READY_TICKS+539; game_enemies(&g);
     count=0; for (u16 i=0;i<BULLET_COUNT;i++) count+=g.bullets[i].active;
     assert(count==1);
-    game_boss_damage(&g,100); assert(g.state==CLEAR && g.score==5000 && g.boss.hp==0);
+    game_boss_damage(&g,100*DAMAGE_UNIT); assert(g.state==CLEAR && g.score==5000 && g.boss.hp==0);
     game_boss_damage(&g,100); assert(g.score==5000); /* No double award. */
     fresh(); g.state=BOSS; g.boss=(Boss){.age=BOSS_READY_TICKS+10,.hp=10,.active=true};
     game_bomb_launch(&g);
     for (u16 i=0;i<90;i++) game_bomb_step(&g);
-    assert(g.state==BOSS && g.boss.hp==1 && g.score==0); /* Fire must finish. */
+    assert(g.state==BOSS && g.boss.hp==DAMAGE_UNIT && g.score==0); /* Fire must finish. */
 }
 static void weapons_test(void)
 {
@@ -163,10 +163,10 @@ static void weapons_test(void)
     assert(!memcmp(&saved.payload,&g.payload,sizeof g.payload)); g.paused=false;
     while (g.payload.active) game_bomb_step(&g);
     assert(!g.bullets[1].active);
-    fresh(); g.state=BOSS; g.boss=(Boss){.x=g.x,.y=g.y,.age=BOSS_READY_TICKS,.hp=90,.active=true};
+    fresh(); g.state=BOSS; g.boss=(Boss){.x=g.x,.y=g.y,.age=BOSS_READY_TICKS,.hp=BOSS_HEALTH,.active=true};
     game_bomb_launch(&g);
     for (u16 i=0;i<100;i++) game_bomb_step(&g);
-    assert(g.boss.hp==70 && g.payload.boss_hit); /* One bounded hit per blast. */
+    assert(g.boss.hp==70*DAMAGE_UNIT && g.payload.boss_hit); /* One bounded hit per blast. */
 }
 
 static void stage2_test(void)
@@ -178,16 +178,17 @@ static void stage2_test(void)
     fresh(); g.state=CLEAR; g.phase_time=359; frames(0,1,60);
     assert(g.stage==2 && g.state==PLAY);
     g.state=CLEAR; g.phase_time=BOSS_DEATH_TICKS; frames(A,1,60);
-    assert(g.stage==1 && g.score==0 && g.twins==0);
+    assert(g.state==CREDITS);
+    frames(0,1,60); frames(START,1,60); assert(g.state==TITLE);
 
     fresh(); g.stage=2; g.state=BOSS;
-    g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.age=BOSS_READY_TICKS,.hp=90,.active=true};
-    assert(game_boss_guarded(&g)); game_boss_damage(&g,10); assert(g.boss.hp==90);
+    g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.age=BOSS_READY_TICKS,.hp=BOSS_HEALTH,.active=true};
+    assert(game_boss_guarded(&g)); game_boss_damage(&g,10); assert(g.boss.hp==BOSS_HEALTH);
     game_shot(&g,g.boss.x,g.boss.y,0,0); game_projectiles(&g);
-    assert(!g.shots[0].active && g.boss.hp==90);
+    assert(!g.shots[0].active && g.boss.hp==BOSS_HEALTH);
     g.boss.age=BOSS_READY_TICKS+45; assert(!game_boss_guarded(&g));
-    game_boss_damage(&g,10); assert(g.boss.hp==80);
-    g.boss.hp=45; g.boss.age=BOSS_READY_TICKS+60; assert(game_boss_guarded(&g));
+    game_boss_damage(&g,10); assert(g.boss.hp==BOSS_HEALTH-10);
+    g.boss.hp=BOSS_HEALTH/2; g.boss.age=BOSS_READY_TICKS+60; assert(game_boss_guarded(&g));
     g.stage=1; assert(!game_boss_guarded(&g));
 
     fresh(); g.stage=2; g.twins=2;
@@ -242,7 +243,7 @@ static void pressure(void)
             g.shield=true; g.shield_time=SHIELD_TICKS; g.twins=2;
             if (tick%360==0) g.bombs=3;
             frames((route>=4?A:0)|(tick%360==0?B:0),1,60);
-            if (g.state==BOSS && g.boss.age>300) g.boss.hp=45;
+            if (g.state==BOSS && g.boss.age>300) g.boss.hp=BOSS_HEALTH/2;
             u16 counts[224]={0},pixels[224]={0};
             count_sprite(counts,pixels,g.x,g.y,16,true);
             count_sprite(counts,pixels,g.x,g.y,32,g.shield);
@@ -300,18 +301,50 @@ static void equivalence(void)
         g.invulnerable=next_random(2)?0:120; g.kills=next_random(12); g.power=next_random(3)+1;
         for (u16 i=0;i<ENEMY_COUNT;i++)
             g.enemies[i]=(Enemy){.x=next_random(240*UNIT),.y=next_random(224*UNIT),
-                .hp=next_random(3)+1,.active=next_random(2)};
-        if (trial%3==0) g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.hp=next_random(4)+1,
+                .hp=next_random(20)+1,.active=next_random(2)};
+        if (trial%3==0) g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.hp=next_random(40)+1,
             .age=trial%2?BOSS_READY_TICKS:10,.active=true};
         for (u16 i=0;i<SHOT_COUNT;i++)
             g.shots[i]=(Bullet){.x=next_random(256*UNIT)-8*UNIT,.y=next_random(240*UNIT)-8*UNIT,
-                .vx=(s16)next_random(193)-96,.vy=(s16)next_random(193)-96,.active=true};
+                .vx=(s16)next_random(193)-96,.vy=(s16)next_random(193)-96,.active=true,.damage=next_random(5)+1};
         for (u16 i=0;i<BULLET_COUNT;i++)
             g.bullets[i]=(Bullet){.x=next_random(256*UNIT)-8*UNIT,.y=next_random(240*UNIT)-8*UNIT,
                 .vx=(s16)next_random(129)-64,.vy=(s16)next_random(129)-64,.active=true};
         Game expected=g; reference_game_projectiles(&expected); game_projectiles(&g);
         assert(!memcmp(&g,&expected,sizeof g));
     }
+}
+static void finale_test(void)
+{
+    fresh(); g.stage=2; g.state=CLEAR; g.phase_time=1;
+    s16 x=g.x; game_step(&g,RIGHT|A,0); assert(g.x==x+3*UNIT);
+    for (u16 i=0;i<SHOT_COUNT;i++) assert(!g.shots[i].active);
+    g.phase_time=BOSS_DEATH_TICKS; x=g.x; game_step(&g,RIGHT,0); assert(g.x==x);
+    g.phase_time=359; game_step(&g,0,0); assert(g.state==CREDITS);
+    frames(START,1,60); assert(g.state==TITLE);
+    for (u16 power=1;power<=3;power++)
+    {
+        fresh(); g.power=power; g.spread=true; game_step(&g,A,0);
+        u16 count=0,damage=0; bool left=false,right=false;
+        for (u16 i=0;i<SHOT_COUNT;i++) if (g.shots[i].active)
+        {
+            count++; damage+=g.shots[i].damage;
+            assert(g.shots[i].damage==power+1);
+            left|=g.shots[i].vx<0; right|=g.shots[i].vx>0;
+        }
+        assert(count==3 && left && right && damage<15);
+    }
+    fresh(); g.power=3; game_step(&g,A,0);
+    for (u16 i=0;i<3;i++) assert(g.shots[i].damage==5);
+    fresh(); g.pickups[0]=(Pickup){.x=g.x,.y=g.y,.kind=4,.active=true};
+    game_step(&g,0,0); assert(g.spread && g.pickup_kind==4);
+    game_hurt(&g); assert(!g.spread);
+    fresh(); g.stage=2; g.state=BOSS;
+    assert(game_pattern(&g,ARC,120*UNIT,40*UNIT,120*UNIT,200*UNIT,0)==5);
+    for (u16 i=0;i<5;i++) assert(g.bullets[i].vy>0 && g.bullets[i].kind==2);
+    fresh(); g.enemies[0]=(Enemy){.x=120*UNIT,.y=50*UNIT,.hp=4,.active=true};
+    game_laser(&g,120*UNIT,50*UNIT,0,0,2); game_projectiles(&g); assert(g.enemies[0].hp==2);
+    game_laser(&g,120*UNIT,50*UNIT,0,0,3); game_projectiles(&g); assert(!g.enemies[0].active);
 }
 static void upgrades_test(void)
 {
@@ -350,8 +383,8 @@ static void upgrades_test(void)
         for (u16 i=0;i<total;i++) assert(g.bullets[i].kind==pattern);
     }
     /* Damage changes art now, but trajectory only at the next phrase boundary. */
-    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=44*UNIT,.age=BOSS_READY_TICKS+60,.hp=90,.active=true};
-    Game healthy=g; g.boss.hp=45;
+    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=44*UNIT,.age=BOSS_READY_TICKS+60,.hp=BOSS_HEALTH,.active=true};
+    Game healthy=g; g.boss.hp=BOSS_HEALTH/2;
     for (u16 i=0;i<100;i++)
     {
         game_enemies(&g); game_enemies(&healthy);
@@ -361,7 +394,8 @@ static void upgrades_test(void)
 int main(int argc,char **argv)
 {
     assert(argc==2);
-    if (!strcmp(argv[1],"upgrades")) upgrades_test();
+    if (!strcmp(argv[1],"finale")) finale_test();
+    else if (!strcmp(argv[1],"upgrades")) upgrades_test();
     else if (!strcmp(argv[1],"equivalence")) equivalence();
     else if (!strcmp(argv[1],"layout")) layout_test();
     else if (!strcmp(argv[1],"pools")) pools();

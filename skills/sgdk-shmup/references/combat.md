@@ -107,3 +107,17 @@ hardware or SGDK restrictions.
 Keep power state, the active attack and one-frame presentation events separate.
 The PAL second step must not replay a bomb or turn an old firing event into
 proof that an attack is still active.
+
+## Optional spread weapon in the lab
+
+A red `3` pickup selects three-way main fire until the next life loss. P raises
+its per-projectile damage from 0.5 to 0.75 to 1. Focused maximum Power fires
+three parallel lasers for 1.25 each; the spread volley stays below that total.
+The model stores health and damage in integer quarter-units. Enemy health is
+scaled consistently, and partial damage is retained. Twin damage and pattern
+are independent of this weapon selection.
+
+Aegis Reaver aims its three phrases at the player's current relative position:
+a narrow fan, a wider five-shot arc and a rapid aimed burst. The original boss
+still uses all-direction rings and a spiral. Already-fired shots retain their
+original velocity and appearance when the boss changes attacks.

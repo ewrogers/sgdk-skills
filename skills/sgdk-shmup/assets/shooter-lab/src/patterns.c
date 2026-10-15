@@ -36,20 +36,23 @@ static bool emit(Game *game,s16 x,s16 y,u16 angle,s16 speed,u8 kind)
 bool game_bullet(Game *game,s16 x,s16 y,u16 angle,s16 speed)
 { return emit(game,x,y,angle,speed,0); }
 
-bool game_shot(Game *game,s16 x,s16 y,s16 vx,s16 vy)
+bool game_laser(Game *game,s16 x,s16 y,s16 vx,s16 vy,u8 damage)
 {
     if (vx<-6*UNIT || vx>6*UNIT || vy<-6*UNIT || vy>6*UNIT) return false;
     for (u16 i=0;i<SHOT_COUNT;i++)
         if (!game->shots[i].active)
-        { game->shots[i]=(Bullet){.x=x,.y=y,.vx=vx,.vy=vy,.active=true}; return true; }
+        { game->shots[i]=(Bullet){.x=x,.y=y,.vx=vx,.vy=vy,.active=true,.damage=damage}; return true; }
     return false;
 }
 
+bool game_shot(Game *game,s16 x,s16 y,s16 vx,s16 vy)
+{ return game_laser(game,x,y,vx,vy,DAMAGE_UNIT); }
+
 u16 game_pattern(Game *game,Pattern pattern,s16 x,s16 y,s16 target_x,s16 target_y,u16 phase)
 {
-    u16 angle=(pattern==AIMED || pattern==FAN)?game_aim(target_x-x,target_y-y):0,count=0;
-    if (pattern==AIMED) return game_bullet(game,x,y,angle,2*UNIT);
-    u16 needed=pattern==RING?8:pattern==FAN?3:1;
+    u16 angle=(pattern==AIMED || pattern==FAN || pattern==ARC)?game_aim(target_x-x,target_y-y):0,count=0;
+    if (pattern==AIMED) return emit(game,x,y,angle,2*UNIT,game->state==BOSS?3:0);
+    u16 needed=pattern==RING?8:pattern==ARC?5:pattern==FAN?3:1;
     u16 free=0;
     for (u16 i=0;i<BULLET_COUNT;i++) if (!game->bullets[i].active) free++;
     /* Accept an entire geometric volley or skip it. A full pool must not
@@ -57,9 +60,9 @@ u16 game_pattern(Game *game,Pattern pattern,s16 x,s16 y,s16 target_x,s16 target_
     if (free<needed) { game->denied++; return 0; }
     for (u16 i=0;i<needed;i++)
     {
-        u16 direction=pattern==RING?(phase+i*2)%16:pattern==FAN?(angle+15+i)%16:phase%16;
+        u16 direction=pattern==RING?(phase+i*2)%16:pattern==ARC?(angle+14+i)%16:pattern==FAN?(angle+15+i)%16:phase%16;
         count+=emit(game,x,y,direction,pattern==RING?3*UNIT/2:2*UNIT,
-            game->state==BOSS?(pattern==FAN?1:pattern==RING?2:3):0);
+            game->state==BOSS?(pattern==FAN?1:(pattern==RING || pattern==ARC)?2:3):0);
     }
     return count;
 }

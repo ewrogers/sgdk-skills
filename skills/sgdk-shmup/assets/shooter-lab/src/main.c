@@ -18,9 +18,23 @@ int main(bool hard_reset)
     u16 hz=SYS_isPAL()?50:60;
     while (TRUE)
     {
+#if SHOOTER_PROFILE
         u16 fps=SYS_getFPS();
+#else
+        u16 fps=0;
+#endif
         u16 held=JOY_readJoypad(JOY_1);
+#if SHOOTER_PROFILE
+        u32 before=getSubTick();
+        game_frame(&game,held,hz);
+        u32 now=getSubTick(); profile_simulation=(now-before)*hz/768; before=now;
+        sound_frame(&game);
+        now=getSubTick(); profile_audio=(now-before)*hz/768; before=now;
+        view_frame(&game,held,hz,fps);
+        profile_draw=(getSubTick()-before)*hz/768;
+#else
         game_frame(&game,held,hz); sound_frame(&game); view_frame(&game,held,hz,fps);
+#endif
         SYS_doVBlankProcess();
     }
 }

@@ -11,7 +11,7 @@ static bool inside(s16 x,s16 y,s16 cx,s16 cy,s16 half_x,s16 half_y)
     return x>=cx-half_x && x<cx+half_x && y>=cy-half_y && y<cy+half_y;
 }
 
-static bool hit_shot(Game *game,s16 x,s16 y)
+static bool hit_shot(Game *game,s16 x,s16 y,u8 damage)
 {
     for (u16 i=0;i<ENEMY_COUNT;i++)
     {
@@ -19,14 +19,15 @@ static bool hit_shot(Game *game,s16 x,s16 y)
         if (enemy->active && inside(x,y,enemy->x,enemy->y,10*UNIT,10*UNIT))
         {
             enemy->flash=6;
-            if (--enemy->hp==0) game_enemy_kill(game,i);
+            if (enemy->hp<=damage) game_enemy_kill(game,i);
+            else enemy->hp-=damage;
             return true;
         }
     }
     Boss *boss=&game->boss;
     if (boss->active && boss->age>=BOSS_READY_TICKS && inside(x,y,boss->x,boss->y,15*UNIT,13*UNIT))
     {
-        game_boss_damage(game,1);
+        game_boss_damage(game,damage);
         return true;
     }
     return false;
@@ -47,7 +48,7 @@ static void move(Game *game,Bullet *bullet,bool player)
         s16 offset_x=progress_x>>shift,offset_y=progress_y>>shift;
         bullet->x=x+(bullet->vx<0?-offset_x:offset_x);
         bullet->y=y+(bullet->vy<0?-offset_y:offset_y);
-        if (player?hit_shot(game,bullet->x,bullet->y):
+        if (player?hit_shot(game,bullet->x,bullet->y,bullet->damage?bullet->damage:DAMAGE_UNIT):
             (!game->invulnerable && inside(bullet->x,bullet->y,game->x,game->y,4*UNIT,4*UNIT)))
         {
             bullet->active=false;

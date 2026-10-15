@@ -25,15 +25,17 @@ __attribute__((noipa)) int main(bool hard_reset)
     CHECK(sci_font.numTile==96);
     CHECK(frame_tiles(&ship_image)+frame_tiles(&enemy_image)+frame_tiles(&boss_image)+frame_tiles(&reaver_image)+
         frame_tiles(&bullet_image)+frame_tiles(&pickup_image)+frame_tiles(&effect_image)+
-        frame_tiles(&utility_image)+frame_tiles(&twin_image)<=FRAME_CACHE_TILES);
-    CHECK(1+1+ENEMY_COUNT+SHOT_COUNT+BULLET_COUNT+PICKUP_COUNT+EFFECT_COUNT+2+3+8<=80);
+        frame_tiles(&guard_image)+frame_tiles(&utility_image)+frame_tiles(&twin_image)<=FRAME_CACHE_TILES);
+    CHECK(1+ENEMY_COUNT+SHOT_COUNT+BULLET_COUNT+PICKUP_COUNT+EFFECT_COUNT+2+2+8<=80);
+    CHECK(1+1+4+SHOT_COUNT+BULLET_COUNT+PICKUP_COUNT+EFFECT_COUNT+2+2+8<=80);
+    CHECK(guard_image.maxNumSprite==1 && guard_image.animations[0]->numFrame==4);
     CHECK(twin_image.animations[0]->numFrame==2 && twin_image.maxNumSprite==1);
     CHECK(utility_image.animations[0]->numFrame==4 && utility_image.maxNumSprite==1);
     CHECK(title_image.tilemap->w==28 && title_image.tilemap->h==14);
     CHECK(title_image.tileset->numTile>0 && title_image.tileset->numTile<=392);
     CHECK(ship_image.maxNumTile==4 && boss_image.maxNumTile==16 && bullet_image.maxNumTile==1);
     CHECK(ship_image.animations[0]->numFrame==4 && enemy_image.animations[0]->numFrame==6);
-    CHECK(bullet_image.animations[0]->numFrame==8 && pickup_image.animations[0]->numFrame==4);
+    CHECK(bullet_image.animations[0]->numFrame==8 && pickup_image.animations[0]->numFrame==5);
     CHECK(boss_image.animations[0]->numFrame==7 && effect_image.animations[0]->numFrame==4);
     CHECK(ship_image.maxNumSprite==1 && enemy_image.maxNumSprite==1 && boss_image.maxNumSprite==1);
     CHECK(bullet_image.maxNumSprite==1 && pickup_image.maxNumSprite==1 && effect_image.maxNumSprite==1);
@@ -47,6 +49,15 @@ __attribute__((noipa)) int main(bool hard_reset)
     CHECK(vdpSpriteCache[0].link==1);
     CHECK(game_video_layout_valid(64,32,0xE000,0xC000,0xD000));
     CHECK(!game_video_layout_valid(32,32,0xE000,0xC000,0xC000));
+    game_start(&game); game.twins=2;
+    for (u16 i=0;i<64;i++)
+    {
+        game.ticks=i*2; s16 x0,y0,x1,y1;
+        game_twin_point(&game,0,&x0,&y0); game_twin_point(&game,1,&x1,&y1);
+        CHECK(x0+x1==game.x*2 && y0+y1==game.y*2);
+        CHECK(x0>=game.x-20*UNIT && x0<=game.x+20*UNIT);
+        CHECK(y0>=game.y-20*UNIT && y0<=game.y+20*UNIT);
+    }
     game_start(&game);
     CHECK(game_pattern(&game,RING,120*UNIT,50*UNIT,0,0,0)==8);
     for (u16 i=0;i<4;i++) CHECK(game.bullets[i].vx==-game.bullets[i+4].vx && game.bullets[i].vy==-game.bullets[i+4].vy);

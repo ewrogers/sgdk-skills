@@ -135,8 +135,8 @@ def assets():
             if dx+dy<=8: bullets.dot(5,x,y,15 if dx+dy<4 else 10)
             if 12<=dx*dx+dy*dy<=45: bullets.dot(6,x,y,14)
             if dx<=1 or dy<=1: bullets.dot(7,x,y,15 if dx+dy<4 else 3)
-    pickups=Sheet(16,16,4)
-    for f in range(4):
+    pickups=Sheet(16,16,5)
+    for f in range(5):
         pickups.box(f,2,2,12,12,8 if f==2 else 12 if f==3 else 8 if not f else 12); pickups.box(f,3,3,10,10,9 if f==2 else 13 if f==3 else 10 if not f else 13)
         if f==0:
             pickups.box(f,5,4,2,8,15); pickups.box(f,7,4,4,2,15); pickups.box(f,7,7,4,2,15); pickups.box(f,9,5,2,3,15)
@@ -146,8 +146,13 @@ def assets():
             for y,row in enumerate(("11111","10000","10000","11111","00001","00001","11111")):
                 for x,c in enumerate(row):
                     if c=="1": pickups.dot(f,5+x,4+y,15)
-        else:
+        elif f==3:
             pickups.box(f,4,4,8,2,15); pickups.box(f,7,6,2,6,15)
+        else:
+            pickups.box(f,2,2,12,12,8); pickups.box(f,3,3,10,10,1)
+            for y,row in enumerate(("11111","00001","00001","01111","00001","00001","11111")):
+                for x,c in enumerate(row):
+                    if c=="1": pickups.dot(f,5+x,4+y,15)
     twins=Sheet(16,16,2)
     for f in range(2):
         for y in range(16):
@@ -164,6 +169,13 @@ def assets():
                 if (x-15)**2+(y-15)**2<36+phase*12:
                     utility.dot(phase+2,x,y,13 if d>20 else 15)
         utility.box(phase+2,14,9-phase,3,3,10)
+    guard=Sheet(24,24,4)
+    for f in range(4):
+        for y in range(24):
+            for x in range(24):
+                dx=x+(f%2)*24-24; dy=y+(f//2)*24-24
+                distance=dx*dx+dy*dy
+                if 20*20<=distance<=23*23: guard.dot(f,x,y,15 if distance>21*21 else 14)
     effects=Sheet(16,16,4)
     for f in range(4):
         for y in range(16):
@@ -180,7 +192,7 @@ def assets():
     return {'ship.png':ship.image(PALETTES[1]),'enemies.png':enemies.image(PALETTES[2]),
             'boss.png':boss.image(PALETTES[2]),'reaver.png':reaver.image(PALETTES[2]),'bullets.png':bullets.image(PALETTES[3]),
             'pickups.png':pickups.image(PALETTES[3]),'effects.png':effects.image(PALETTES[3]),
-            'font.png':png(768,8,font_pixels(),PALETTES[3]),'twins.png':twins.image(PALETTES[1]),'utility.png':utility.image(PALETTES[3]),'stars.png':png(256,256,stars,PALETTES[0])}
+            'font.png':png(768,8,font_pixels(),PALETTES[3]),'twins.png':twins.image(PALETTES[1]),'utility.png':utility.image(PALETTES[3]),'guard.png':guard.image(PALETTES[3]),'stars.png':png(256,256,stars,PALETTES[0])}
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('output',type=Path)

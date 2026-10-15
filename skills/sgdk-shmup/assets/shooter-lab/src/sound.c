@@ -20,6 +20,7 @@ void sound_frame(const Game *game)
     if (game->state!=previous)
     {
         if (game->state==CLEAR) { XGM2_pause(); clear_music_started=false; death_beat=65535; }
+        else if (game->state==CREDITS || game->state==TITLE) { set_volume(100); XGM2_load(game->state==CREDITS?credits_music:title_music); XGM2_setLoopNumber(-1); XGM2_playTrack(0); }
         else if ((game->events&EVENT_START)) { boss_music_loaded=false; set_volume(100); XGM2_load(game->stage==2?stage2_music:stage_music); XGM2_setLoopNumber(-1); XGM2_playTrack(0); }
         else if (game->state==OVER) { set_volume(100); XGM2_load(over_music); XGM2_setLoopNumber(-1); XGM2_playTrack(0); over_announced=false; }
     }
@@ -52,7 +53,7 @@ void sound_frame(const Game *game)
             {
                 if (!boss_music_loaded)
                 {
-                    set_volume(0); XGM2_load(boss_music); XGM2_setLoopNumber(-1);
+                    set_volume(0); XGM2_load(game->stage==2?reaver_music:boss_music); XGM2_setLoopNumber(-1);
                     XGM2_playTrack(0); boss_music_loaded=true;
                     /* Loading a track can reset driver state. */
                     volume=101; set_volume(0);
@@ -67,7 +68,8 @@ void sound_frame(const Game *game)
         {
             if (game->events&EVENT_PICKUP)
             {
-                if (game->pickup_kind==3) { voice=voice_twin; length=sizeof voice_twin; }
+                if (game->pickup_kind==4) { voice=voice_spread; length=sizeof voice_spread; }
+                else if (game->pickup_kind==3) { voice=voice_twin; length=sizeof voice_twin; }
                 else if (game->pickup_kind==2) { voice=voice_shield; length=sizeof voice_shield; }
                 else if (game->pickup_kind==1) { voice=voice_bomb; length=sizeof voice_bomb; }
                 else { voice=voice_power; length=sizeof voice_power; }
