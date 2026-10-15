@@ -1,4 +1,5 @@
 #include <genesis.h>
+#include "resources.h"
 
 /* Entered directly by the target-code harness, without console startup.
  * These are actual SGDK routines and tables, not host replacements. */
@@ -19,6 +20,9 @@ __attribute__((noipa)) int main(bool hard_reset)
     if (F16_toRoundedInt(FIX16(1.75)) != 2) return 12;
     if (muls(-123, 1024) != -125952) return 13;
     if (muls(-32768, -32768) != 1073741824L) return 14;
+    if (star_image.numAnimation != 1 || star_image.animations[0]->numFrame != 3) return 15;
+    if (orb_image.numAnimation != 1 || orb_image.animations[0]->numFrame != 4) return 16;
+    if (star_image.maxNumTile != 1 || orb_image.maxNumTile != 4) return 17;
     vu16 *port = (vu16 *)VDP_DATA_PORT;
     for (u16 i = 0; i < 360; i++) *port = F16_sin(FIX16(i));
     return 0;

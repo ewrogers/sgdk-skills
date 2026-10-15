@@ -102,6 +102,18 @@ their entire footprint stays on screen. It is not a general recommendation
 to disable SGDK culling. HUD updates are padded and queued for VBlank instead
 of clearing and rewriting VRAM during active display.
 
+The small animation sheets are also preloaded once with
+`SPR_loadAllFrames(definition, tile_index, &tile_count)`. Every instance shares
+the returned frame tile indices, and `SPR_addSpriteEx` leaves automatic tile
+allocation/upload disabled. `SPR_setFrame` selects frame geometry, while
+`SPR_setVRAMTileIndex` selects its cached tiles. Free the temporary index table
+after retaining the indices you need. This trades resident VRAM for avoiding
+repeated uploads when many objects animate together; large sheets need their
+own residency budget instead of blindly preloading everything.
+The cache owns the entire reserved sprite-tile region in this lab. Do not let
+automatic tile allocation reuse it; manually uploaded indices are not an
+allocation record in SGDK's VRAM allocator.
+
 ## Primary sources
 
 - [SGDK 2.11 math API, angle units and deprecated functions](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/maths.h)

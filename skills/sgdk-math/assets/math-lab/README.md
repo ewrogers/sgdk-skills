@@ -58,11 +58,19 @@ total. Each is one hardware piece. A crowded scanline can still exceed H40's
 20-sprite or 320-sprite-pixel limit even while the frame total is below 80.
 Check the densest pattern; total sprite count alone is not enough.
 
-`SPR_initEx(160)` reserves 5,120 bytes of sprite tile VRAM. The instances need
-112 tiles at their largest frame: 48 one-tile stars and 16 four-tile orbs.
-SGDK manages the additional rendering buffers and SAT. Text uses the standard
+`SPR_initEx(32)` reserves 1,024 bytes of sprite tile VRAM. All animation frames
+are loaded once into that region: three one-tile star frames and four four-tile
+orb frames use 19 tiles (608 bytes), shared by every instance. Per-sprite
+automatic tile allocation/upload is disabled; changing a frame selects its
+cached tile index. SGDK's temporary index tables are freed after copying the
+seven needed indices. SGDK manages the additional rendering buffers and SAT.
+Text uses the standard
 font. PAL0 is reserved for text/backdrop, PAL1 for stars and PAL2 for orbs.
 No HBlank effects or mid-frame palette writes are used.
+
+This lab gives the whole reserved sprite-tile region to its manual cache.
+Do not mix automatic sprite tile allocation into that same region: SGDK's
+allocator does not know those manually assigned frame indices are occupied.
 
 Shared tables use 1,232 bytes of RAM: 720 for sine and 512 for reciprocal
 depth. The fixed model and sprite pointers take additional RAM, as does SGDK.

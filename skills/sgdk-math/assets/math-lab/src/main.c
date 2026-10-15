@@ -12,19 +12,43 @@ static Demo demo;
 static s16 sine[360];
 static u16 perspective[256];
 static Sprite *stars[STAR_COUNT], *orbits[ORBIT_COUNT];
+static u16 star_tiles[3], orb_tiles[4];
+
+static bool cache_frames(void)
+{
+    /* These dimensions bound the upload to 3 + 4*4 = 19 tiles. */
+    if (star_image.numAnimation != 1 || star_image.animations[0]->numFrame != 3 ||
+        orb_image.numAnimation != 1 || orb_image.animations[0]->numFrame != 4 ||
+        star_image.maxNumTile != 1 || orb_image.maxNumTile != 4)
+        return false;
+    u16 count;
+    u16 index = TILE_FONT_INDEX - 32;
+    u16 **frames = SPR_loadAllFrames(&star_image, index, &count);
+    if (!frames) return false;
+    for (u16 i = 0; i < 3; i++) star_tiles[i] = frames[0][i];
+    MEM_free(frames);
+    index += count;
+    frames = SPR_loadAllFrames(&orb_image, index, &count);
+    if (!frames) return false;
+    for (u16 i = 0; i < 4; i++) orb_tiles[i] = frames[0][i];
+    MEM_free(frames);
+    return index + count <= TILE_FONT_INDEX;
+}
 
 static bool create_sprites(void)
 {
     for (u16 i = 0; i < STAR_COUNT; i++)
     {
-        stars[i] = SPR_addSprite(&star_image, 0, 0, TILE_ATTR(PAL1, FALSE, FALSE, FALSE));
+        stars[i] = SPR_addSpriteEx(&star_image, 0, 0,
+            TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE, star_tiles[0]), 0);
         if (!stars[i]) return false;
         SPR_setAutoAnimation(stars[i], FALSE);
         SPR_setVisibility(stars[i], VISIBLE); /* The model keeps the whole sprite onscreen. */
     }
     for (u16 i = 0; i < ORBIT_COUNT; i++)
     {
-        orbits[i] = SPR_addSprite(&orb_image, 0, 0, TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+        orbits[i] = SPR_addSpriteEx(&orb_image, 0, 0,
+            TILE_ATTR_FULL(PAL2, FALSE, FALSE, FALSE, orb_tiles[0]), 0);
         if (!orbits[i]) return false;
         SPR_setAutoAnimation(orbits[i], FALSE);
         SPR_setVisibility(orbits[i], VISIBLE);
@@ -76,8 +100,10 @@ int main(bool hard_reset)
     PAL_setPalette(PAL2, orb_image.palette->data, CPU);
     VDP_setTextPalette(PAL0);
     PAL_setColor(15, RGB24_TO_VDPCOLOR(0x92DBFF));
-    SPR_initEx(160);
-    if (!create_sprites())
+    /* All frames are shared and resident. Flags 0 leave tile allocation and
+     * uploads under this cache's ownership, not per-sprite automatic upload. */
+    SPR_initEx(32);
+    if (!cache_frames() || !create_sprites())
     {
         VDP_drawText("NOT ENOUGH SPRITE MEMORY", 5, 12);
         SYS_enableInts();
@@ -106,12 +132,15 @@ int main(bool hard_reset)
         {
             SPR_setPosition(stars[i], demo.stars[i].screen.x - 4, demo.stars[i].screen.y - 4);
             SPR_setFrame(stars[i], demo.stars[i].shade);
+            SPR_setVRAMTileIndex(stars[i], star_tiles[demo.stars[i].shade]);
         }
         u16 animation_phase = (demo.ticks / 12) & 3;
         for (u16 i = 0; i < ORBIT_COUNT; i++)
         {
             SPR_setPosition(orbits[i], demo.orbit[i].x - 8, demo.orbit[i].y - 8);
-            SPR_setFrame(orbits[i], (i / 4 + animation_phase) & 3);
+            u16 frame_index = (i / 4 + animation_phase) & 3;
+            SPR_setFrame(orbits[i], frame_index);
+            SPR_setVRAMTileIndex(orbits[i], orb_tiles[frame_index]);
         }
         if (!(frame++ % 10)) draw_metrics(hz, fps);
         SPR_update();
