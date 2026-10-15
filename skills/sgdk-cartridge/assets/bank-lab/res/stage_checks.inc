@@ -1,0 +1,5 @@
+#ifndef BANK_LAB_STAGE_CHECKS_H
+#define BANK_LAB_STAGE_CHECKS_H
+#define STAGE_A_CRC 0xB88A
+#define STAGE_B_CRC 0x3E30
+#endif

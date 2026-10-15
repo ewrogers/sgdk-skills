@@ -22,7 +22,8 @@
         "sgdk-levels",
         "sgdk-gameplay",
         "sgdk-audio",
-        "sgdk-save"
+        "sgdk-save",
+        "sgdk-cartridge"
       ]
     },
     {
