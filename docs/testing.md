@@ -348,3 +348,24 @@ CI compares Math Lab release/debug ROM hashes on native ARM64 and AMD64.
 Executed CPU math is not VDP emulation, a frame-time measurement or a guarantee
 outside the documented operand ranges. Follow the lab's emulator checklist for
 visual motion, pause, diagnostics and sprite scanline pressure.
+
+## Platformer feel and collision
+
+Platform Lab tests execute its actual C model for half-open walls, ascending
+and descending floor slopes, one-way crossing/drop-through, coyote/buffer
+windows, variable-height jumps, wall/double jumps, moving-platform support,
+charge thresholds, breakable terrain, stomps, armor and damage invulnerability.
+They exercise all five enemy behaviors, powers, secrets, checkpoints, completion,
+nominal PAL/NTSC cadence and a 100,000-step mixed-input collision-safe run.
+Native art tests check exact reproduction, indexed palettes, PNG integrity and
+no-overwrite behavior. Every Tiled cell is compared with the collision source. Audio tests parse VGM
+loop/wait commands and PCM formats, reproduce sources, and execute the sound
+adapter's priorities, charge-ready edge, pause and one-shot fanfare transition
+against a recording SDK. They do not execute the Z80 mixer or judge the music.
+
+Container tests build the standalone ROM in release/debug, inspect the header
+and linked resources, then execute selected movement/terrain/clock checks as
+actual M68000 instructions on Unicorn. CI compares release/debug ROM hashes on
+native ARM64 and AMD64. Host models and target CPU execution do not emulate
+VDP streaming, sound playback, TV readability or real frame-time headroom.
+Follow the lab's playtest checklist in ares and, when available, on hardware.
