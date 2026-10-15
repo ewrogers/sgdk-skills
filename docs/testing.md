@@ -15,6 +15,12 @@ These checks use Python's standard library. CI runs them on macOS, Linux and
 Windows without requiring Docker. They check command construction, error
 handling and fixture data. Docker tests are skipped unless explicitly enabled.
 
+The planning tests check supplied budget arithmetic, H32/H40 sprite limits,
+RAM/VRAM boundaries, ROM padding and mapping declarations. They exercise
+unknown costs, partial coverage, invalid input, CLI exit codes and a copied
+standalone helper. They do not predict game feasibility, runtime memory safety
+or CPU performance. The example worksheet is deliberately incomplete.
+
 The installation job runs `python3 tests/distribution.py` with Node.js 24. It
 uses the pinned Skills CLI 1.7.2 to discover and copy each skill into a scratch
 project, then checks that its references, scripts and original assets arrived.
@@ -76,6 +82,12 @@ Before a release, try a realistic agent task with only the selected installed
 skills in a scratch project. Check the resulting project and diagnostics rather
 than scoring whether the agent repeats the instructions. This complements the
 deterministic tests and can reveal confusing steps or missing context.
+
+For planning, try an unfamiliar game idea without a running Docker daemon.
+Check that the resulting plan picks a useful first playable milestone,
+separates known limits from estimates, and names the probes needed to resolve
+unknowns. A budget worksheet should help a decision, not become a prerequisite
+for starting the game.
 
 Docker Desktop can retain only one architecture for a given index digest in its
 local image store. The project helper handles this for its pinned image. For the

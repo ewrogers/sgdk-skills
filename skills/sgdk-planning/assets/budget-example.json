@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "video_mode": "H40",
+  "ram": {
+    "items": [
+      {"name": "Enemy state", "bytes": 24, "count": 32, "note": "Illustrative estimate, verify C layout"},
+      {"name": "SGDK, other game state and stack", "bytes": null}
+    ],
+    "complete": false
+  },
+  "vram": {
+    "items": [
+      {"name": "Sprite pool reservation", "tiles": 420, "note": "Pinned SPR_init default; do not add its occupants again"},
+      {"name": "Resident background graphics", "tiles": 160},
+      {"name": "Tables, font and system reservations", "bytes": null}
+    ],
+    "complete": false
+  },
+  "palette_banks": 3,
+  "sprites": {
+    "total": 24,
+    "per_scanline": 12,
+    "pixels_per_scanline": 192
+  },
+  "rom": {
+    "bytes_before_padding": null,
+    "mapping": "standard"
+  },
+  "dma": {
+    "peak_bytes": null,
+    "budget_bytes": null
+  }
+}
