@@ -142,6 +142,39 @@ and dimensions, including the directional robot sheet. Walk/idle phase and
 pause tests exercise the simulation-driven animation. Emulator checks cover visible streaming and collision
 alignment; physical-console DMA timing and PAL visuals remain separate checks.
 
+## Raster checks
+
+Raster tests execute the wave model across all phases, camera/waterline bounds,
+pause/input edges, 50/60Hz cadence and all 512 quantized colors. Fake ports record
+dry/wet palette ownership, one-shot arming, pending VBlank interrupts, late events,
+bounded edge/FIFO waits, unchanged-pair filtering and autoincrement restoration.
+They also reject forced-blank commands: the surface sprites must stay visible. The host
+edge simulation checks protocol and failure handling, not scanline timing.
+Container tests compile the real APIs/resources in release/debug and U/E headers,
+then inspect the handler for `RTE`, bounded assembly waits and preloaded
+register-to-port writes without helper calls. Emulator checks separately cover
+the intentional masked band, CRAM dots, controls and music with scrolling DMA.
+Physical-console timing and other VDP modes remain unverified.
+
+Water frame tests invoke the registered early V interrupt, inspect dry CRAM
+before simulated late main-loop work, sweep both directions and verify that a
+later published setting cannot change the armed frame. Teardown removes both
+interrupt callbacks. These test ownership and ordering, not actual DMA duration;
+continuous emulator sweeps are a separate timing check.
+
+Asset tests reproduce the original water sprites/music, check PNG checksums and
+opaque surface coverage, and parse the VGM's twelve-second loop, pad envelopes
+and spaced bell events. Bubble/splash tests cover entry/exit crossings, rising
+and retirement, pool exhaustion, pause and matching 50/60Hz model schedules.
+
+The separate Split Lab tests cover independent cameras, viewport-origin offsets,
+50/60Hz cadence, CPU/manual control, world bounds and whole-sprite culling at
+HUD/divider edges. Fake ports record VSRAM packing, Window handoff, pending/late
+interrupts, bounded HBlank failures and stop/rearm behavior. Both labs build in
+release/debug with U/E headers and undergo interrupt disassembly checks. These
+do not emulate the VDP or establish interlace, streaming-cache or hardware
+support. Split Lab deliberately uses noninterlaced output and a resident world.
+
 ## Release candidate checks
 
 Release tests check SGDK's whole-file XOR checksum against an independent

@@ -16,6 +16,7 @@
       "skills": [
         "sgdk-assets",
         "sgdk-graphics",
+        "sgdk-raster",
         "sgdk-input",
         "sgdk-ui",
         "sgdk-levels",
