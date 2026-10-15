@@ -244,3 +244,31 @@ SGDK_PLATFORM=linux/amd64 SGDK_SKILLS_INTEGRATION=1 \
 The integration runner writes logs and a JSON report under `build/integration/`.
 The report includes ROM sizes and hashes. Generated ROMs, compiler outputs and
 logs stay outside version control.
+
+## Cartridge banking
+
+`tests/test_cartridge.py` compiles the actual lab model and mapper/SRAM adapter
+with a C17 host compiler. It tests region timing, input edges, bounded reads,
+cross-bank copies, view invalidation, audio handoff order, corruption rejection,
+and SRAM closing/preserved mappings. The fake mapper models alias invalidation;
+it does not emulate the Z80, DMA hardware or SRAM electrical behavior.
+
+With `SGDK_SKILLS_INTEGRATION=1`, the test copies Bank Lab into a path with spaces,
+checks adapter declarations against the real SDK and rejects a normal bank-disabled
+build. It builds release/debug/release with private bank-enabled SDK libraries,
+checks loadable ELF sections and actual payload bytes beyond 4 MiB, fixed-bank
+budgets, the cross-bank probe, music placement, SRAM header and the SDK's
+XOR-folded checksum. A deliberately oversized common section must fail linking.
+Asset tests reproduce the original stage images, palette words and FM sources,
+and check that regeneration refuses to overwrite existing files.
+
+CI runs the container checks on native ARM64 and AMD64 and compares the banked
+release/debug ROM hashes across them. The normal host matrix
+also covers Windows, macOS and Linux. Local ares testing confirmed both rooms,
+shared hero/UI, stage music, SRAM save/load and the in-ROM checks. That is not a
+physical-board test. Actual cartridge/flash-cart mapper and SRAM compatibility,
+power-loss behavior and hardware audio timing remain separate checks.
+
+Bank Lab intentionally uses a sparse 6 MiB image. The existing release helper's
+linear profile continues to reject banked cartridges; do not use it to certify
+this mapper or replace the selected SDK checksum with a generic word sum.
