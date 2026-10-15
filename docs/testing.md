@@ -142,6 +142,19 @@ and dimensions, including the directional robot sheet. Walk/idle phase and
 pause tests exercise the simulation-driven animation. Emulator checks cover visible streaming and collision
 alignment; physical-console DMA timing and PAL visuals remain separate checks.
 
+## Raster checks
+
+Raster tests execute the wave model across all phases, camera/waterline bounds,
+pause/input edges, 50/60Hz cadence and all 512 quantized colors. Fake ports record
+dry/wet palette ownership, one-shot arming, pending VBlank interrupts, late events,
+bounded edge/FIFO waits and unconditional display-state restoration. The host
+edge simulation checks protocol and failure handling, not scanline timing.
+Container tests compile the real APIs/resources in release/debug and U/E headers,
+then inspect the handler for `RTE`, bounded assembly waits and preloaded
+register-to-port writes without helper calls. Emulator checks separately cover
+the intentional masked band, CRAM dots, controls and music with scrolling DMA.
+Physical-console timing and other VDP modes remain unverified.
+
 ## Release candidate checks
 
 Release tests check SGDK's whole-file XOR checksum against an independent
