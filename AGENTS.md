@@ -1,5 +1,7 @@
 # Working on SGDK Skills
 
+- Keep these skills focused on SGDK cartridge development. The README may link
+  to the separate Sega CD repositories; their setup and API docs belong there.
 - Keep skills portable and independently installable. Runtime references,
   helpers and templates belong inside their skill folder. Repository-level
   tests and tooling must not become installed-skill dependencies.
