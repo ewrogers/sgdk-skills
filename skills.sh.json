@@ -21,6 +21,7 @@
         "sgdk-ui",
         "sgdk-levels",
         "sgdk-gameplay",
+        "sgdk-platformer",
         "sgdk-math",
         "sgdk-ai",
         "sgdk-scenes",

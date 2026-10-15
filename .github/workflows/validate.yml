@@ -83,6 +83,7 @@ jobs:
             build/scenes-integration/scenes-report.json
             build/ai-integration/ai-report.json
             build/math-integration/math-report.json
+            build/platformer-integration/platformer-report.json
 
   compare:
     name: Compare generated ROMs
@@ -130,4 +131,10 @@ jobs:
           maths = {arch: json.loads(paths[0].read_text()) for arch, paths in math_reports.items()}
           assert all(report["passed"] for report in maths.values())
           assert maths["amd64"]["hashes"] == maths["arm64"]["hashes"], maths
-          print("Standard, banked, transition, enemy and math release/debug ROMs match across native ARM64 and AMD64.")
+          platform_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("platformer-report.json"))
+                              for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in platform_reports.values()), platform_reports
+          platforms = {arch: json.loads(paths[0].read_text()) for arch, paths in platform_reports.items()}
+          assert all(report["passed"] for report in platforms.values())
+          assert platforms["amd64"]["hashes"] == platforms["arm64"]["hashes"], platforms
+          print("Standard, banked, transition, enemy, math and platformer release/debug ROMs match across native ARM64 and AMD64.")
