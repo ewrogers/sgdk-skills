@@ -311,6 +311,14 @@ static void password_bad_case(void)
     assert(!save_password_decode("0HMD2SJAZ4UA", &decoded));
     assert(!save_password_decode("CHMD-2SJA-Z4UA", &decoded));
     assert(!save_password_decode(0, &decoded));
+    /* Independently packed vectors with valid CRCs: version/ranges/reserved bits. */
+    assert(!save_password_decode("EHMD2SJAYKFA", &decoded));
+    assert(!save_password_decode("CAMD2SJAW7JS", &decoded));
+    assert(!save_password_decode("CHBD2SJAP93A", &decoded));
+    assert(!save_password_decode("CHM8SUAA3RQA", &decoded));
+    assert(!save_password_decode("CHMD2SJBX4CS", &decoded));
+    assert(!save_password_decode("CHMD2SJAZ4UB", &decoded));
+    assert(equal(state, decoded));
     state.level = 0;
     assert(!save_password_encode(&state, code));
 }
