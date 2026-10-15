@@ -10,6 +10,7 @@ on your computer, and use an agent to help with setup, assets and debugging.
 | [sgdk-planning](skills/sgdk-planning/SKILL.md) | Turn a game idea into a first playable milestone, hardware budgets and practical tests. |
 | [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
+| [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
 | [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
 
 ## Install
@@ -40,6 +41,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-project to create a Hello World ROM in a new folder."
 - "Use sgdk-planning to plan a small platformer and identify what to prove first."
 - "Use sgdk-assets to import this spritesheet and check its palette budget."
+- "Use sgdk-input to add 3/6-button pad and mouse controls, with Team Player support."
 - "Use sgdk-debug to investigate this fault using the matching ELF file."
 
 Each skill works on its own. It includes focused references and, where useful,

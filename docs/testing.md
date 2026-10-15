@@ -11,9 +11,11 @@ Run the Python tests from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-These checks use Python's standard library. CI runs them on macOS, Linux and
-Windows without requiring Docker. They check command construction, error
-handling and fixture data. Docker tests are skipped unless explicitly enabled.
+Python checks use the standard library. Input behavior tests also need a C17
+compiler (`clang`, `cc` or `gcc`) to execute the actual example adapter with a
+fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
+host checks on macOS, Linux and Windows without requiring Docker. Docker tests
+are skipped unless explicitly enabled.
 
 The planning tests check supplied budget arithmetic, H32/H40 sprite limits,
 RAM/VRAM boundaries, ROM padding and mapping declarations. They exercise
@@ -52,6 +54,14 @@ debugging tests compile a profiling example and resolve a symbol back to its C
 source. Successful compilation proves that the examples match the pinned SDK's
 API. It does not prove correct visuals, sound, frame timing or hardware behavior.
 Those still need emulator and, when available, console testing.
+
+Input tests exercise press/hold/release, alternate action bindings, independent
+player slots, mouse accumulator consumption and direction normalization,
+adapter configuration and state baselines after reset/type changes. Docker
+checks verify the fake SDK's constants and API signatures against real SGDK,
+then compile and link Input Lab in release and debug modes. These checks do
+not execute SGDK's hardware protocols. Follow the skill's device checklist for
+emulator or console validation, including its documented SGDK 2.11 caveats.
 
 ## Architectures and image versions
 
