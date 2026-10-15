@@ -87,8 +87,9 @@ channels make important sounds and music percussion easier to protect.
 
 The bool return means the request was accepted, not that the user has heard it
 or that its entire duration is guaranteed. A later accepted request can replace
-it. The lab sends its low-priority click and high-priority alarm to CH2 so this
-can be heard and tested.
+it. The lab normally sends its low-priority click and high-priority alarm to CH2.
+Its optional contention mode uses CH1, alongside the track's sampled drums.
+This is deliberately disruptive, not the recommended default channel policy.
 
 `XGM2_isPlayingPCM()` takes **channel masks** such as `SOUND_PCM_CH2_MSK`, and
 returns a mask of playing channels. Play and stop calls instead take the
@@ -114,6 +115,8 @@ until it finishes. A game can instead queue its next track until then.
 Fade steps run through system VBlank processing. Sixty steps takes about one
 second at 60 Hz and 1.2 seconds at 50 Hz. This is separate from music tempo
 adaptation. Use positive, sensible durations and validate the target region.
+Sound Lab uses the detected 50/60Hz refresh rate for its one-second fade;
+it leaves the converted song's source tempo alone.
 
 ## Sources
 

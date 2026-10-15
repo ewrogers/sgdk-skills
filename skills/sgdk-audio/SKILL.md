@@ -20,9 +20,11 @@ switch Z80 drivers just to play an effect.
 - [Music and effects](references/playback.md): playback, pause, completion,
   looping, priorities, volume, fades and resource lifetime.
 - [Sound Lab](assets/sound-lab/README.md): a standalone sound-test ROM with
-  original PSG music and PCM effects, controls and a listening checklist.
+  original FM/PSG music, sampled drums and PCM effects, plus region and DMA checks.
   The optional [audio generator](scripts/make_lab_audio.py) recreates its assets
   in a new folder using only Python's standard library.
+- [Music fixtures and region checks](references/music-and-regions.md): the
+  tested VGM path, source tempo, percussion ownership and PAL/NTSC comparison.
 
 Use the latest published SGDK toolchain:
 

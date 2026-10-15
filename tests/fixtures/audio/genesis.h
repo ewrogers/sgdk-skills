@@ -32,4 +32,7 @@ void XGM2_play(const u8 *);
 void XGM2_pause(void);
 void XGM2_resume(void);
 void XGM2_fadeOutAndStop(u16);
+u16 SYS_isPAL(void);
+u32 XGM2_getElapsed(void);
+void Z80_setForceDelayDMA(bool);
 #endif
