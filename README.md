@@ -22,6 +22,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
 | [sgdk-levels](skills/sgdk-levels/SKILL.md) | Import Tiled levels, stream large maps, and keep collision and cameras aligned. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
+| [sgdk-scenes](skills/sgdk-scenes/SKILL.md) | Build game flow, character selection, pause, Continue and safe resource handoffs between screens. |
 | [sgdk-cartridge](skills/sgdk-cartridge/SKILL.md) | Bank large ROMs, keep shared content and audio reachable, and save without disturbing mappings. |
 | [sgdk-save](skills/sgdk-save/SKILL.md) | Save progress to SRAM, recover damaged saves and add controller-friendly passwords. |
 | [sgdk-performance](skills/sgdk-performance/SKILL.md) | Measure frame-rate headroom, compare optimizations and separate CPU, DMA and scanline limits. |

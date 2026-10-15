@@ -272,3 +272,23 @@ power-loss behavior and hardware audio timing remain separate checks.
 Bank Lab intentionally uses a sparse 6 MiB image. The existing release helper's
 linear profile continues to reject banked cartridges; do not use it to certify
 this mapper or replace the selected SDK checksum with a generic word sum.
+
+## Scene flow and cleanup
+
+Scene tests execute the Transition Lab model, byte codec and recording SGDK
+adapter. They cover either-player joining, countdown skipping, held input
+handoffs, pause, independent coin ownership, radial scatter and visual hop,
+bounded eight-way lasers, boss defeat and level-start checkpoint roundtrips.
+A flood fill checks that every authored coin can be reached around solid
+blocks. A separate chase test routes the boss across the blocked arena and
+checks its full footprint on every tick. Save tests check every single-bit corruption and interrupted-write
+position. Fade tests model SGDK's final queued palette transfer and check the
+extra drain before cleanup. Repeated partial/full loads must return to the
+same warmed-up heap baseline.
+
+Container checks build the standalone copy in release/debug, verify adapter
+signatures against SGDK, and check the ROM header and linked art/audio.
+CI compares the two ROM hashes across native ARM64 and AMD64. These fixtures
+do not emulate VDP timing, the Z80 or electrical SRAM. Local NTSC ares testing
+covers the full game flow, music and boss encounter; PAL visual testing and
+physical-console checks remain separate.

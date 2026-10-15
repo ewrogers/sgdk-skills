@@ -21,6 +21,7 @@
         "sgdk-ui",
         "sgdk-levels",
         "sgdk-gameplay",
+        "sgdk-scenes",
         "sgdk-audio",
         "sgdk-save",
         "sgdk-cartridge"
