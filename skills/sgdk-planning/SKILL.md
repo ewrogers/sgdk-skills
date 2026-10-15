@@ -54,7 +54,7 @@ python3 /path/to/sgdk-planning/scripts/budget_check.py budget.json
 
 Planning does not require Docker to be running. Use sourced hardware facts and
 mark untested SDK or workload assumptions honestly. Before committing to an
-unfamiliar API or resource behavior, inspect the project's pinned SGDK headers,
+unfamiliar API or resource behavior, inspect the project's installed SGDK headers,
 implementation, resource manual and matching sample. Use the Docker image and
 verification guidance in [hardware budgets](references/hardware-budgets.md#verify-the-selected-sdk).
 Do not silently upgrade an existing project or guess an API from another SDK.

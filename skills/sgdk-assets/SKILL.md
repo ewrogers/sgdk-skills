@@ -9,8 +9,8 @@ Turn source art into SGDK resources without surprising the artist or exceeding t
 
 ## Start with the project
 
-1. Find its `.res` files, source art, build instructions and pinned Docker image. Preserve the original art and any palette ordering. Work on derived exports when conversion is needed.
-2. Use the project's image. Otherwise use `ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c`. It supports Linux ARM64 and AMD64; Docker supplies Linux containers on macOS and Windows too. Do not force `--platform` unless testing another architecture.
+1. Find its `.res` files, source art, build instructions and toolchain configuration. Preserve the original art and any palette ordering. Work on derived exports when conversion is needed.
+2. Use the project's image. Otherwise use `ewrogers/sgdk:latest`. It supports Linux ARM64 and AMD64; Docker supplies Linux containers on macOS and Windows too. Do not force `--platform` unless testing another architecture.
 3. Read the installed manual before adding or changing a resource declaration. Use `/opt/sgdk/bin/rescomp.txt`, the matching headers in `/opt/sgdk/inc`, and examples in `/opt/sgdk/sample`. Verify symbol names and signatures there before writing C. An API from another SGDK version is not evidence.
 
 Run `docker run --rm IMAGE cat /opt/sgdk/bin/rescomp.txt`, replacing `IMAGE` with the chosen image. Commands run as argument arrays from automation. Avoid building shell command strings from asset filenames.
@@ -20,7 +20,7 @@ Run `docker run --rm IMAGE cat /opt/sgdk/bin/rescomp.txt`, replacing `IMAGE` wit
 1. Decide how the asset is used: a moving character, background, scrolling map, font, music or sample. Choose the matching ResComp resource rather than treating everything as a sprite.
 2. Agree on frame dimensions, palette ownership, transparency and animation layout. Show a preview when possible. Do not silently quantize colors, resize, crop, reorder palette indices or rewrite source files.
 3. Make a small `.res` change. Keep resource names valid C identifiers and paths relative to that `.res` file. Check exact options in the manual.
-4. Build in the container. Use `docker run --rm --mount "type=bind,source=PROJECT,target=/workspace" IMAGE`, replacing `PROJECT` with the absolute project directory. PowerShell and POSIX shells both support this quoted mount argument. Use `sgdk-project` if installed for project creation or broader build setup.
+4. Build in the container. Use `docker run --rm --pull=always --mount "type=bind,source=PROJECT,target=/workspace" IMAGE`, replacing `PROJECT` with the absolute project directory. PowerShell and POSIX shells both support this quoted mount argument. Use `sgdk-project` if installed for project creation or broader build setup.
 5. Fix the first resource error, then rebuild. Inspect the generated header and ResComp's resource totals. Consult [importing.md](references/importing.md) for common causes and costs.
 6. Test the ROM in an emulator. Check colors, transparency, frame order, sprite dropout and scrolling. A successful build proves conversion and linking, not visual correctness or 60 Hz performance.
 

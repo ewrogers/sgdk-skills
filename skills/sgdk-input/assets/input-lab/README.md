@@ -17,27 +17,27 @@ display refreshes every six frames, while input is sampled every frame.
 From the copied directory, macOS or Linux:
 
 ```sh
-sgdk_image='ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c'
+sgdk_image='ewrogers/sgdk:latest'
 docker run --rm --user "$(id -u):$(id -g)" --mount "type=bind,source=$PWD,target=/workspace" "$sgdk_image" build
 ```
 
 Windows PowerShell, with Docker Desktop using Linux containers:
 
 ```powershell
-$sgdkImage = 'ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c'
-docker run --rm --mount "type=bind,source=$($PWD.Path),target=/workspace" $sgdkImage build
+$sgdkImage = 'ewrogers/sgdk:latest'
+docker run --rm --pull=always --mount "type=bind,source=$($PWD.Path),target=/workspace" $sgdkImage build
 ```
 
 Open `out/rom.bin` in a Mega Drive emulator. The same image provides native
 Linux ARM64 and AMD64 toolchains; Docker supplies that Linux environment on
-desktop hosts. Keep an existing project's image pin when adapting the code.
+desktop hosts. Pull `ewrogers/sgdk:latest` before building.
 The project uses SGDK's default ROM header; for a distributed controller-test
 cartridge, customize the supported-device field to match its features.
 
 ## Try it
 
 Configure emulator devices before resetting the ROM. Release buttons during
-boot: the pinned SDK has a Team Player startup callback issue described in
+boot: the SGDK 2.11 implementation has a Team Player startup callback issue described in
 [devices](../../references/devices.md). `OTHER` means the reported type is not
 one this example handles, not a reliable unplugged indicator.
 

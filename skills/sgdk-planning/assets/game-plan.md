@@ -14,7 +14,7 @@ sentences. Note any existing project decisions that must be preserved.]
 condition. Include a representative crowded moment or expensive feature.]
 
 **Assumptions:** [Region/display mode, intended update rate, players/controllers,
-SDK/toolchain pin, cartridge target. Separate confirmed choices from defaults.]
+SDK/toolchain versions, cartridge target. Separate confirmed choices from defaults.]
 
 ## Resource outlook
 

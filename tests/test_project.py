@@ -36,10 +36,18 @@ class ProjectTests(unittest.TestCase):
     def test_no_mount_or_unix_identity_is_needed_for_doctor(self):
         self.assertEqual(sgdk.docker_command("image"), ["docker", "run", "--rm", "image"])
 
-    def test_explicit_default_platform_selects_its_verified_child(self):
-        for platform, image in sgdk.DEFAULT_PLATFORMS.items():
-            self.assertEqual(sgdk.docker_command(sgdk.DEFAULT_IMAGE, platform)[-1], image)
-        self.assertEqual(sgdk.docker_command(sgdk.DEFAULT_IMAGE)[-1], sgdk.DEFAULT_IMAGE)
+    def test_latest_is_pulled_for_each_explicit_platform_without_substitution(self):
+        for platform in [None, "linux/arm64", "linux/amd64"]:
+            command = sgdk.docker_command(sgdk.DEFAULT_IMAGE, platform)
+            self.assertEqual(command[-1], "ewrogers/sgdk:latest")
+            self.assertIn("--pull=always", command)
+            if platform:
+                self.assertEqual(command[command.index("--platform") + 1], platform)
+
+    def test_custom_local_image_does_not_force_a_registry_pull(self):
+        command = sgdk.docker_command("my-local-build:test", "linux/arm64")
+        self.assertEqual(command[-1], "my-local-build:test")
+        self.assertNotIn("--pull=always", command)
 
     def test_native_windows_does_not_require_unix_uid(self):
         with tempfile.TemporaryDirectory() as temporary:

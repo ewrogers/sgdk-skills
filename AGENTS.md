@@ -5,7 +5,10 @@
   tests and tooling must not become installed-skill dependencies.
 - Keep `SKILL.md` focused on decisions and workflow. Put detailed, sourced
   explanations in references; do not copy whole SDK manuals or teach generic C.
-- Verify API names, signatures, resource syntax and behavior against the pinned
+- Use `ewrogers/sgdk:latest` in SGDK commands, helpers and CI defaults. Pull it
+  before validation; do not hard-code image or platform-child digests. Record
+  the actual tool versions when investigating a failure or comparing builds.
+- Verify API names, signatures, resource syntax and behavior against the selected
   Docker image's SGDK source/manuals. Cite versioned primary sources. If a
   feature is unverified, investigate it rather than inventing a plausible API.
 - Separate Mega Drive hardware limits, SGDK behavior and optional game design
@@ -19,7 +22,7 @@
 - Do not overwrite existing projects or source art, edit host emulator settings,
   require privileged Docker, or install skills globally unless requested.
 - Test observable behavior and useful failures. Compile executable examples and
-  resource fixtures through the pinned container. Avoid tests of prose wording.
+  resource fixtures through the selected container. Avoid tests of prose wording.
 - Keep the README concise and synchronize examples, references and tests when
   behavior changes. Keep logs, ROMs, generated files and downloads out of Git.
 - Changes are reviewed in PRs. Never claim runtime visuals, audio, timing or

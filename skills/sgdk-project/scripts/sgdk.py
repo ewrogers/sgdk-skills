@@ -11,16 +11,14 @@ import sys
 import tempfile
 
 
-DEFAULT_IMAGE = "ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c"
-DEFAULT_PLATFORMS = {
-    "linux/arm64": "ewrogers/sgdk@sha256:4e75cf1cd190eaea867eacc43494a1f1444b97b0c3961493fb40236c23c04000",
-    "linux/amd64": "ewrogers/sgdk@sha256:82ad84637e4be801314e6feaf3066575d2af2934ab1c22832c048e74c6e9044e",
-}
+DEFAULT_IMAGE = "ewrogers/sgdk:latest"
 
 
 def docker_command(image, platform=None, project=None):
     """Build an argv list; Docker's mount value is CSV, not shell syntax."""
     command = ["docker", "run", "--rm"]
+    if image == DEFAULT_IMAGE:
+        command.append("--pull=always")
     if platform:
         command.extend(["--platform", platform])
     if project is not None:
@@ -35,9 +33,7 @@ def docker_command(image, platform=None, project=None):
         # Native Windows has no Unix UID/GID; Docker Desktop maps its bind mount.
         if hasattr(os, "getuid") and hasattr(os, "getgid"):
             command.extend(["--user", f"{os.getuid()}:{os.getgid()}"])
-    # Some Docker stores cannot cache both children under one immutable index
-    # reference. Select the verified child for an explicit default-image target.
-    command.append(DEFAULT_PLATFORMS[platform] if image == DEFAULT_IMAGE and platform else image)
+    command.append(image)
     return command
 
 

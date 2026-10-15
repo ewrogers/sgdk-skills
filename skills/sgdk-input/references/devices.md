@@ -1,6 +1,6 @@
 # Devices and the actual SGDK API
 
-This reference was checked against SGDK 2.11 using the pinned container in
+This reference was checked against SGDK 2.11 using the selected container in
 [Input Lab](../assets/input-lab/README.md). If a project uses another revision,
 recheck its `inc/joy.h`, `src/joy.c` and `src/sys.c` before carrying these
 details across.
@@ -119,7 +119,7 @@ Plutiedev [mouse protocol and variants](https://plutiedev.com/mouse).
   operation. If all working controls are removed, the example's rescan shortcut
   cannot be used; reset the ROM after configuring devices in the emulator.
 
-These are observations of the pinned implementation, not general hardware
+These are observations of the SGDK 2.11 implementation, not general hardware
 restrictions. Source: [SGDK 2.11 joy.c](https://github.com/Stephane-D/SGDK/blob/v2.11/src/joy.c).
 
 ## Timing, bus ownership and ROM metadata

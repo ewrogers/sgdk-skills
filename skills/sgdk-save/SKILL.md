@@ -10,7 +10,7 @@ Start with what needs to survive a restart: checkpoint, score, options or a
 small campaign record. Saving every live object is rarely necessary.
 
 Check the project's cartridge mapping, ROM size, existing save format and
-toolchain pin first. Preserve existing save files and make a backup before
+installed tool versions first. Preserve existing save files and make a backup before
 testing a migration. Never erase storage just because loading failed.
 
 ## Choose the right reference
@@ -24,8 +24,7 @@ testing a migration. Never erase storage just because loading failed.
 - [Save Lab](assets/save-lab/README.md): a standalone ROM with save/load,
   deliberate corruption, recovery and joypad password entry.
 
-Preserve a project's existing SDK pin. The lab includes the verified container
-command for new work. Check unfamiliar calls against that image's `inc/sram.h`,
+Use `ewrogers/sgdk:latest`; the lab includes its build command. Check unfamiliar calls against that image's `inc/sram.h`,
 `src/sram.c`, `src/sram_a.s`, `inc/sys.h` and `src/boot/rom_head.c`.
 The SGDK SRAM calls do not report capacity, battery health or write success.
 Supply your own bounds and read-back checks rather than inventing such APIs.

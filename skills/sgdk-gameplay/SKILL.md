@@ -24,8 +24,7 @@ without the renderer where that helps.
 - [Gameplay Lab](assets/gameplay-lab/README.md): a standalone scrolling target
   range with wall collision, a reusable bullet pool, pause and reset.
 
-Preserve an existing toolchain pin. Use the tested image in the lab's build
-instructions for a new project. Check unfamiliar calls against that image's
+Use `ewrogers/sgdk:latest`, as shown in the lab's build instructions. Check unfamiliar calls against that image's
 `inc/maths.h`, `inc/sys.h`, `inc/pool.h`, `inc/object.h`, `inc/map.h` and matching
 `src` files before inventing a helper or assuming an API's behavior.
 

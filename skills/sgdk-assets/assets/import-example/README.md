@@ -3,10 +3,10 @@
 A small SGDK project showing one indexed background tile and a two-frame 16 by 16 sprite. The art is deliberately simple so palette indices and tile costs are easy to inspect. It was authored for this repository, with no third-party art.
 
 Copy this directory somewhere writable, then build it using your project's
-pinned image. This example was tested with the following SGDK 2.11 image:
+selected image. This example was tested with the following SGDK 2.11 image:
 
 ```sh
-docker run --rm --mount "type=bind,source=ABSOLUTE_PROJECT_DIRECTORY,target=/workspace" ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
+docker run --rm --pull=always --mount "type=bind,source=ABSOLUTE_PROJECT_DIRECTORY,target=/workspace" ewrogers/sgdk:latest
 ```
 
 The ROM is `out/rom.bin`. Open it in an emulator to check the blue tile at the upper left and the small animated marble near the center. This example does not cover scrolling, input or a complete game's palette allocation.

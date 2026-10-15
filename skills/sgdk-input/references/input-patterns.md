@@ -38,7 +38,7 @@ its callback receives `(u16 joy, u16 changed, u16 state)`. There, pressed is
 `changed & state` and released is `changed & ~state`. SGDK owns one callback
 slot. Dispatch from one handler if multiple systems need it.
 
-The Input Lab helper uses polling, with a no-op callback for the pinned
+The Input Lab helper uses polling, with a no-op callback for the documented
 Team Player issue described in [devices](devices.md). Callbacks run inside
 `JOY_update()` with interrupts disabled. Keep them short and defer work.
 

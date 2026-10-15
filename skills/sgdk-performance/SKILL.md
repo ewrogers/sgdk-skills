@@ -21,8 +21,7 @@ architecture unless a measured bottleneck justifies a change.
   bodies, equivalent collision queries, animation/DMA switches and an overlay
   comparison. It includes an emulator checklist and build command.
 
-Preserve the project's toolchain pin. For new work, use the verified image in
-the lab. Check unfamiliar APIs against that image's `inc/sys.h`, `src/sys.c`,
+Use `ewrogers/sgdk:latest`, as shown in the lab. Check unfamiliar APIs against that image's `inc/sys.h`, `src/sys.c`,
 `inc/timer.h`, `src/timer.c`, `inc/dma.h` and `inc/sprite_eng.h`.
 
 ## Run a controlled comparison

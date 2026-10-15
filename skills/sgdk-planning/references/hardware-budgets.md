@@ -181,7 +181,7 @@ content, the padded file and the chosen physical cart capacity separately.
 Use bytes or KiB/MiB consistently; **1 MiB = 8 Mbit**. Compressed assets save
 ROM at a possible decompression/upload cost, and may still need decoded space.
 
-The pinned SDK defaults `ENABLE_BANK_SWITCH` to zero. Its optional resource
+The SGDK 2.11 implementation defaults `ENABLE_BANK_SWITCH` to zero. Its optional resource
 banking uses the Sega/SSF mapper and requires compatible SDK configuration,
 libraries and ROM metadata. Mapping changes can invalidate retained resource
 pointers, including sources of deferred transfers or audio reads. A successful
@@ -199,13 +199,13 @@ SGDK 2.11 [build padding](https://github.com/Stephane-D/SGDK/blob/v2.11/makefile
 For a new project with no chosen toolchain, the tested baseline is SGDK 2.11:
 
 ```text
-ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
+ewrogers/sgdk:latest
 ```
 
 The image supports native Linux ARM64 and AMD64; Docker normally selects the
-host's architecture. On Windows, use Docker's Linux containers. An existing
-project's pin takes precedence. Source planning can continue when Docker is
-unavailable; label any unverified implementation assumption.
+host's architecture. On Windows, use Docker's Linux containers. The installed
+SDK version determines which APIs are available. Source planning can continue
+when Docker is unavailable; label any unverified implementation assumption.
 
 Use `docker run --rm IMAGE doctor` with the actual image reference. Inspect
 `/opt/sgdk/inc`, `/opt/sgdk/src`, `/opt/sgdk/sample` and

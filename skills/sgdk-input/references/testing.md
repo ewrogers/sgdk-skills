@@ -28,7 +28,7 @@ down: lab X grows rightward and Y grows downward. Stationary input should not
 keep moving. Test Left, Right, Middle and Start independently on Mega Mouse.
 
 Repeat through a Team Player if the emulator or hardware supports it. Check
-the Y direction explicitly because the pinned SDK's direct and adapter paths
+the Y direction explicitly because the SGDK 2.11 implementation's direct and adapter paths
 differ. Test quick movement and cursor bounds in the actual game too.
 Two-button Sega Mouse needs a control scheme that does not require Middle or
 Start.
@@ -49,7 +49,7 @@ state. Do not substitute a contiguous 1/2/3/4 mapping for SGDK's slot table.
 
 ## Setup changes and timing
 
-Release controls before booting the pinned SDK with Team Player. Exercise the
+Release controls before booting the SGDK 2.11 implementation with Team Player. Exercise the
 explicit rescan shortcut while a controller still works, then release/repress
 buttons. A button held across rescanning should not trigger a phantom action.
 

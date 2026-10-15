@@ -61,9 +61,9 @@ instructions and symbols. Large symbols and library helpers are clues, not a
 runtime call-frequency profile. LTO/inlining can make one C function difficult
 to isolate; retain matching sources and ELF files.
 
-Our pinned image targets the base 68000 and includes its tested GCC byte-copy
-workaround. Preserve that pin for a fair comparison; a toolchain upgrade is a
-separate variable. Do not enable 68020 instructions or floating-point hardware
+Our selected image targets the base 68000 and includes its tested GCC byte-copy
+workaround. Record its actual versions for a fair comparison; a toolchain
+upgrade is a separate variable. Do not enable 68020 instructions or floating-point hardware
 options to improve a Mega Drive benchmark.
 
 Use assembly for a small, measured routine when C changes are insufficient.

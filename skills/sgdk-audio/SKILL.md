@@ -24,10 +24,10 @@ switch Z80 drivers just to play an effect.
   The optional [audio generator](scripts/make_lab_audio.py) recreates its assets
   in a new folder using only Python's standard library.
 
-Preserve an existing toolchain pin. The tested default is:
+Use the latest published SGDK toolchain:
 
 ```text
-ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
+ewrogers/sgdk:latest
 ```
 
 It provides Linux ARM64/AMD64 tools, including through Docker Desktop. Verify
