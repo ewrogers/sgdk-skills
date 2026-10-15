@@ -28,8 +28,10 @@ adds symbols and `build clean` removes generated output.
 | Down | Fade music out over 60 VBlanks, then stop |
 | Start | Stop music and the lab's effect channel |
 
-During a fade, music controls are temporarily ignored so a later play request
-cannot be stopped by the old fade. Effects remain available. Accepted/rejected
+During a fade, play/pause, loop and volume controls are temporarily ignored so
+a later play request cannot be stopped by the old fade. Start still stops the
+sound, but the pending fade must finish before music controls unlock. Effects
+remain available. Accepted/rejected
 counts describe driver requests, not a measurement of audible output.
 
 ## Structure

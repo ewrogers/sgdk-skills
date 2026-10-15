@@ -114,7 +114,8 @@ int main(int argc, char **argv)
     {
         begin(); press(BUTTON_DOWN); assert(fades == 1 && audio_status()->state == AUDIO_FADING);
         press(BUTTON_A); press(BUTTON_START); press(BUTTON_RIGHT); press(BUTTON_LEFT);
-        assert(plays == 1 && stops == 0 && fm == 100 && loop_value == -1);
+        assert(plays == 1 && stops == 1 && pcm_stops == 1 && fm == 100 && loop_value == -1);
+        assert(audio_status()->state == AUDIO_FADING);
         press(BUTTON_C); assert(effects == 1);
         fading = false; playing = false; audio_step(0);
         assert(audio_status()->state == AUDIO_IDLE && audio_status()->completed == 0);

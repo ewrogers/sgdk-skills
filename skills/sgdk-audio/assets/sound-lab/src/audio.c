@@ -62,6 +62,15 @@ void audio_step(u16 held)
     if (pressed & BUTTON_UP) play_effect(loud_sample, loud_size, 10);
     else if (pressed & BUTTON_C) play_effect(soft_sample, soft_size, 1);
 
+    if (pressed & BUTTON_START)
+    {
+        XGM2_stop();
+        XGM2_stopPCM(SOUND_PCM_CH2);
+        /* An existing fade still owns its deferred stop. Don't start a new
+           track until it finishes, even though the sound has stopped now. */
+        if (status.state != AUDIO_FADING) status.state = AUDIO_IDLE;
+        return;
+    }
     /* A fade owns the music controls until its deferred stop has finished. */
     if (status.state == AUDIO_FADING) return;
 
@@ -76,13 +85,7 @@ void audio_step(u16 held)
         XGM2_setFMVolume(status.volume);
         XGM2_setPSGVolume(status.volume);
     }
-    if (pressed & BUTTON_START)
-    {
-        XGM2_stop();
-        XGM2_stopPCM(SOUND_PCM_CH2);
-        status.state = AUDIO_IDLE;
-    }
-    else if (pressed & BUTTON_A)
+    if (pressed & BUTTON_A)
     {
         XGM2_play(song);
         status.state = AUDIO_STARTING;
