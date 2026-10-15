@@ -1,6 +1,6 @@
 #include "world.h"
 
-u16 enemy_range(Kind kind) { return kind==SENTRY ? 144 : kind==GUARD ? 112 : 96; }
+u16 enemy_range(Kind kind) { return kind==SENTRY ? 144 : kind==BOMBARDIER ? 112 : 96; }
 bool enemy_cone(u8 facing,s16 dx,s16 dy)
 {
     s16 forward=facing==0 ? dy : facing==1 ? dx : facing==2 ? -dy : -dx;
@@ -14,13 +14,13 @@ bool enemy_visible(u16 level,const Enemy *enemy,const Player *player,bool tracki
     s16 dx=player->pos.x-enemy->pos.x,dy=player->pos.y-enemy->pos.y;
     u16 range=enemy_range(enemy->kind)+(tracking ? 32 : 0);
     if ((u32)((long)dx*dx+(long)dy*dy)>(u32)range*range) return false;
-    if (enemy->kind==GUARD && !tracking && !enemy_cone(enemy->facing,dx,dy)) return false;
-    return world_line(level,enemy->pos,player->pos);
+    if (enemy->kind==BOMBARDIER && !tracking && !enemy_cone(enemy->facing,dx,dy)) return false;
+    return enemy->kind==BOMBARDIER ? world_lob_line(level,enemy->pos,player->pos) : world_line(level,enemy->pos,player->pos);
 }
 void enemy_sense(Game *game,u16 index)
 {
     Enemy *enemy=&game->enemies[index]; ++game->sensors;
-    if (enemy->state==STUNNED || enemy->state==WINDUP || enemy->state==RECOVER) return;
+    if (enemy->state==STUNNED || enemy->state==WINDUP || enemy->state==RECOVER || enemy->state==ZAP) return;
     u16 target=2; u32 best=0xFFFFFFFFUL;
     if (enemy->state==CHASE && enemy->target<2 && enemy_visible(game->level,enemy,&game->players[enemy->target],true))
         target=enemy->target;
@@ -36,7 +36,7 @@ void enemy_sense(Game *game,u16 index)
     s16 ax=dx<0 ? -dx : dx,ay=dy<0 ? -dy : dy;
     enemy->facing=ax>=ay ? (dx<0 ? 3 : 1) : (dy<0 ? 2 : 0);
     enemy->flip=enemy->facing==3;
-    u16 reach=enemy->kind==SENTRY ? 128 : 24;
+    u16 reach=enemy->kind==SENTRY ? 128 : enemy->kind==BOMBARDIER ? GRENADE_RANGE : 24;
     if ((u32)((long)dx*dx+(long)dy*dy)<=(u32)reach*reach) {
         enemy->aim=aim_direction(dx,dy);
         enemy_change(enemy,WINDUP,enemy->kind==SENTRY ? 36 : 24);

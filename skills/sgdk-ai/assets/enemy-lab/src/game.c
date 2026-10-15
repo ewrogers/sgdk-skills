@@ -7,19 +7,18 @@ void game_load_level(Game *game,u16 level)
     bool second=game->players[1].active; u8 overlay=game->overlay;
     *game=(Game){0}; game->tries=tries; game->overlay=overlay; game->level=level;
     game->players[0].active=true; game->players[1].active=second;
-    static const Point spawns[LEVEL_COUNT][2]={{{32,192},{48,192}},{{288,192},{272,192}},{{32,192},{48,192}}};
     static const Point homes[LEVEL_COUNT][ENEMY_COUNT]={
-        {{48,80},{256,176},{144,80},{256,96},{128,176},{240,144}},
+        {{48,80},{256,176},{144,80},{240,96},{128,176},{240,144}},
         {{48,96},{256,176},{144,80},{208,176},{112,112},{240,112}},
-        {{64,80},{256,176},{128,80},{208,96},{112,176},{272,144}}
+        {{96,80},{256,176},{128,80},{208,96},{112,176},{272,144}}
     };
     static const Point patrols[LEVEL_COUNT][ENEMY_COUNT]={
-        {{80,80},{224,176},{176,80},{256,64},{128,176},{240,144}},
+        {{80,80},{224,176},{176,80},{240,64},{128,176},{240,144}},
         {{48,144},{224,176},{176,80},{256,176},{112,112},{240,112}},
-        {{64,128},{224,176},{160,80},{208,128},{112,176},{272,144}}
+        {{96,128},{224,176},{160,80},{208,128},{112,176},{272,144}}
     };
     for (u16 p=0;p<2;++p) {
-        game->players[p].pos=spawns[level][p]; game->players[p].hits=hits[p];
+        game->players[p].pos=world_entry(level,p); game->players[p].hits=hits[p];
         game->players[p].invulnerable=120;
     }
     for (u16 i=0;i<ENEMY_COUNT;++i) {
@@ -32,6 +31,10 @@ void game_load_level(Game *game,u16 level)
 void game_init(Game *game)
 {
     *game=(Game){0}; game->tries=3; game_load_level(game,0);
+}
+void game_new_run(Game *game)
+{
+    game_init(game); game->phase=INTRO_BOMBARDIER;
 }
 u16 game_clock(u16 *fraction,u16 hz)
 {
@@ -56,7 +59,7 @@ static void pulse(Game *game,u16 p)
 {
     Player *player=&game->players[p];
     if (!player->active || player->cooldown) return;
-    player->pulse=16; player->cooldown=30;
+    player->pulse=16; player->cooldown=STUN_COOLDOWN;
     for (u16 i=0;i<ENEMY_COUNT;++i) {
         Enemy *enemy=&game->enemies[i]; s16 dx=enemy->pos.x-player->pos.x,dy=enemy->pos.y-player->pos.y;
         if ((long)dx*dx+(long)dy*dy<=32*32 && world_line(game->level,player->pos,enemy->pos)) {
@@ -68,9 +71,18 @@ void game_frame(Game *game,const Input *input,u16 ticks)
 {
     game->events=game->sensors=0; game->nav.expanded=0;
     if (!input || ticks>2) return;
-    if (input->pressed[0]&B) { game_init(game); return; }
+    if (input->pressed[0]&B) { game_new_run(game); return; }
     if (game->phase==GAME_OVER || game->phase==COMPLETE) {
-        if (input->pressed[0]&START) game_init(game);
+        if (input->pressed[0]&START) game_new_run(game);
+        return;
+    }
+    if (game->phase>=INTRO_BOMBARDIER) {
+        game->phase_ticks=(game->phase_ticks+ticks)%96;
+        s16 card=game->phase-INTRO_BOMBARDIER;
+        if (input->pressed[0]&LEFT) card=(card+2)%3;
+        else if (input->pressed[0]&RIGHT) card=(card+1)%3;
+        game->phase=INTRO_BOMBARDIER+card;
+        if (input->pressed[0]&(A|START)) game_load_level(game,0);
         return;
     }
     if (game->phase!=PLAYING) {
@@ -100,18 +112,22 @@ void game_frame(Game *game,const Input *input,u16 ticks)
             move_player(game,player,input->held[p]);
         }
         for (u16 i=0;i<ENEMY_COUNT;++i) {
+            enemy_contact(game,i);
+            if (game->phase!=PLAYING) break;
             if (game->tick%ENEMY_COUNT==i) enemy_sense(game,i);
             enemy_tick(game,i);
+            enemy_contact(game,i);
             if (game->phase!=PLAYING) break;
         }
         if (game->phase==PLAYING) shots_tick(game);
+        if (game->phase==PLAYING) bombs_tick(game);
         ++game->tick;
         if (game->phase!=PLAYING) return;
         Point exit=world_exit(game->level);
         for (u16 p=0;p<2;++p) if (game->players[p].active) {
             s16 dx=game->players[p].pos.x-exit.x,dy=game->players[p].pos.y-exit.y;
             if (dx>-12 && dx<12 && dy>-12 && dy<12) {
-                game->phase=AREA_CLEAR; game->phase_ticks=60; return;
+                game->phase=AREA_CLEAR; game->phase_ticks=60; game->events|=EVENT_CLEAR; return;
             }
         }
     }

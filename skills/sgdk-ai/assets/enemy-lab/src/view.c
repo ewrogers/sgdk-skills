@@ -6,10 +6,12 @@
 
 static Sprite *players[2],*enemies[ENEMY_COUNT],*shots[SHOT_COUNT],*pulses[2],*markers[ROUTE_CAPACITY];
 static Sprite *status[ENEMY_COUNT];
+static Sprite *bomb_sprites[BOMB_COUNT],*targets[BOMB_COUNT],*blasts[BOMB_COUNT][1+4*BOMB_REACH],*tasers[2];
 static Sprite *tries[3],*exit_sprite;
 static u16 last_level=0xFFFF,last_phase=0xFFFF;
 static u16 last_selected=0xFFFF,last_state=0xFFFF,last_overlay=0xFFFF,last_pause=0xFFFF;
 static u16 last_expanded=0xFFFF;
+static u16 last_charge[2]={0xFFFF,0xFFFF};
 static const u32 floor_tile[8]={0x22222222,0x22222222,0x22222222,0x22222222,
                                0x22222222,0x22222222,0x22222222,0x22222223};
 static const u32 wall_tile[8]={0x66666666,0x65555554,0x65555554,0x65555554,
@@ -21,6 +23,11 @@ static const u32 hud_tiles[5][8]={
     {0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB},
     {0xAAAAAAAA,0xA999999A,0xA999999A,0xA999999A,0xA999999A,0xA999999A,0xA999999A,0xAAAAAAAA}
 };
+static const u32 extra_tiles[3][8]={
+    {0xBBBBBBBB,0xB222222B,0xB222222B,0xB222222B,0xB222222B,0xB222222B,0xB222222B,0xBBBBBBBB},
+    {0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB},
+    {0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD}
+};
 static void field(const char *value,u16 x,u16 y,u16 width)
 {
     char buffer[41]; if (x+width<=40 && text_field(buffer,sizeof buffer,value,width)) VDP_drawText(buffer,x,y);
@@ -31,14 +38,14 @@ static void number(u16 value,u16 x,u16 y,u16 width)
 }
 static Sprite *sprite(const SpriteDefinition *definition,u16 palette)
 {
-    Sprite *result=SPR_addSprite(definition,0,0,TILE_ATTR(palette,TRUE,FALSE,FALSE));
+    Sprite *result=SPR_addSprite(definition,0,0,TILE_ATTR(palette,FALSE,FALSE,FALSE));
     if (result) { SPR_setAutoAnimation(result,FALSE); SPR_setVisibility(result,HIDDEN); }
     return result;
 }
 bool view_init(void)
 {
     VDP_setEnable(FALSE); VDP_setScreenWidth320(); VDP_setScreenHeight224();
-    VDP_setPlaneSize(64,32,TRUE); VDP_setTextPlane(BG_A); VDP_setTextPalette(PAL3);
+    VDP_setPlaneSize(64,32,TRUE); VDP_setTextPlane(BG_A); VDP_setTextPalette(PAL3); VDP_setTextPriority(TRUE);
     VDP_setBackgroundColor(1);
     u16 colors[64];
     for (u16 p=0;p<4;++p) for (u16 i=0;i<16;++i) colors[p*16+i]=hero_image.palette->data[i];
@@ -58,11 +65,13 @@ bool view_init(void)
     VDP_loadTileData(floor_tile,TILE_USER_INDEX,1,DMA);
     VDP_loadTileData(wall_tile,TILE_USER_INDEX+1,1,DMA);
     VDP_loadTileData(&hud_tiles[0][0],TILE_USER_INDEX+2,5,DMA);
+    VDP_loadTileData(&extra_tiles[0][0],TILE_USER_INDEX+7,3,DMA);
     VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+2),0,0,40,8);
     VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+3),0,7,40,1);
     SPR_initEx(8*hero_image.maxNumTile+SHOT_COUNT*shot_image.maxNumTile+
                2*pulse_image.maxNumTile+ROUTE_CAPACITY*marker_image.maxNumTile+ENEMY_COUNT*status_image.maxNumTile+
-               3*tries_image.maxNumTile+exit_image.maxNumTile);
+               3*tries_image.maxNumTile+exit_image.maxNumTile+2*zap_image.maxNumTile+
+               BOMB_COUNT*(bomb_image.maxNumTile+target_image.maxNumTile+(1+4*BOMB_REACH)*blast_image.maxNumTile));
     if (!SPR_isInitialized()) return false;
     for (u16 p=0;p<2;++p) {
         players[p]=sprite(&hero_image,PAL0); pulses[p]=sprite(&pulse_image,PAL0);
@@ -74,11 +83,20 @@ bool view_init(void)
     }
     for (u16 i=0;i<SHOT_COUNT;++i) { shots[i]=sprite(&shot_image,PAL3); if (!shots[i]) return false; }
     for (u16 i=0;i<ROUTE_CAPACITY;++i) { markers[i]=sprite(&marker_image,PAL3); if (!markers[i]) return false; }
+    for (u16 i=0;i<BOMB_COUNT;++i) {
+        bomb_sprites[i]=sprite(&bomb_image,PAL1); targets[i]=sprite(&target_image,PAL1);
+        tasers[i]=sprite(&zap_image,PAL2);
+        if (!bomb_sprites[i] || !targets[i] || !tasers[i]) return false;
+        for (u16 j=0;j<1+4*BOMB_REACH;++j) {
+            blasts[i][j]=sprite(&blast_image,PAL1); if (!blasts[i][j]) return false;
+        }
+    }
     for (u16 i=0;i<3;++i) { tries[i]=sprite(&tries_image,PAL3); if (!tries[i]) return false; }
     exit_sprite=sprite(&exit_image,PAL3); if (!exit_sprite) return false;
     field("ENEMY LAB",2,1,12); field("AREA",27,1,5);
     field("TRIES",2,3,5); field("ALERT",20,3,6);
     field("REACH EXIT   J STUN   START PAUSE",2,5,36);
+    field("STUN",2,6,4);
     SPR_update(); SYS_doVBlankProcess(); VDP_setEnable(TRUE); return true;
 }
 static void robot(Sprite *sprite,Point point,u8 facing,u16 animation,bool moving,bool visible)
@@ -108,7 +126,7 @@ static void overlay(const Game *game,u16 selected)
             s16 dx=cx[i]*enemy_range(enemy->kind)/256,dy=cy[i]*enemy_range(enemy->kind)/256;
             point=(Point){enemy->pos.x+4+dx,enemy->pos.y+4+dy};
             visible=point.x>=16 && point.x<296 && point.y>=64 && point.y<200 &&
-                (enemy->kind!=GUARD || enemy_cone(enemy->facing,dx,dy));
+                (enemy->kind!=BOMBARDIER || enemy_cone(enemy->facing,dx,dy));
         } else if (game->overlay==2 && enemy->route_at+i<enemy->route_len) {
             point=world_point(enemy->route[enemy->route_at+i]); point.x+=4; point.y+=4; visible=true;
         }
@@ -116,18 +134,78 @@ static void overlay(const Game *game,u16 selected)
         SPR_setVisibility(markers[i],visible ? VISIBLE : HIDDEN);
     }
 }
+static void effects(const Game *game)
+{
+    bool playing=game->phase<INTRO_BOMBARDIER;
+    for (u16 i=0;i<BOMB_COUNT;++i) {
+        const Bomb *bomb=&game->bombs[i]; Point point=bomb->target;
+        if (bomb->phase==BOMB_FLYING) {
+            s16 elapsed=BOMB_FLIGHT-bomb->timer;
+            point.x=bomb->from.x+(bomb->target.x-bomb->from.x)*elapsed/BOMB_FLIGHT;
+            point.y=bomb->from.y+(bomb->target.y-bomb->from.y)*elapsed/BOMB_FLIGHT-elapsed*(BOMB_FLIGHT-elapsed)/8;
+        }
+        bool live=playing && (bomb->phase==BOMB_FLYING || bomb->phase==BOMB_FUSED);
+        SPR_setPosition(bomb_sprites[i],point.x,point.y); SPR_setAnimAndFrame(bomb_sprites[i],0,(game->tick/6)%2);
+        SPR_setVisibility(bomb_sprites[i],live && point.y>=64 ? VISIBLE : HIDDEN);
+        SPR_setPosition(targets[i],bomb->target.x,bomb->target.y); SPR_setAnimAndFrame(targets[i],0,(game->tick/8)%2);
+        SPR_setVisibility(targets[i],live ? VISIBLE : HIDDEN);
+        Point cells[1+4*BOMB_REACH]; u16 count=bomb_cells(game->level,bomb,cells);
+        for (u16 j=0;j<1+4*BOMB_REACH;++j) {
+            if (j<count) SPR_setPosition(blasts[i][j],cells[j].x,cells[j].y);
+            SPR_setAnimAndFrame(blasts[i][j],0,(game->tick/3)%2);
+            SPR_setVisibility(blasts[i][j],playing && j<count ? VISIBLE : HIDDEN);
+        }
+        const Enemy *enemy=&game->enemies[i+2]; point=enemy_taser_target(enemy);
+        SPR_setPosition(tasers[i],point.x,point.y); SPR_setAnimAndFrame(tasers[i],0,(game->tick/2)%2);
+        SPR_setVisibility(tasers[i],playing && enemy->state==ZAP &&
+            !world_actor_solid(game->level,point) ? VISIBLE : HIDDEN);
+    }
+}
+static void introduction(const Game *game)
+{
+    u16 kind=game->phase-INTRO_BOMBARDIER;
+    for (u16 p=0;p<2;++p) { SPR_setVisibility(players[p],HIDDEN); SPR_setVisibility(pulses[p],HIDDEN); }
+    for (u16 i=0;i<ENEMY_COUNT;++i) { SPR_setVisibility(enemies[i],HIDDEN); SPR_setVisibility(status[i],HIDDEN); }
+    for (u16 i=0;i<SHOT_COUNT;++i) SPR_setVisibility(shots[i],HIDDEN);
+    for (u16 i=0;i<ROUTE_CAPACITY;++i) SPR_setVisibility(markers[i],HIDDEN);
+    SPR_setVisibility(exit_sprite,HIDDEN);
+    Sprite *portrait=enemies[kind*2]; SPR_setPriority(portrait,TRUE);
+    robot(portrait,(Point){152,112},0,game->phase_ticks,false,true);
+}
 void view_draw(const Game *game)
 {
-    if (last_level!=game->level) {
+    /* Text replaces whole tiles on A. Keep the opaque panel underneath on B,
+       at high priority so low-priority actors cannot cover its lettering. */
+    if (last_level!=game->level || (last_phase!=game->phase && game->phase==PLAYING)) {
+        u16 border=TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+1);
+        VDP_fillTileMapRect(BG_B,border,1,8,1,18);
+        VDP_fillTileMapRect(BG_B,border,38,8,1,18);
+        VDP_fillTileMapRect(BG_B,border,1,26,38,1);
         for (u16 y=0;y<GRID_H;++y) for (u16 x=0;x<GRID_W;++x)
-            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+world_wall(game->level,x,y)),
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+
+                               (world_entry_pad(game->level,world_point(y*GRID_W+x)) ? 7 : world_wall(game->level,x,y))),
                                2+x*2,8+y*2,2,2);
         number(game->level+1,32,1,1); field("OF 3",34,1,4); last_level=game->level;
     }
     if (last_phase!=game->phase) {
         VDP_clearTextArea(1,8,38,18);
-        if (game->phase!=PLAYING) {
-            VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+2),6,12,28,7);
+        if (game->phase>=INTRO_BOMBARDIER) {
+            static const char *const names[]={"BOMBARDIER","SHOCKER","SENTRY"};
+            static const char *const descriptions[3][3]={
+                {"LOBS BOMBS OVER THIN WALLS","DODGE THE PLUS-SHAPED BLAST","FOUR SECOND THROW COOLDOWN"},
+                {"CHASES AND USES A RED TASER","ONE TILE STRAIGHT AHEAD","ONE SECOND TO RECHARGE"},
+                {"STANDS STILL AND TAKES AIM","FIRES STRAIGHT AFTER A PAUSE","THREE SECONDS TO RECHARGE"}
+            };
+            u16 kind=game->phase-INTRO_BOMBARDIER;
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+8),4,9,32,16);
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+2),5,10,30,14);
+            field("KNOW YOUR ENEMIES",11,10,24);
+            VDP_setTextPalette(kind+1); field(names[kind],15,12,14); VDP_setTextPalette(PAL3);
+            field(descriptions[kind][0],6,17,28); field(descriptions[kind][1],6,19,28);
+            field(descriptions[kind][2],6,21,28); field("< > HELP   A / START PLAY",8,23,26);
+        } else if (game->phase!=PLAYING) {
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+3),6,12,28,7);
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+2),7,13,26,5);
             static const char *const captions[]={"","CAUGHT!","AREA CLEAR","GAME OVER","MISSION COMPLETE"};
             field(captions[game->phase],11,14,23);
             field(game->phase==GAME_OVER || game->phase==COMPLETE ? "START FOR A NEW RUN" :
@@ -138,6 +216,19 @@ void view_draw(const Game *game)
     for (u16 i=0;i<3;++i) {
         SPR_setPosition(tries[i],64+i*20,24); SPR_setAnimAndFrame(tries[i],0,i<game->tries ? 0 : 1);
         SPR_setVisibility(tries[i],VISIBLE);
+    }
+    for (u16 p=0;p<2;++p) {
+        const Player *player=&game->players[p];
+        u16 fill=(STUN_COOLDOWN-player->cooldown)*10/STUN_COOLDOWN;
+        u16 charge=player->active ? (player->cooldown ? fill : 20) : 30;
+        if (last_charge[p]!=charge) {
+            u16 x=p ? 27 : 8;
+            VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+2),x,6,10,1);
+            if (p) field(player->active ? "P2" : "",23,6,3);
+            if (player->active && fill) VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,
+                TILE_USER_INDEX+(player->cooldown ? 8 : 9)),x,6,fill,1);
+            last_charge[p]=charge;
+        }
     }
     Point exit=world_exit(game->level); SPR_setPosition(exit_sprite,exit.x,exit.y);
     SPR_setAnimAndFrame(exit_sprite,0,(game->tick/20)%2); SPR_setVisibility(exit_sprite,VISIBLE);
@@ -151,13 +242,14 @@ void view_draw(const Game *game)
     }
     for (u16 i=0;i<ENEMY_COUNT;++i) {
         const Enemy *enemy=&game->enemies[i];
+        SPR_setPriority(enemies[i],FALSE);
         robot(enemies[i],enemy->pos,enemy->facing,enemy->animation,enemy->moving,
               !(enemy->state==STUNNED && enemy->timer<=60 && (game->tick/6)%2));
         SPR_setPosition(status[i],enemy->pos.x,enemy->pos.y-14);
         SPR_setAnimAndFrame(status[i],0,enemy->state==STUNNED ? 1+(game->tick/20)%2 : 0);
         SPR_setVisibility(status[i],enemy->state==STUNNED || enemy->alert || enemy->state==WINDUP ? VISIBLE : HIDDEN);
         VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+
-                           (enemy->state==STUNNED ? 5 : enemy->state==CHASE || enemy->state==WINDUP ? 4 : 6)),
+                           (enemy->state==STUNNED ? 5 : enemy->state==CHASE || enemy->state==WINDUP || enemy->state==ZAP ? 4 : 6)),
                            27+i*2,3,1,1);
     }
     static const u8 frames[8]={0,1,2,1,0,1,2,1};
@@ -168,7 +260,8 @@ void view_draw(const Game *game)
         SPR_setVisibility(shots[i],shot->active ? VISIBLE : HIDDEN);
     }
     u16 selected=nearest(game); overlay(game,selected);
-    static const char *const states[]={"IDLE","PATROL","CHASE","RETURN","WINDUP","RECOVER","STUNNED"};
+    effects(game);
+    static const char *const states[]={"IDLE","PATROL","CHASE","RETURN","WINDUP","RECOVER","STUNNED","TASER"};
     if (last_selected!=selected || last_state!=game->enemies[selected].state || last_overlay!=game->overlay) {
         static const char *const modes[]={"NORMAL","SENSE","PATH"};
         field(modes[game->overlay],2,27,7); field("NEAR",10,27,5); number(selected+1,15,27,1);
@@ -177,5 +270,6 @@ void view_draw(const Game *game)
     }
     if (last_expanded!=game->nav.expanded) { number(game->nav.expanded,31,27,2); last_expanded=game->nav.expanded; }
     if (last_pause!=game->paused) { field(game->paused ? "PAUSED" : "",17,1,7); last_pause=game->paused; }
+    if (game->phase>=INTRO_BOMBARDIER) introduction(game);
     SPR_update();
 }

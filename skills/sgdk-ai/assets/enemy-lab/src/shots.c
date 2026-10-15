@@ -27,8 +27,8 @@ void shots_tick(Game *game)
         if (!--shot->life || world_solid(game->level,x,y,8,8)) { shot->active=false; continue; }
         for (u16 p=0;p<2;++p) {
             Player *player=&game->players[p];
-            if (player->active && x<player->pos.x+16 && player->pos.x<x+8 &&
-                y<player->pos.y+16 && player->pos.y<y+8) {
+            if (player->active && x<player->pos.x+ACTOR_INSET+ACTOR_SIZE && player->pos.x+ACTOR_INSET<x+8 &&
+                y<player->pos.y+ACTOR_INSET+ACTOR_SIZE && player->pos.y+ACTOR_INSET<y+8) {
                 player_hit(game,p); shot->active=false; break;
             }
         }

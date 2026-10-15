@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Create Enemy Lab's original indexed pulse, projectile and waypoint sheets."""
 import argparse
+import io
+import math
 from pathlib import Path
 import struct
+import wave
 import zlib
 
 COLORS=[(0,0,0),(0,0,0),(36,36,36),(73,73,73),(109,109,109),(146,146,146),
@@ -58,18 +61,49 @@ def assets():
                     goal[y*32+frame*16+x]=10 if x in (2,13) or y in (1,14) else 9
                 if (6<=x<=9 and 4<=y<=11) or (x==5 and y in (7,8)) or (x==10 and y in (7,8)):
                     goal[y*32+frame*16+x]=13 if frame==0 else 15
-    return {'marker.png':indexed(8,8,dots),'shot.png':indexed(24,8,shots),
+    effects={name:[0]*(32*16) for name in ['bomb','target','blast','zap']}
+    for frame in range(2):
+        for y in range(16):
+            for x in range(16):
+                at=y*32+frame*16+x; dx=x-7; dy=y-8
+                radius=dx*dx+dy*dy
+                if radius<38: effects['bomb'][at]=1 if radius>25 else 7
+                if -3<=dx<=-1 and -4<=dy<=-2: effects['bomb'][at]=15
+                if x in (8,9) and 1<=y<=3: effects['bomb'][at]=8 if frame else 15
+                if (x in (1,14) and 4<=y<=11) or (y in (1,14) and 4<=x<=11) or (x==7 and 5<=y<=10):
+                    effects['target'][at]=8 if frame else 15
+                if abs(dx)+abs(dy)<10 and (abs(dx)<5 or abs(dy)<5):
+                    effects['blast'][at]=15 if abs(dx)+abs(dy)<5+frame else 8
+                if (2<=x<=13 and abs(y-(5+(x+frame*3)%6))<2) or (x in (2,13) and 4<=y<=11):
+                    effects['zap'][at]=15 if (x+y+frame)%3==0 else 8
+    return {**{name+'.png':indexed(32,16,data) for name,data in effects.items()},
+            'marker.png':indexed(8,8,dots),'shot.png':indexed(24,8,shots),
             'pulse.png':indexed(256,64,pulse),'status.png':indexed(48,16,status),
             'tries.png':indexed(32,16,hearts),'exit.png':indexed(32,16,goal)}
 
 
+def clear_jingle():
+    """A short rising chime with a small ROM footprint."""
+    rate=13300; samples=bytearray()
+    for frequency in (523.25,659.25,783.99,1046.5):
+        length=rate//10
+        for i in range(length):
+            envelope=min(i/40,1)*(1-i/length)**2
+            tone=math.sin(2*math.pi*frequency*i/rate)+0.25*math.sin(4*math.pi*frequency*i/rate)
+            samples.append(128+round(68*envelope*tone))
+    output=io.BytesIO()
+    with wave.open(output,'wb') as sound:
+        sound.setparams((1,1,rate,0,'NONE','not compressed')); sound.writeframes(samples)
+    return output.getvalue()
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('output',type=Path)
-    args=parser.parse_args(); files=assets()
+    args=parser.parse_args(); files={**assets(),'clear.wav':clear_jingle()}
     if any((args.output/name).exists() for name in files): parser.error('Choose a new output folder; assets already exist')
     args.output.mkdir(parents=True,exist_ok=True)
     for name,data in files.items(): (args.output/name).write_bytes(data)
-    print(f'Created {len(files)} indexed sprite sheets')
+    print(f'Created {len(files)-1} indexed sprite sheets and a clear jingle')
 
 
 if __name__=='__main__': main()

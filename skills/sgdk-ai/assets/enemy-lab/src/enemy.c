@@ -1,5 +1,28 @@
 #include "world.h"
 
+void enemy_contact(Game *game,u16 index)
+{
+    const Enemy *enemy=&game->enemies[index];
+    if (enemy->state==STUNNED) return;
+    for (u16 p=0;p<2;++p) {
+        const Player *player=&game->players[p];
+        s16 dx=player->pos.x-enemy->pos.x,dy=player->pos.y-enemy->pos.y;
+        if (dx>-ACTOR_SIZE && dx<ACTOR_SIZE && dy>-ACTOR_SIZE && dy<ACTOR_SIZE) player_hit(game,p);
+    }
+}
+Point enemy_taser_target(const Enemy *enemy)
+{
+    static const s16 dx[4]={0,16,0,-16},dy[4]={16,0,-16,0};
+    return (Point){enemy->pos.x+dx[enemy->facing],enemy->pos.y+dy[enemy->facing]};
+}
+bool enemy_taser_hits(u16 level,const Enemy *enemy,const Player *player)
+{
+    Point target=enemy_taser_target(enemy);
+    return player->active && !world_actor_solid(level,target) &&
+        player->pos.x+ACTOR_INSET<target.x+16 && target.x<player->pos.x+ACTOR_INSET+ACTOR_SIZE &&
+        player->pos.y+ACTOR_INSET<target.y+16 && target.y<player->pos.y+ACTOR_INSET+ACTOR_SIZE &&
+        world_line(level,enemy->pos,player->pos);
+}
 void enemy_change(Enemy *enemy,State state,u16 duration)
 {
     enemy->state=state; enemy->timer=duration; enemy->moving=false;
@@ -26,6 +49,12 @@ void enemy_tick(Game *game,u16 index)
     if (enemy->alert) --enemy->alert;
     if (enemy->memory) --enemy->memory;
     if (enemy->repath) --enemy->repath;
+    if (enemy->state==ZAP) {
+        for (u16 p=0;p<2;++p) if (enemy_taser_hits(game->level,enemy,&game->players[p])) player_hit(game,p);
+        if (enemy->timer) --enemy->timer;
+        if (!enemy->timer) enemy_change(enemy,RECOVER,TASER_RECOVERY);
+        return;
+    }
     if (enemy->state==STUNNED || enemy->state==RECOVER) {
         if (enemy->timer) --enemy->timer;
         if (!enemy->timer) enemy_change(enemy,RETURN,0);
@@ -34,16 +63,19 @@ void enemy_tick(Game *game,u16 index)
     if (enemy->state==WINDUP) {
         if (enemy->timer) --enemy->timer;
         if (!enemy->timer) {
+            if (enemy->kind==BOMBARDIER) {
+                if (bomb_throw(game,index,enemy->last_seen)) game->events|=EVENT_FIRE;
+                enemy_change(enemy,RECOVER,GRENADE_RECOVERY);
+                return;
+            }
             if (enemy->kind==SENTRY) {
                 if (shot_fire(game,enemy->pos,enemy->aim)) game->events|=EVENT_FIRE;
             }
-            else if (enemy->target<2) {
-                Player *player=&game->players[enemy->target];
-                s16 dx=player->pos.x-enemy->pos.x,dy=player->pos.y-enemy->pos.y;
-                if (player->active && (long)dx*dx+(long)dy*dy<=24*24 && world_line(game->level,enemy->pos,player->pos))
-                    player_hit(game,enemy->target);
+            else {
+                enemy_change(enemy,ZAP,TASER_TICKS); game->events|=EVENT_FIRE;
+                return;
             }
-            enemy_change(enemy,RECOVER,45);
+            enemy_change(enemy,RECOVER,SENTRY_RECOVERY);
         }
         return;
     }
