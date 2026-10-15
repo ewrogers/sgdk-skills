@@ -156,6 +156,12 @@ register-to-port writes without helper calls. Emulator checks separately cover
 the intentional masked band, CRAM dots, controls and music with scrolling DMA.
 Physical-console timing and other VDP modes remain unverified.
 
+Water frame tests invoke the registered early V interrupt, inspect dry CRAM
+before simulated late main-loop work, sweep both directions and verify that a
+later published setting cannot change the armed frame. Teardown removes both
+interrupt callbacks. These test ownership and ordering, not actual DMA duration;
+continuous emulator sweeps are a separate timing check.
+
 Asset tests reproduce the original water sprites/music, check PNG checksums and
 opaque surface coverage, and parse the VGM's twelve-second loop, pad envelopes
 and spaced bell events. Bubble/splash tests cover entry/exit crossings, rising

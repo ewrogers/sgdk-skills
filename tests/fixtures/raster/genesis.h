@@ -25,6 +25,7 @@ void VDP_setVerticalScroll(VDPPlane plane, s16 value);
 void VDP_setWindowVPos(u16 down, u16 position);
 u8 VDP_getReg(u16 index);
 void SYS_setHIntCallback(VoidCallback *callback);
+void SYS_setVIntCallback(VoidCallback *callback);
 void SYS_disableInts(void);
 void SYS_enableInts(void);
 void PAL_setColors(u16 index, const u16 *colors, u16 count, TransferMethod transfer);

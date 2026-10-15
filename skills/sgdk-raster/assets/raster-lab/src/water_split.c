@@ -30,6 +30,21 @@ static u16 changed_pairs;
 static volatile u16 armed_line, increment_command, no_hint_command;
 static volatile u16 late_count, timeout_count, last_line, setup_late;
 static volatile bool armed, installed;
+static volatile u16 published_frame;
+
+static void begin_frame(void)
+{
+    /* One aligned word publishes line + enable together on the 68000. This
+       runs from V-Int, before the main-loop DMA flush can spend VBlank time. */
+    u16 frame = published_frame;
+    water_split_prepare(frame & 255, (frame & 256) != 0);
+}
+
+void water_split_publish(u16 line, bool enabled)
+{
+    published_frame = line >= RASTER_MIN_LINE && line <= RASTER_MAX_LINE ?
+                      line | (enabled ? 256 : 0) : 0;
+}
 
 /* Preload command/colors BEFORE the edge wait. Only two register-to-port
    longword writes follow the fresh HBlank edge. Generic C may reload RAM too
@@ -90,8 +105,10 @@ void water_split_init(const u16 *dry, const u16 *wet)
     }
     late_count = timeout_count = last_line = setup_late = 0;
     armed = FALSE;
+    published_frame = 0;
     installed = TRUE;
     SYS_setHIntCallback(water_split_interrupt);
+    SYS_setVIntCallback(begin_frame);
 }
 
 void water_split_prepare(u16 line, bool enabled)
@@ -167,6 +184,7 @@ void water_split_stop(void)
     armed = FALSE;
     installed = FALSE;
     SYS_setHIntCallback(NULL);
+    SYS_setVIntCallback(NULL);
     SYS_enableInts();
 }
 

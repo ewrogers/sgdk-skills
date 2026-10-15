@@ -62,9 +62,16 @@ time across its scanlines, so profile it alongside the rest of a real game.
 
 `src/raster_model.c` owns bounded tables, tint and controls. `src/water_fx.c`
 owns the fixed bubble pool and crossing effect. `src/water_split.c`
-owns the H interrupt and snapshots persistent colors. Only its small edge-wait
+owns the H/V interrupts and snapshots persistent colors. Only its small edge-wait
 routine uses inline 68000 assembly. `src/main.c` owns streaming, sprites, sound
 and VBlank setup. The globals are standalone example ownership, not a framework.
+
+Dry colors are restored by the early vertical interrupt, before normal DMA work.
+The later VBlank callback only updates the HUD. Each completed frame publishes
+its matching waterline and tint flag together, so moving water cannot change an
+already armed split. Z80 driver loading finishes before these callbacks are
+installed. Keep this order when adapting the example; a restore after DMA can
+miss its deadline and leave the whole next frame blue.
 
 ## Read the diagnostics
 
@@ -84,8 +91,10 @@ no visible CRAM dots or that audio is clean.
 1. Watch the robot cross the foamy surface. Map and sprite should tint below it
    while the HUD keeps its normal colors. Look for a splash on entry/exit and
    rising bubbles underwater. Check the boundary for colored dots/flicker.
-2. Hold Up/Down to each limit, then pan Left/Right. The wave must remain attached
-   to the camera rather than replacing its scroll offset.
+2. Repeatedly sweep Up/Down to both limits, then pan Left/Right. Watch for whole
+   screen tint flashes and growing diagnostic counts. The wave must remain
+   attached to the camera rather than replacing its scroll offset. A stationary
+   waterline alone does not test this timing.
 3. Compare A/B independently, including while paused. Turning tint off should
    restore dry colors across the screen; turning waves off keeps plain scrolling.
 4. Listen with music enabled during panning and the palette split. C stops and

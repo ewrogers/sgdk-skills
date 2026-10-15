@@ -7,7 +7,9 @@
 static bool enabled;
 static u8 counter, regs[16];
 static VoidCallback *callback;
+static VoidCallback *vertical_callback;
 static u16 dry_copy[32], writes[64], write_count, palette_calls, depth;
+static u16 cram[32], cram_index;
 static u32 pairs[16], cram_command;
 static u16 pair_count, status_reads, line_reads, current_line, status_value;
 static bool frozen_clock, starve_after_data;
@@ -16,17 +18,24 @@ void VDP_setHInterrupt(bool value) { enabled = value; }
 void VDP_setHIntCounter(u8 value) { counter = value; }
 u8 VDP_getReg(u16 index) { assert(index < 16); return regs[index]; }
 void SYS_setHIntCallback(VoidCallback *cb) { callback = cb; }
+void SYS_setVIntCallback(VoidCallback *cb) { vertical_callback = cb; }
 void SYS_disableInts(void) { ++depth; }
 void SYS_enableInts(void) { assert(depth); --depth; }
 void PAL_setColors(u16 index, const u16 *data, u16 count, TransferMethod method)
 {
     assert(index == 0 && count == 32 && method == CPU);
     memcpy(dry_copy, data, sizeof dry_copy);
+    memcpy(cram, data, sizeof cram);
     ++palette_calls;
 }
 void raster_test_control(u16 value) { assert(write_count < 64); writes[write_count++] = value; }
-void raster_test_command(u32 value) { cram_command = value; }
-void raster_test_data(u32 value) { assert(pair_count < 16); pairs[pair_count++] = value; }
+void raster_test_command(u32 value) { cram_command = value; cram_index = ((value >> 16) & 0x3FFF) / 2; }
+void raster_test_data(u32 value)
+{
+    assert(pair_count < 16 && cram_index + 1 < 32);
+    pairs[pair_count++] = value;
+    cram[cram_index++] = value >> 16; cram[cram_index++] = value;
+}
 u16 raster_test_status(void)
 {
     ++status_reads;
@@ -154,7 +163,7 @@ static void split(void)
     water_split_prepare(193, TRUE); assert(!enabled);
     water_split_prepare(128, FALSE); assert(!enabled);
     assert(palette_calls == 5); /* Dry palette restored even with tint disabled. */
-    water_split_stop(); assert(callback == NULL && !enabled && !depth);
+    water_split_stop(); assert(callback == NULL && vertical_callback == NULL && !enabled && !depth);
     u16 calls = palette_calls;
     water_split_prepare(128, TRUE); /* A remaining frame callback cannot rearm. */
     assert(!enabled && palette_calls == calls);
@@ -246,6 +255,42 @@ static void effects(void)
     assert(memcmp(&frozen, &n.fx, sizeof frozen) == 0);
 }
 
+static void frame_restore(void)
+{
+    u16 dry[32], wet[32];
+    for (u16 i = 0; i < 32; ++i) { dry[i] = i * 2; wet[i] = 0x600 | (i * 2); }
+    reset_io(); water_split_init(dry, wet);
+    assert(vertical_callback && callback);
+    water_split_publish(128, TRUE);
+    vertical_callback();
+    assert(counter == 127 && enabled && memcmp(cram, dry, sizeof cram) == 0);
+    /* Publishing the next moving surface cannot change this frame's target. */
+    water_split_publish(64, FALSE);
+    current_line = 127; status_value = VDP_FIFOEMPTY_FLAG | VDP_HBLANK_FLAG;
+    callback(); assert(memcmp(cram, wet, sizeof cram) == 0);
+    reset_io(); vertical_callback();
+    assert(!enabled && memcmp(cram, dry, sizeof cram) == 0);
+    /* Even if the later main-loop DMA phase reaches active display, the dry
+       colors are already restored by V-Int; there is no late restore to skip. */
+    status_value = 0; current_line = 0;
+    assert(memcmp(cram, dry, sizeof cram) == 0);
+    for (u16 pass = 0; pass < 2; ++pass)
+        for (u16 step = 0; step <= RASTER_MAX_LINE - RASTER_MIN_LINE; ++step) {
+            u16 line = pass ? RASTER_MAX_LINE - step : RASTER_MIN_LINE + step;
+            reset_io(); water_split_publish(line, TRUE); vertical_callback();
+            assert(enabled && counter == line - 1 && memcmp(cram, dry, sizeof cram) == 0);
+            current_line = line - 1; status_value = VDP_FIFOEMPTY_FLAG | VDP_HBLANK_FLAG;
+            callback(); assert(memcmp(cram, wet, sizeof cram) == 0);
+        }
+    assert(!water_split_late() && !water_split_timeouts());
+    reset_io(); water_split_publish(400, TRUE); vertical_callback();
+    assert(!enabled && memcmp(cram, dry, sizeof cram) == 0);
+    VoidCallback *old_vertical = vertical_callback;
+    water_split_stop(); assert(!vertical_callback);
+    u16 calls = palette_calls;
+    old_vertical(); assert(palette_calls == calls && !enabled);
+}
+
 int main(int argc, char **argv)
 {
     assert(argc == 2);
@@ -254,6 +299,7 @@ int main(int argc, char **argv)
     else if (!strcmp(argv[1], "split")) split();
     else if (!strcmp(argv[1], "failure")) failure();
     else if (!strcmp(argv[1], "effects")) effects();
+    else if (!strcmp(argv[1], "frame-restore")) frame_restore();
     else return 2;
     puts(argv[1]);
     return 0;

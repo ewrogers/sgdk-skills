@@ -10,11 +10,18 @@ static Sprite *robot;
 static Sprite *surface[10];
 static Sprite *bubbles[WATER_BUBBLES], *splash;
 static u16 surface_tiles[4];
+static u16 hud_refresh, video_hz;
+static void status_text(void);
 
 static void begin_frame(void)
 {
-    /* SGDK invokes this AFTER its queued DMA and scroll/fade processing. */
-    water_split_prepare(model.waterline, model.tint);
+    /* Ordinary HUD writes follow DMA, while dry colors and the H counter
+       have already been restored/armed by water_split's early V interrupt. */
+    if (++hud_refresh < video_hz / 4) return;
+    hud_refresh = 0;
+    SYS_disableInts();
+    status_text();
+    SYS_enableInts();
 }
 
 static u16 controls(u16 held)
@@ -108,26 +115,31 @@ static bool setup(void)
     MAP_scrollToEx(map, 0, 96, TRUE);
     SPR_update();
     SYS_doVBlankProcess(); /* Initial full map/sprite transfer while hidden. */
-    VDP_setEnable(TRUE);
-    water_split_init(dry, wet); /* Copies stack data into persistent storage. */
-    if (water_split_pair_count() > 8) return FALSE; /* Surface coverage for this art. */
-    SYS_setVBlankCallback(begin_frame);
+    /* Driver loading can hold interrupts while copying Z80 RAM. Finish that
+       startup work before installing time-sensitive palette callbacks. */
     Z80_loadDriver(Z80_DRIVER_XGM2, TRUE);
     Z80_setForceDelayDMA(TRUE);
     XGM2_setLoopNumber(-1);
     XGM2_play(music);
+    water_split_init(dry, wet); /* Copies stack data into persistent storage. */
+    if (water_split_pair_count() > 8) return FALSE; /* Surface coverage for this art. */
+    water_split_publish(model.waterline, model.tint);
+    SYS_setVBlankCallback(begin_frame);
+    VDP_setEnable(TRUE);
     return TRUE;
 }
 
 int main(bool hard_reset)
 {
-    u16 refresh = 0, hz = SYS_isPAL() ? 50 : 60;
+    u16 hz = SYS_isPAL() ? 50 : 60;
+    video_hz = hz;
     (void)hard_reset;
     JOY_init();
     raster_model_init(&model);
     if (!setup()) {
         VDP_setHInterrupt(FALSE);
         SYS_setVBlankCallback(NULL);
+        water_split_stop();
         VDP_setWindowVPos(FALSE, 28);
         VDP_setEnable(TRUE);
         VDP_drawText("RASTER LAB SETUP FAILED", 2, 12);
@@ -175,7 +187,9 @@ int main(bool hard_reset)
            supplies the final waved table. Source remains alive until flush. */
         SYS_disableInts();
         VDP_setHorizontalScrollLine(BG_A, 0, line_scroll, RASTER_LINES, DMA_QUEUE);
-        if (++refresh >= hz / 4) { refresh = 0; status_text(); }
+        /* Publish in the same critical section as the completed frame queue,
+           before a pending V interrupt can consume it. */
+        water_split_publish(model.waterline, model.tint);
         SYS_enableInts();
         SYS_doVBlankProcess();
     }

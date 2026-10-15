@@ -2,9 +2,10 @@
 #define RASTER_LAB_WATER_SPLIT_H
 #include <genesis.h>
 
-/* This standalone lab owns H interrupt, VBlank callback, PAL0/PAL1 and R15
-   while active. Prepare only from VBlank, after the normal DMA queue drains. */
+/* Owns H/V interrupts, PAL0/PAL1 and R15. Publish a complete frame before
+   its VBlank transfer; the V interrupt restores dry colors before DMA work. */
 void water_split_init(const u16 *dry, const u16 *wet);
+void water_split_publish(u16 line, bool enabled);
 void water_split_prepare(u16 line, bool enabled);
 void water_split_stop(void);
 u16 water_split_pair_count(void);

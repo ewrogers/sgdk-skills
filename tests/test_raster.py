@@ -61,6 +61,7 @@ class RasterBehaviorTests(unittest.TestCase):
     def test_one_shot_split_copied_palettes_no_blanking_and_increment_restoration(self): self.check("split")
     def test_late_setup_delayed_interrupt_and_bounded_fifo_timeout(self): self.check("failure")
     def test_bubble_pool_splash_crossings_pause_and_region_cadence(self): self.check("effects")
+    def test_early_vint_restore_moving_waterline_frame_snapshot_and_teardown(self): self.check("frame-restore")
     def test_split_independent_players_cpu_route_pause_and_regions(self): self.check("split-model")
     def test_split_camera_offsets_and_software_sprite_clipping(self): self.check("split-views")
     def test_split_vsram_hud_handoff_and_bounded_failures(self): self.check("split-video")

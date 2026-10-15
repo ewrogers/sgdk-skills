@@ -43,6 +43,14 @@ calls to a scanline handler.
 `VDP_setHIntCounter(N)` means every `N + 1` lines. Re-enabling may deliver a
 pending event during VBlank; do not let that consume the intended active split.
 
+Restore the normal palette at the start of VBlank, before queued DMA can consume
+its budget. SGDK's `SYS_setVBlankCallback()` runs after those tasks; Raster Lab
+uses `SYS_setVIntCallback()` for this deadline and keeps HUD work in the later
+callback. Finish Z80 driver loading before installing raster callbacks. Publish
+the split line and enable flag together with the completed sprite/scroll frame;
+do not let an interrupt read a partly updated game model. See the timing reference
+for the callback ownership and main-loop port protection this requires.
+
 Do not claim a whole palette fits inside one HBlank. Display blank alone does
 not hide CRAM dots, nor does an opaque sprite. The lab writes only two colors per
 fresh HBlank, skips unchanged pairs and masks the mixed-palette rows with animated
@@ -59,6 +67,8 @@ preloaded port writes and bounded polling matter here.
 Then inspect the ROM in actual detected PAL/NTSC modes. Move the waterline,
 pan the camera, cross the split with a sprite and listen with graphics DMA
 active. Check the HUD stays unchanged and late/timeout diagnostics stay stable.
+Sweep the waterline repeatedly through its full range in both directions. A
+stationary split can hide missed palette restores and frame-snapshot mismatches.
 Host tests and a clean emulator image do not certify CRAM timing on a console;
 record hardware and emulator evidence separately.
 

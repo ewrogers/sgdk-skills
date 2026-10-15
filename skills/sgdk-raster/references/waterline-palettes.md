@@ -53,8 +53,19 @@ Use `HINTERRUPT_CALLBACK` for the function installed through
 must preserve interrupt state and emit `RTE`. A normal `void` callback returning
 with `RTS` is not interchangeable.
 
-The lab's VBlank callback runs after normal queued DMA/scroll work. It restores
-the dry palette, snapshots VDP register commands and sets counter `line - 1`.
+The lab installs an early V interrupt through `SYS_setVIntCallback()`. It restores
+the dry palette, snapshots VDP register commands and sets counter `line - 1`
+before the main loop flushes queued DMA. SGDK's later `SYS_setVBlankCallback()`
+is used only for occasional HUD updates. Restoring colors there instead can be
+too late if earlier transfer work uses the blanking budget: the previous frame's
+underwater colors can carry into the whole next frame.
+
+`water_split_publish()` publishes the next line and tint flag as one aligned
+16-bit word. Publish it with the completed sprite/scroll queue before releasing
+the main-loop critical section. The V interrupt latches that word for the frame;
+later model changes cannot move an already armed split. Do not copy an entire
+mutable game model from an interrupt and assume it describes the displayed frame.
+
 An already pending interrupt during VBlank is ignored without consuming the
 armed split. During active display, the first expected event disables further
 H interrupts and performs the switch. An unexpectedly late event is skipped.
@@ -64,8 +75,9 @@ Saved commands preserve the other register bits and restore the final state
 expected by SGDK's cache. Do not run an independent fade or palette uploader
 over these banks without composing both dry and wet variants deliberately.
 
-For teardown, disable H interrupts, remove the lab's VBlank callback and detach
-its H callback before releasing data. Drain queued transfers while their owners
+For teardown, disable H interrupts and detach the H/V interrupt callbacks with
+`water_split_stop()`. Also remove the ordinary HUD VBlank callback before releasing data.
+Drain queued transfers while their owners
 still exist. Restore normal colors while blanked or in VBlank. The standalone
 lab owns these global callbacks; a larger game must coordinate their ownership.
 
@@ -73,6 +85,7 @@ lab owns these global callbacks; a larger game must coordinate their ownership.
 
 - SGDK 2.11 [interrupt ABI and callback contract](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/sys.h),
   [callback/queue order](https://github.com/Stephane-D/SGDK/blob/v2.11/src/sys.c),
+  [early vertical interrupt entry](https://github.com/Stephane-D/SGDK/blob/v2.11/src/boot/sega.s),
   [official H-interrupt sample](https://github.com/Stephane-D/SGDK/blob/v2.11/sample/fx/h-int/scaling/src/main.c).
 - [VDP counter/display controls](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp.h),
   [cached register implementation](https://github.com/Stephane-D/SGDK/blob/v2.11/src/vdp.c),
