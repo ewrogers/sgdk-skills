@@ -12,7 +12,7 @@ python3 -m unittest discover -s tests -v
 ```
 
 Python checks use the standard library. Input, graphics, audio, gameplay, save
-performance and UI behavior tests also need a C17
+performance, UI and level behavior tests also need a C17
 compiler (`clang`, `cc` or `gcc`) to execute the actual example modules with a
 fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
 host checks on macOS, Linux and Windows without requiring Docker. Docker tests
@@ -124,6 +124,18 @@ field writes. Container checks compile the real APIs, build release/debug ROMs
 and compare all 96 compiled glyph tiles with the font pixels. These do not
 emulate the VDP, measure frame time or prove TV readability. Follow Menu Lab's
 playtest checklist for those visual checks.
+
+Level tests parse the actual Tiled collision layer, compare every occupancy
+bit, and reject unsupported geometry, transform flags and broken references.
+They execute fractional collision edges, wall sliding, corridor traversal,
+camera limits, nominal PAL/NTSC motion and a long movement run. A recording
+SDK fixture checks map/sprite ownership, queued-work draining, loading
+failures, teleport redraws and exact VRAM reservation boundaries. Container
+checks build the real external TSX/TMX resources in both modes and compare the
+linked collision bytes with the source. Art checks verify indexed palettes
+and dimensions, including the directional robot sheet. Walk/idle phase and
+pause tests exercise the simulation-driven animation. Emulator checks cover visible streaming and collision
+alignment; physical-console DMA timing and PAL visuals remain separate checks.
 
 ## Architectures and image versions
 

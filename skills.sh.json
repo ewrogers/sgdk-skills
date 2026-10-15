@@ -18,6 +18,7 @@
         "sgdk-graphics",
         "sgdk-input",
         "sgdk-ui",
+        "sgdk-levels",
         "sgdk-gameplay",
         "sgdk-audio",
         "sgdk-save"
