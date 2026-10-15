@@ -1,0 +1,7 @@
+out/
+res/*.h
+res/*.s
+res/*.rs
+res/*.d
+src/boot/sega.s
+__pycache__/

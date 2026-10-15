@@ -292,3 +292,20 @@ CI compares the two ROM hashes across native ARM64 and AMD64. These fixtures
 do not emulate VDP timing, the Z80 or electrical SRAM. Local NTSC ares testing
 covers the full game flow, music and boss encounter; PAL visual testing and
 physical-console checks remain separate.
+
+## Enemy AI
+
+Enemy Lab tests execute its actual C state, sight and navigation code. Every
+walkable start/goal pair in all three maps is compared with an independent
+shortest-path oracle. Checks cover symmetric supercover sight, cone/range edges,
+stable target choice, tracking hysteresis, bounded/fair search work, stale
+result cancellation, off-grid stun recovery, projectile exhaustion and a long
+collision-safe run. Level tests check exit reachability, retries and Game Over.
+
+A recording SDK checks HUD text/palette roles, alert and stun icons, last-second
+warning flashes, facing, try icons and removal of old level messages. Container
+checks verify the adapter declarations against real SGDK, keep the local
+makefile's aliasing compatibility flag, and build release/debug ROMs. CI compares
+their hashes on native ARM64 and AMD64. Host timing checks cover nominal PAL/NTSC
+model clocks; PAL visuals, search latency under real workloads, measured CPU
+cost and physical hardware remain separate checks.
