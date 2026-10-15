@@ -7,6 +7,9 @@ Practical agent skills for making Sega Mega Drive and Genesis games with
 [SGDK Docker toolchain](https://github.com/ewrogers/sgdk-docker), keep your project
 on your computer, and use an agent to help with setup, assets and debugging.
 
+For Sega CD development, see [Megadev Docker](https://github.com/ewrogers/megadev-docker)
+and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development).
+
 | Skill | What to ask it for |
 | --- | --- |
 | [sgdk-planning](skills/sgdk-planning/SKILL.md) | Turn a game idea into a first playable milestone, hardware budgets and practical tests. |
