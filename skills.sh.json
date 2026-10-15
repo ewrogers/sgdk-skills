@@ -12,11 +12,12 @@
     },
     {
       "title": "Build your game",
-      "description": "Bring your game's art, controls, gameplay, audio and saves together.",
+      "description": "Bring your game's art, controls, menus, gameplay, audio and saves together.",
       "skills": [
         "sgdk-assets",
         "sgdk-graphics",
         "sgdk-input",
+        "sgdk-ui",
         "sgdk-gameplay",
         "sgdk-audio",
         "sgdk-save"

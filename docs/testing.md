@@ -12,7 +12,7 @@ python3 -m unittest discover -s tests -v
 ```
 
 Python checks use the standard library. Input, graphics, audio, gameplay, save
-and performance behavior tests also need a C17
+performance and UI behavior tests also need a C17
 compiler (`clang`, `cc` or `gcc`) to execute the actual example modules with a
 fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
 host checks on macOS, Linux and Windows without requiring Docker. Docker tests
@@ -115,6 +115,15 @@ both build modes and inspect the real sprite's dimensions/frame count with GDB.
 These establish behavior and API compatibility, not CPU speedups, DMA timing or
 VDP scanline behavior. Follow the lab's emulator checklist and measure optimized
 builds; its silent synthetic workload cannot certify whole-game headroom.
+
+UI tests execute Menu Lab's navigation, repeat delay, action edges, option
+changes, pause/restart/results transitions, nominal PAL/NTSC countdowns and
+bounded text/number formatting. A recording VDP fixture checks fixed Window
+HUD ownership, palette/font changes, stale-text removal and avoiding unchanged
+field writes. Container checks compile the real APIs, build release/debug ROMs
+and compare all 96 compiled glyph tiles with the font pixels. These do not
+emulate the VDP, measure frame time or prove TV readability. Follow Menu Lab's
+playtest checklist for those visual checks.
 
 ## Architectures and image versions
 
