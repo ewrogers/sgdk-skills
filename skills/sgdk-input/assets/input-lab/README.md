@@ -17,14 +17,14 @@ display refreshes every six frames, while input is sampled every frame.
 From the copied directory, macOS or Linux:
 
 ```sh
-sgdk_image='ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34'
+sgdk_image='ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c'
 docker run --rm --user "$(id -u):$(id -g)" --mount "type=bind,source=$PWD,target=/workspace" "$sgdk_image" build
 ```
 
 Windows PowerShell, with Docker Desktop using Linux containers:
 
 ```powershell
-$sgdkImage = 'ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34'
+$sgdkImage = 'ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c'
 docker run --rm --mount "type=bind,source=$($PWD.Path),target=/workspace" $sgdkImage build
 ```
 

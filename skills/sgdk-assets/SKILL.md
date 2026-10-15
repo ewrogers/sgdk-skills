@@ -10,7 +10,7 @@ Turn source art into SGDK resources without surprising the artist or exceeding t
 ## Start with the project
 
 1. Find its `.res` files, source art, build instructions and pinned Docker image. Preserve the original art and any palette ordering. Work on derived exports when conversion is needed.
-2. Use the project's image. Otherwise use `ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34`. It supports Linux ARM64 and AMD64; Docker supplies Linux containers on macOS and Windows too. Do not force `--platform` unless testing another architecture.
+2. Use the project's image. Otherwise use `ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c`. It supports Linux ARM64 and AMD64; Docker supplies Linux containers on macOS and Windows too. Do not force `--platform` unless testing another architecture.
 3. Read the installed manual before adding or changing a resource declaration. Use `/opt/sgdk/bin/rescomp.txt`, the matching headers in `/opt/sgdk/inc`, and examples in `/opt/sgdk/sample`. Verify symbol names and signatures there before writing C. An API from another SGDK version is not evidence.
 
 Run `docker run --rm IMAGE cat /opt/sgdk/bin/rescomp.txt`, replacing `IMAGE` with the chosen image. Commands run as argument arrays from automation. Avoid building shell command strings from asset filenames.

@@ -6,7 +6,7 @@ Copy this directory somewhere writable, then build it using your project's
 pinned image. This example was tested with the following SGDK 2.11 image:
 
 ```sh
-docker run --rm --mount "type=bind,source=ABSOLUTE_PROJECT_DIRECTORY,target=/workspace" ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34
+docker run --rm --mount "type=bind,source=ABSOLUTE_PROJECT_DIRECTORY,target=/workspace" ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
 ```
 
 The ROM is `out/rom.bin`. Open it in an emulator to check the blue tile at the upper left and the small animated marble near the center. This example does not cover scrolling, input or a complete game's palette allocation.
