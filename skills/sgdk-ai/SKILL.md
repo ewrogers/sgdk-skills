@@ -6,7 +6,7 @@ description: Implement enemy behavior in SGDK games with patrol/chase/attack sta
 # SGDK AI
 
 Give enemies clear rules, a predictable amount of work and feedback the player
-can read. A guard that spots you, turns, pauses and attacks often feels smarter
+can read. A Bombardier that spots you, turns, pauses and attacks often feels smarter
 than one that runs an expensive search every frame.
 
 ## Choose the behavior first
@@ -56,7 +56,7 @@ allocating for each attack. CPU, main RAM, VRAM, DMA and sprite scanlines are
 separate budgets.
 
 The standalone [Enemy Lab](assets/enemy-lab/README.md) is a three-area stealth
-challenge with guards, hunters, sentries, exits, stun, tries and Game Over.
+challenge with Bombardiers, Shockers, sentries, exits, stun, tries and Game Over.
 It includes graphical feedback and optional sight/path views. Copy it as a
 small proof or adapt individual modules; it is not a required game framework.
 Use its supplied makefile so its SGDK buffer-access compatibility setting stays

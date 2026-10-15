@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "world.h"
+void test_combat(void);
+void test_introductions(void);
 
 static void disable_enemies(Game *game)
 {
@@ -28,7 +30,7 @@ static void test_senses(void)
     assert(enemy_visible(0,enemy,&game.players[0],false));
     enemy->facing=2; assert(!enemy_visible(0,enemy,&game.players[0],false));
     assert(enemy_visible(0,enemy,&game.players[0],true));
-    enemy->kind=HUNTER; assert(enemy_visible(0,enemy,&game.players[0],false));
+    enemy->kind=SHOCKER; assert(enemy_visible(0,enemy,&game.players[0],false));
     game.players[0].pos.y=162; assert(!enemy_visible(0,enemy,&game.players[0],false));
     assert(enemy_visible(0,enemy,&game.players[0],true));
     game.players[0].pos=(Point){112,128}; game.players[1]=game.players[0]; game.players[1].active=true;
@@ -99,14 +101,17 @@ static void test_scheduler(void)
 }
 static void test_states(void)
 {
-    Game game; game_init(&game); Enemy *enemy=&game.enemies[0]; enemy->kind=HUNTER;
+    Game game; game_init(&game); Enemy *enemy=&game.enemies[0]; enemy->kind=SHOCKER;
     enemy->pos=enemy->home=(Point){32,80}; game.players[0].pos=(Point){48,80}; game.players[0].invulnerable=0;
     enemy_sense(&game,0); assert(enemy->state==WINDUP && enemy->timer==24);
     game.players[0].pos=(Point){144,64};
     for (u16 i=0;i<24;++i) enemy_tick(&game,0);
+    assert(enemy->state==ZAP && !game.players[0].hits);
+    for (u16 i=0;i<TASER_TICKS;++i) enemy_tick(&game,0);
     assert(enemy->state==RECOVER && !game.players[0].hits);
     enemy_change(enemy,PATROL,0); game.players[0].pos=(Point){48,80}; enemy_sense(&game,0);
     for (u16 i=0;i<24;++i) enemy_tick(&game,0);
+    enemy_tick(&game,0);
     assert(game.players[0].hits==1 && game.players[0].invulnerable==90);
     player_hit(&game,0); assert(game.players[0].hits==1);
     enemy->home=(Point){16,80}; enemy_change(enemy,CHASE,0); enemy->memory=1; enemy_tick(&game,0);
@@ -171,7 +176,7 @@ static void test_stun_recovery_and_long_run(void)
         }
     }
     assert(game.nav.completed>6);
-    input.pressed[0]=B; game_frame(&game,&input,1); Game reset; game_init(&reset);
+    input.pressed[0]=B; game_frame(&game,&input,1); Game reset; game_new_run(&reset);
     assert(!memcmp(&game,&reset,sizeof game));
 }
 
@@ -196,7 +201,7 @@ static void test_level_flow(void)
     }
     assert(game.phase==COMPLETE);
     idle.pressed[0]=START; game_frame(&game,&idle,1);
-    assert(game.phase==PLAYING && game.level==0 && game.tries==3);
+    assert(game.phase==INTRO_BOMBARDIER && game.level==0 && game.tries==3);
     idle=(Input){0};
     game_load_level(&game,1);
     for (u16 attempt=0;attempt<3;++attempt) {
@@ -211,7 +216,7 @@ static void test_level_flow(void)
     u32 frozen=game.tick; for (u16 i=0;i<120;++i) game_frame(&game,&idle,1);
     assert(game.phase==GAME_OVER && game.tick==frozen);
     idle.pressed[0]=START; game_frame(&game,&idle,1);
-    assert(game.phase==PLAYING && game.level==0 && game.tries==3);
+    assert(game.phase==INTRO_BOMBARDIER && game.level==0 && game.tries==3);
 }
 
 static void test_entry(void)
@@ -338,6 +343,8 @@ int main(int argc,char **argv)
     else if (!strcmp(argv[1],"entry")) test_entry();
     else if (!strcmp(argv[1],"stun")) test_stun_cooldown();
     else if (!strcmp(argv[1],"doors")) test_doorways_and_routes();
+    else if (!strcmp(argv[1],"combat")) test_combat();
+    else if (!strcmp(argv[1],"intro")) test_introductions();
     else return 2;
     puts(argv[1]); return 0;
 }

@@ -4,6 +4,7 @@
 bool world_wall(u16 level,s16 column,s16 row);
 bool world_solid(u16 level,s16 x,s16 y,s16 width,s16 height);
 bool world_line(u16 level,Point from,Point to);
+bool world_lob_line(u16 level,Point from,Point to);
 u16 world_cell(Point position);
 Point world_point(u16 cell);
 u16 world_goal(u16 level,Point target);

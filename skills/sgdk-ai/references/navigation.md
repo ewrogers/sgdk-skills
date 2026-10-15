@@ -63,9 +63,10 @@ The two search arrays use 648 bytes, and the six waypoint arrays use 192 bytes.
 Those are model storage costs, not total game RAM: enemy/player state, SGDK's
 sprite pool, DMA buffers, audio driver and stack need space too.
 
-The renderer reserves 224 sprite tiles (7,168 VRAM bytes) and ten background/
-HUD tiles. It allocates 44 logical sprite objects. The two 64-pixel pulse sprites
-split into multiple hardware sprites; the worst-case reservation is 50 hardware
+The renderer reserves 320 sprite tiles (10,240 VRAM bytes) and ten background/
+HUD tiles. It allocates 68 logical sprite objects, including two bomb/target pairs,
+18 explosion cells and two tasers. The two 64-pixel pulse sprites split into
+multiple hardware sprites; the worst-case reservation is 74 hardware
 pieces. Actual visibility is lower, but per-scanline sprite/pixel limits still
 apply, especially with debug markers enabled. A pool capacity is not a guarantee
 that every object can be drawn on one scanline.

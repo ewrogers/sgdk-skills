@@ -7,8 +7,9 @@ it, show an alert, wind up and only then resolve an attack. That gives the
 player something to react to and makes bugs easier to reproduce.
 
 Enemy Lab uses `IDLE`, `PATROL`, `CHASE`, `RETURN`, `WINDUP`, `RECOVER` and
-`STUNNED`. Guards patrol with a forward cone; hunters acquire in any direction;
-sentries can fire an eight-way shot. These are game-design choices, not built-in
+`STUNNED`, plus the Shocker's active `ZAP`. Bombardiers patrol with a forward cone;
+Shockers acquire in any direction; sentries fire an eight-way shot.
+These are game-design choices, not built-in
 SGDK classes or a universal state-machine requirement.
 
 `enemy_change()` clears the current route/request and advances a serial number.
@@ -18,13 +19,13 @@ queued callback resurrect an enemy's old attack after stun or destruction.
 
 ## Decide what an enemy can know
 
-The lab tests a squared distance, a guard's 90-degree acquisition cone and a
+The lab tests a squared distance, a Bombardier's 90-degree acquisition cone and a
 conservative ray through solid cells. Diagonal corner crossings check both
 adjacent cells. It is cell-based sight, not a pixel-accurate visibility polygon.
 The debug ring shows range/cone limits; it does not draw the occluded area.
 
-Acquisition ranges are 112 pixels for guards, 96 for hunters and 144 for
-sentries. Tracking has another 32 pixels of range, and guards may keep tracking
+Acquisition ranges are 112 pixels for Bombardiers, 96 for Shockers and 144 for
+sentries. Tracking has another 32 pixels of range, and Bombardiers may keep tracking
 outside their initial cone. A visible target is retained; otherwise the nearest
 eligible player wins, with P1 breaking a tie. This avoids rapid target swapping.
 
@@ -35,10 +36,33 @@ enemy index. Detection therefore has a deliberate short delay.
 
 ## Attacks and stun
 
-Melee winds up for 24 ticks and checks range/occlusion again at impact. Moving
-away can dodge it. A sentry locks an eight-way aim direction, faces it and winds
-up for 36 ticks; it does not steer a projectile after firing. Both recover for
-45 ticks. These values use the lab's nominal 60-tick clock.
+Bombardiers warn for 24 ticks before throwing toward a locked, grid-aligned
+landing spot within 96 pixels. Sight and lobbing may cross one solid grid cell;
+thicker cover blocks them. Ordinary sight for other enemies remains blocked by
+any solid cell. This is a deliberate low-cover rule for this enemy, not general
+vision through walls or a hardware restriction.
+
+Each Bombardier has one bomb slot. Flight lasts 30 ticks, with a visual arc,
+then a marked 60-tick fuse. The 18-tick explosion covers its center cell plus
+up to two cells along each cardinal direction. Each arm stops at the first
+wall or arena edge. Rendering and damage use the same cell list; diagonals
+outside the cross are safe. A live bomb is never overwritten. Scene changes
+clear the slots, pause freezes them, and stun does not recall a bomb in flight.
+
+Shockers lock their facing during a 24-tick wind-up, then activate a one-tile
+rectangle straight ahead for 12 ticks. They test the player's inset body and
+wall occlusion; dodging sideways avoids the taser. Sentries lock an eight-way
+aim direction and warn for 36 ticks before firing a straight projectile.
+
+Recovery after throwing, zapping or firing is 240, 60 or 180 ticks respectively:
+four seconds for Bombardier, one for Shocker and three for Sentry. No new attack
+begins during recovery. These values use the lab's nominal 60-tick clock.
+
+Body contact is separate from attack timing. Overlapping 12-by-12 bodies cause
+a hit before or after enemy movement, including during wind-up and recovery.
+Stunned enemies are harmless. The player's visible entry invulnerability and
+the normal phase/active checks still apply. A hit ends play for that attempt,
+so multiple overlapping enemies cannot consume several tries in the same tick.
 
 The eight fixed projectile slots use one-eighth-pixel coordinates. Cardinal
 movement is 3 pixels/tick; diagonal components are rounded to 17/8 pixels.
@@ -77,6 +101,11 @@ auto-animation with `SPR_setAutoAnimation()` and supplies model-driven frames
 through `SPR_setAnimAndFrame()`. `SPR_update()` and normal VBlank processing still
 run during pause. This prevents visual animation from silently continuing on a
 separate clock.
+
+New runs open on help for Bombardier, Shocker and Sentry, with animated portraits
+and short advice. Left/Right browses one card per press; A or Start enters area
+one. There is no timeout. The simulation stays frozen while input, portrait
+animation and VBlank continue. Retries and area changes do not repeat help.
 
 Music uses `XGM2_pause()` / `XGM2_resume()` so it retains its place. PCM effects
 may finish while the game is paused. Songs and samples remain resident in ROM;

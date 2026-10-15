@@ -4,12 +4,26 @@ A small top-down stealth challenge. Reach the exit in each of three areas
 without getting caught. You have three shared tries; a hit restarts the current
 area, and running out shows Game Over. Clear all three to finish the run.
 
-Gold guards patrol with a sight cone, red hunters chase around obstacles, and
-purple sentries stop and aim before firing. An `!` and alert sound tell you
+Each run opens on enemy help. Left/Right switches between Bombardier (gold),
+Shocker (red) and Sentry (purple); A or Start begins the game. There is no reading
+timeout. Retries go straight back to the current area.
+
+Bombardiers patrol and lob bombs, Shockers chase around obstacles, and Sentries
+stop and aim before firing. An `!` and alert sound tell you
 you've been spotted. Use the stun pulse to create an opening: `zZ` marks a
 stunned enemy, which flashes during the last second before recovering.
 Your pulse recharges in three seconds. Its HUD bar fills blue, then turns green
 when ready; a second bar appears if P2 joins. Pause freezes the recharge.
+
+Touching an enemy costs a try, even while it is winding up or recovering.
+Stunned enemies are harmless. Your flashing robot is temporarily invulnerable
+after entering an area, so contact during that brief period does not hurt.
+Bombardiers can spot and throw across one cell of cover, but thicker walls
+block them. A marked landing spot gives you time to dodge: the bomb flies for
+half a second, waits one second, then explodes in a plus shape. Walls stop each
+arm of the blast. Shockers use a red taser one tile in front of them. Attack
+cooldowns are four seconds for Bombardier, one for Shocker and three for Sentry.
+Stun interrupts an attack being prepared; a bomb already thrown keeps going.
 
 The blue entry tiles mark your starting position, sheltered by nearby walls.
 They do not grant immunity. Each new area starts at the previous area's exit,
@@ -52,10 +66,10 @@ open -a ares --args --system 'Mega Drive' "$PWD/out/rom.bin"
 | Control | Action |
 | --- | --- |
 | D-pad | Four-way movement |
-| A | Stun nearby enemies through clear sight |
+| A | Stun nearby enemies; begin the game from help |
 | B | Start a new run |
 | C | Cycle Normal, Sense and Path views |
-| P1 Start | Pause; start a new run after Game Over or completion |
+| P1 Start | Pause; begin the game from help; start a new run after Game Over or completion |
 | P2 Start | Join optional co-op with the same shared tries |
 
 The usual ares keys are arrows/WASD and J/K/L/Return for A/B/C/Start. The first
@@ -74,12 +88,15 @@ last place they saw you for two seconds, then return home.
 
 ## Try these checks
 
-- Approach a guard from the front and behind. Break sight behind a wall and
+- Approach a Bombardier from the front and behind. Break sight behind a wall and
   watch it investigate the last seen position, then return.
-- Make a hunter chase around the long wall. Watch Path view; it should not
+- Make a Shocker chase around the long wall. Watch Path view; it should not
   cross solid cells or snap through a corner.
 - Dodge a melee wind-up and a sentry shot. Both should face their aim; an alert
   should not blink the enemy's body. Listen for alert and firing sounds.
+- Lure a Bombardier, move away from the landing marker and dodge the cross-shaped
+  explosion. Thin cover permits a lob; walls still block the blast. Dodge to
+  the side of a Shocker's red taser and check the different attack cooldowns.
 - Stun an enemy between grid points. Check `zZ`, the final-second flash and
   recovery without becoming stuck. Pause should freeze those timers and paths.
 - Reach all exits. Get caught and check that only one try is lost, the area
@@ -116,6 +133,9 @@ require another installed skill.
 Host tests execute the actual C model, compare shortest paths with an independent
 oracle and check HUD calls with a recording SDK. Container tests check real
 APIs and release/debug ROMs (256 KiB padded, with embedded symbols in debug).
+Combat tests cover contact, bomb phases and cover, taser direction, attack
+cooldowns and stun interruption. Help tests check browsing, input edges and
+frozen gameplay with no reading timeout.
 Adapter tests wait ten minutes or more at each end screen at both refresh rates,
 then restart and check input polling, music restoration and one-shot clear audio.
 NTSC ares playtests cover the controls and flow;

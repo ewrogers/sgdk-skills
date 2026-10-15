@@ -61,7 +61,23 @@ def assets():
                     goal[y*32+frame*16+x]=10 if x in (2,13) or y in (1,14) else 9
                 if (6<=x<=9 and 4<=y<=11) or (x==5 and y in (7,8)) or (x==10 and y in (7,8)):
                     goal[y*32+frame*16+x]=13 if frame==0 else 15
-    return {'marker.png':indexed(8,8,dots),'shot.png':indexed(24,8,shots),
+    effects={name:[0]*(32*16) for name in ['bomb','target','blast','zap']}
+    for frame in range(2):
+        for y in range(16):
+            for x in range(16):
+                at=y*32+frame*16+x; dx=x-7; dy=y-8
+                radius=dx*dx+dy*dy
+                if radius<38: effects['bomb'][at]=1 if radius>25 else 7
+                if -3<=dx<=-1 and -4<=dy<=-2: effects['bomb'][at]=15
+                if x in (8,9) and 1<=y<=3: effects['bomb'][at]=8 if frame else 15
+                if (x in (1,14) and 4<=y<=11) or (y in (1,14) and 4<=x<=11) or (x==7 and 5<=y<=10):
+                    effects['target'][at]=8 if frame else 15
+                if abs(dx)+abs(dy)<10 and (abs(dx)<5 or abs(dy)<5):
+                    effects['blast'][at]=15 if abs(dx)+abs(dy)<5+frame else 8
+                if (2<=x<=13 and abs(y-(5+(x+frame*3)%6))<2) or (x in (2,13) and 4<=y<=11):
+                    effects['zap'][at]=15 if (x+y+frame)%3==0 else 8
+    return {**{name+'.png':indexed(32,16,data) for name,data in effects.items()},
+            'marker.png':indexed(8,8,dots),'shot.png':indexed(24,8,shots),
             'pulse.png':indexed(256,64,pulse),'status.png':indexed(48,16,status),
             'tries.png':indexed(32,16,hearts),'exit.png':indexed(32,16,goal)}
 

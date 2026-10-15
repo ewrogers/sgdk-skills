@@ -32,6 +32,10 @@ void game_init(Game *game)
 {
     *game=(Game){0}; game->tries=3; game_load_level(game,0);
 }
+void game_new_run(Game *game)
+{
+    game_init(game); game->phase=INTRO_BOMBARDIER;
+}
 u16 game_clock(u16 *fraction,u16 hz)
 {
     if (!fraction || (hz!=50 && hz!=60)) return 0;
@@ -67,9 +71,18 @@ void game_frame(Game *game,const Input *input,u16 ticks)
 {
     game->events=game->sensors=0; game->nav.expanded=0;
     if (!input || ticks>2) return;
-    if (input->pressed[0]&B) { game_init(game); return; }
+    if (input->pressed[0]&B) { game_new_run(game); return; }
     if (game->phase==GAME_OVER || game->phase==COMPLETE) {
-        if (input->pressed[0]&START) game_init(game);
+        if (input->pressed[0]&START) game_new_run(game);
+        return;
+    }
+    if (game->phase>=INTRO_BOMBARDIER) {
+        game->phase_ticks=(game->phase_ticks+ticks)%96;
+        s16 card=game->phase-INTRO_BOMBARDIER;
+        if (input->pressed[0]&LEFT) card=(card+2)%3;
+        else if (input->pressed[0]&RIGHT) card=(card+1)%3;
+        game->phase=INTRO_BOMBARDIER+card;
+        if (input->pressed[0]&(A|START)) game_load_level(game,0);
         return;
     }
     if (game->phase!=PLAYING) {
@@ -99,11 +112,15 @@ void game_frame(Game *game,const Input *input,u16 ticks)
             move_player(game,player,input->held[p]);
         }
         for (u16 i=0;i<ENEMY_COUNT;++i) {
+            enemy_contact(game,i);
+            if (game->phase!=PLAYING) break;
             if (game->tick%ENEMY_COUNT==i) enemy_sense(game,i);
             enemy_tick(game,i);
+            enemy_contact(game,i);
             if (game->phase!=PLAYING) break;
         }
         if (game->phase==PLAYING) shots_tick(game);
+        if (game->phase==PLAYING) bombs_tick(game);
         ++game->tick;
         if (game->phase!=PLAYING) return;
         Point exit=world_exit(game->level);

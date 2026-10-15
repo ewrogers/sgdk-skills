@@ -25,6 +25,7 @@ void JOY_init(void) {}
 u16 JOY_readJoypad(u16 joy)
 {
     assert(joy<2); ++reads;
+    if (joy==JOY_1 && step==0 && game.phase>=INTRO_BOMBARDIER) return BUTTON_A;
     return joy==JOY_1 && step==3 && waited>=36000 ? BUTTON_START : 0;
 }
 u16 SYS_isPAL(void) { return pal; }
@@ -52,7 +53,7 @@ void VDP_drawText(const char *value,u16 x,u16 y) { (void)value; (void)x; (void)y
 void view_draw(const Game *drawn)
 {
     assert(drawn==&game && reads==2*frames);
-    if (step==0) {
+    if (step==0 && game.phase==PLAYING) {
         for (u16 i=0;i<ENEMY_COUNT;++i) enemy_change(&game.enemies[i],STUNNED,60000);
         game.players[0].pos=world_exit(game.level); step=1;
     } else if (step==1 && game.phase==AREA_CLEAR) {
@@ -72,7 +73,7 @@ void view_draw(const Game *drawn)
             assert(game.phase==ending && pauses==1 && !resumes && clears==(ending==COMPLETE ? 3 : 1));
             ++waited;
         } else {
-            assert(game.phase==PLAYING && game.level==0 && game.tries==3);
+            assert(game.phase==INTRO_BOMBARDIER && game.level==0 && game.tries==3);
             assert(pauses==1 && !resumes && clears==(ending==COMPLETE ? 3 : 1));
             assert(songs==(ending==COMPLETE ? 4 : 3)); longjmp(finished,1);
         }

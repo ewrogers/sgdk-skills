@@ -5,13 +5,14 @@
 #include "resources.h"
 #include "world.h"
 
-static Sprite sprites[48]; static u16 count;
+static Sprite sprites[80]; static u16 count;
 static char cells[28][41]; static u16 colors[64];
 static u16 planes[2][28][40],text_priority;
 static const u16 source_colors[16]={0}; static const Palette source_palette={source_colors};
 const SpriteDefinition hero_image={4,8,&source_palette},pulse_image={64,4,&source_palette},
     shot_image={1,3,&source_palette},marker_image={1,1,&source_palette},status_image={4,3,&source_palette},
-    tries_image={4,2,&source_palette},exit_image={4,2,&source_palette};
+    tries_image={4,2,&source_palette},exit_image={4,2,&source_palette},bomb_image={4,2,&source_palette},
+    target_image={4,2,&source_palette},blast_image={4,2,&source_palette},zap_image={4,2,&source_palette};
 void VDP_setEnable(bool enabled) { (void)enabled; }
 void VDP_setScreenWidth320(void) {}
 void VDP_setScreenHeight224(void) {}
@@ -43,11 +44,11 @@ void VDP_drawText(const char *text,u16 x,u16 y)
 }
 void PAL_setColors(u16 index,const u16 *values,u16 n,TransferMethod method)
 { assert(index+n<=64 && method==CPU); for (u16 i=0;i<n;++i) colors[index+i]=values[i]; }
-void SPR_initEx(u16 tiles) { assert(tiles==224); }
+void SPR_initEx(u16 tiles) { assert(tiles==320); }
 bool SPR_isInitialized(void) { return true; }
 Sprite *SPR_addSprite(const SpriteDefinition *definition,s16 x,s16 y,u16 attr)
 {
-    assert(count<48); Sprite *sprite=&sprites[count++];
+    assert(count<80); Sprite *sprite=&sprites[count++];
     assert(!(attr&0x8000)); /* Foreground panels must cover actors. */
     *sprite=(Sprite){.x=x,.y=y,.palette=(attr>>13)&3,.definition=definition}; return sprite;
 }
@@ -62,6 +63,7 @@ void SPR_setAnimAndFrame(Sprite *sprite,s16 animation,s16 frame)
 void SPR_setHFlip(Sprite *sprite,bool flip) { sprite->flip=flip; }
 void SPR_setVFlip(Sprite *sprite,bool flip) { sprite->vflip=flip; }
 void SPR_setPalette(Sprite *sprite,u16 palette) { assert(palette<4); sprite->palette=palette; }
+void SPR_setPriority(Sprite *sprite,bool value) { sprite->priority=value; }
 void SPR_update(void) { for (u16 i=0;i<count;++i) assert(!sprites[i].automatic); }
 bool SYS_doVBlankProcess(void) { return true; }
 static Sprite *find(const SpriteDefinition *definition,s16 x,s16 y)
@@ -81,7 +83,7 @@ int main(void)
 {
     memset(cells,' ',sizeof cells); for (u16 y=0;y<28;++y) cells[y][40]=0;
     Game game; game_init(&game); assert(view_init()); view_draw(&game);
-    assert(count==44 && strstr(cells[1],"AREA") && strstr(cells[3],"TRIES"));
+    assert(count==68 && strstr(cells[1],"AREA") && strstr(cells[3],"TRIES"));
     for (u16 x=1;x<39;++x) assert((planes[BG_B][26][x]&0x7FF)==TILE_USER_INDEX+1);
     for (u16 y=8;y<26;++y) {
         assert((planes[BG_B][y][1]&0x7FF)==TILE_USER_INDEX+1);
@@ -117,5 +119,30 @@ int main(void)
     game_init(&game); view_draw(&game);
     assert(!strstr(cells[14],"GAME OVER"));
     for (u16 y=12;y<19;++y) for (u16 x=6;x<34;++x) assert(!(planes[BG_B][y][x]&0x8000));
+    game_new_run(&game);
+    static const char *const names[]={"BOMBARDIER","SHOCKER","SENTRY"};
+    for (u16 kind=0;kind<3;++kind) {
+        game.phase=INTRO_BOMBARDIER+kind; game.phase_ticks=0; view_draw(&game);
+        assert(strstr(cells[12],names[kind]) && strstr(cells[23],"START PLAY"));
+        Sprite *portrait=find(&hero_image,152,112);
+        assert(portrait->visible && portrait->priority && portrait->palette==kind+1);
+        u16 visible=0;
+        for (u16 i=0;i<count;++i) if (sprites[i].definition==&hero_image && sprites[i].visible) ++visible;
+        assert(visible==1 && (planes[BG_B][17][6]&0x8000));
+    }
+    game_load_level(&game,0); view_draw(&game);
+    assert(!strstr(cells[12],"SENTRY"));
+    for (u16 i=0;i<count;++i) if (sprites[i].definition==&hero_image) assert(!sprites[i].priority);
+    game.bombs[0]=(Bomb){.from={112,64},.target={112,112},.timer=15,.phase=BOMB_FLYING};
+    view_draw(&game); assert(find(&target_image,112,112)->visible);
+    assert(find(&bomb_image,112,60)->visible==false); /* A high arc cannot cover the HUD. */
+    game.bombs[0].phase=BOMB_EXPLODING; game.bombs[0].timer=BOMB_BLAST; view_draw(&game);
+    assert(find(&blast_image,112,112)->visible && !find(&target_image,112,112)->visible);
+    enemy=&game.enemies[2]; enemy->pos=(Point){112,128}; enemy->facing=0;
+    enemy_change(enemy,ZAP,TASER_TICKS); view_draw(&game); assert(find(&zap_image,112,144)->visible);
+    enemy_change(enemy,RECOVER,TASER_RECOVERY); view_draw(&game); assert(!find(&zap_image,112,144)->visible);
+    enemy->pos=(Point){114,112}; enemy->facing=1; enemy_change(enemy,ZAP,TASER_TICKS);
+    view_draw(&game); assert(find(&zap_image,130,112)->visible);
+    enemy->pos.x=116; view_draw(&game); assert(!find(&zap_image,132,112)->visible);
     puts("view"); return 0;
 }

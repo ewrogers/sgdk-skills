@@ -101,7 +101,7 @@ bool world_actor_solid(u16 level,Point position)
     return position.x<16 || position.y<64 || position.x>288 || position.y>192 ||
         world_solid(level,position.x+ACTOR_INSET,position.y+ACTOR_INSET,ACTOR_SIZE,ACTOR_SIZE);
 }
-bool world_line(u16 level,Point from,Point to)
+static bool trace_line(u16 level,Point from,Point to,u16 allowance)
 {
     s16 x=(from.x+8-16)/16,y=(from.y+8-64)/16;
     s16 end_x=(to.x+8-16)/16,end_y=(to.y+8-64)/16;
@@ -112,11 +112,15 @@ bool world_line(u16 level,Point from,Point to)
     while (ix<ax || iy<ay) {
         u16 cross_x=(1+2*ix)*ay,cross_y=(1+2*iy)*ax;
         if (cross_x==cross_y) {
-            if (world_wall(level,x+sx,y) || world_wall(level,x,y+sy)) return false;
+            u16 sides=world_wall(level,x+sx,y)+world_wall(level,x,y+sy);
+            if (sides>allowance) return false;
+            allowance-=sides;
             x+=sx; y+=sy; ++ix; ++iy;
         } else if (cross_x<cross_y) { x+=sx; ++ix; }
         else { y+=sy; ++iy; }
-        if (world_wall(level,x,y)) return false;
+        if (world_wall(level,x,y)) { if (!allowance) return false; --allowance; }
     }
     return true;
 }
+bool world_line(u16 level,Point from,Point to) { return trace_line(level,from,to,0); }
+bool world_lob_line(u16 level,Point from,Point to) { return trace_line(level,from,to,1); }

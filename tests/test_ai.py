@@ -16,7 +16,7 @@ import zlib
 
 ROOT=Path(__file__).resolve().parents[1]
 LAB=ROOT/'skills/sgdk-ai/assets/enemy-lab'
-SOURCES=['game.c','world.c','navigation.c','enemy.c','senses.c','shots.c']
+SOURCES=['game.c','world.c','navigation.c','enemy.c','senses.c','shots.c','bombs.c']
 
 
 class EnemyBehaviorTests(unittest.TestCase):
@@ -32,7 +32,7 @@ class EnemyBehaviorTests(unittest.TestCase):
         cls.binary=Path(cls.folder.name)/('enemy.exe' if os.name=='nt' else 'enemy')
         r=subprocess.run([cc,'-std=c17','-O2','-Wall','-Wextra','-Werror','-I',str(LAB/'inc'),
                           *[str(LAB/'src'/name) for name in SOURCES],
-                          str(ROOT/'tests/fixtures/ai/model_test.c'),'-o',str(cls.binary)],
+                          str(ROOT/'tests/fixtures/ai/model_test.c'),str(ROOT/'tests/fixtures/ai/combat_test.c'),'-o',str(cls.binary)],
                          capture_output=True,text=True,timeout=60)
         if r.returncode: raise RuntimeError(r.stdout+r.stderr)
 
@@ -53,6 +53,8 @@ class EnemyBehaviorTests(unittest.TestCase):
     def test_entries_continue_from_previous_exit_and_offer_physical_cover(self): self.check('entry')
     def test_stun_three_second_cooldown_rejects_spam_and_freezes_when_paused(self): self.check('stun')
     def test_offset_doorway_clearance_walkable_exit_routes_and_no_perimeter_shortcuts(self): self.check('doors')
+    def test_contact_taser_bombs_cover_and_enemy_cooldowns(self): self.check('combat')
+    def test_run_help_browsing_start_input_and_frozen_simulation_without_timeout(self): self.check('intro')
 
 
 class EnemyViewTests(unittest.TestCase):
@@ -127,6 +129,7 @@ class EnemyAssetTests(unittest.TestCase):
             self.assertEqual(wav.getnframes(),5320)
             self.assertGreater(max(wav.readframes(5320)),128)
         dimensions={'marker.png':(8,8),'shot.png':(24,8),'pulse.png':(256,64),'status.png':(48,16),'tries.png':(32,16),'exit.png':(32,16)}
+        dimensions.update({name+'.png':(32,16) for name in ['bomb','target','blast','zap']})
         for name,data in module.assets().items():
             self.assertEqual(data,(LAB/'res'/name).read_bytes())
             pos=8; payload=bytearray()
@@ -178,7 +181,8 @@ class EnemyContainerTests(unittest.TestCase):
                 self.assertNotEqual(rom[0x1B0:0x1B2],b'RA')
                 symbols=run('m68k-elf-nm','-n','out/rom.out')
                 for name in ['hero_image','pulse_image','shot_image','marker_image','status_image','tries_image','exit_image',
-                             'area_one_music','area_two_music','area_three_music','hit_sound','stun_sound','alert_sound','fire_sound','clear_sound']:
+                             'bomb_image','target_image','blast_image','zap_image','area_one_music','area_two_music',
+                             'area_three_music','hit_sound','stun_sound','alert_sound','fire_sound','clear_sound']:
                     self.assertRegex(symbols,r'\b'+name+r'\b')
                 hashes[mode]=hashlib.sha256(rom).hexdigest()
             out=ROOT/'build/ai-integration'; out.mkdir(parents=True,exist_ok=True)

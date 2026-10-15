@@ -5,6 +5,10 @@ SPRITE pulse_image "pulse.png" 8 8 NONE 0
 SPRITE status_image "status.png" 2 2 NONE 0
 SPRITE tries_image "tries.png" 2 2 NONE 0
 SPRITE exit_image "exit.png" 2 2 NONE 0
+SPRITE bomb_image "bomb.png" 2 2 NONE 0
+SPRITE target_image "target.png" 2 2 NONE 0
+SPRITE blast_image "blast.png" 2 2 NONE 0
+SPRITE zap_image "zap.png" 2 2 NONE 0
 WAV hit_sound "hit.wav" XGM2
 WAV stun_sound "coin.wav" XGM2
 XGM2 area_one_music "area_1.vgm"

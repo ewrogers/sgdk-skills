@@ -32,7 +32,7 @@ typedef struct { u16 maxNumTile,frames; const Palette *palette; } SpriteDefiniti
 typedef struct {
     s16 x,y,animation,frame;
     u16 palette;
-    bool visible,flip,vflip,automatic;
+    bool visible,flip,vflip,automatic,priority;
     const SpriteDefinition *definition;
 } Sprite;
 void VDP_setEnable(bool enabled);
@@ -58,6 +58,7 @@ void SPR_setAnimAndFrame(Sprite *sprite,s16 animation,s16 frame);
 void SPR_setHFlip(Sprite *sprite,bool flip);
 void SPR_setVFlip(Sprite *sprite,bool flip);
 void SPR_setPalette(Sprite *sprite,u16 palette);
+void SPR_setPriority(Sprite *sprite,bool value);
 void SPR_update(void);
 void SPR_reset(void);
 bool SYS_doVBlankProcess(void);

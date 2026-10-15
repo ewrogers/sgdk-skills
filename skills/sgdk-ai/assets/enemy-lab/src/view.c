@@ -6,6 +6,7 @@
 
 static Sprite *players[2],*enemies[ENEMY_COUNT],*shots[SHOT_COUNT],*pulses[2],*markers[ROUTE_CAPACITY];
 static Sprite *status[ENEMY_COUNT];
+static Sprite *bomb_sprites[BOMB_COUNT],*targets[BOMB_COUNT],*blasts[BOMB_COUNT][1+4*BOMB_REACH],*tasers[2];
 static Sprite *tries[3],*exit_sprite;
 static u16 last_level=0xFFFF,last_phase=0xFFFF;
 static u16 last_selected=0xFFFF,last_state=0xFFFF,last_overlay=0xFFFF,last_pause=0xFFFF;
@@ -69,7 +70,8 @@ bool view_init(void)
     VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+3),0,7,40,1);
     SPR_initEx(8*hero_image.maxNumTile+SHOT_COUNT*shot_image.maxNumTile+
                2*pulse_image.maxNumTile+ROUTE_CAPACITY*marker_image.maxNumTile+ENEMY_COUNT*status_image.maxNumTile+
-               3*tries_image.maxNumTile+exit_image.maxNumTile);
+               3*tries_image.maxNumTile+exit_image.maxNumTile+2*zap_image.maxNumTile+
+               BOMB_COUNT*(bomb_image.maxNumTile+target_image.maxNumTile+(1+4*BOMB_REACH)*blast_image.maxNumTile));
     if (!SPR_isInitialized()) return false;
     for (u16 p=0;p<2;++p) {
         players[p]=sprite(&hero_image,PAL0); pulses[p]=sprite(&pulse_image,PAL0);
@@ -81,6 +83,14 @@ bool view_init(void)
     }
     for (u16 i=0;i<SHOT_COUNT;++i) { shots[i]=sprite(&shot_image,PAL3); if (!shots[i]) return false; }
     for (u16 i=0;i<ROUTE_CAPACITY;++i) { markers[i]=sprite(&marker_image,PAL3); if (!markers[i]) return false; }
+    for (u16 i=0;i<BOMB_COUNT;++i) {
+        bomb_sprites[i]=sprite(&bomb_image,PAL1); targets[i]=sprite(&target_image,PAL1);
+        tasers[i]=sprite(&zap_image,PAL2);
+        if (!bomb_sprites[i] || !targets[i] || !tasers[i]) return false;
+        for (u16 j=0;j<1+4*BOMB_REACH;++j) {
+            blasts[i][j]=sprite(&blast_image,PAL1); if (!blasts[i][j]) return false;
+        }
+    }
     for (u16 i=0;i<3;++i) { tries[i]=sprite(&tries_image,PAL3); if (!tries[i]) return false; }
     exit_sprite=sprite(&exit_image,PAL3); if (!exit_sprite) return false;
     field("ENEMY LAB",2,1,12); field("AREA",27,1,5);
@@ -116,13 +126,51 @@ static void overlay(const Game *game,u16 selected)
             s16 dx=cx[i]*enemy_range(enemy->kind)/256,dy=cy[i]*enemy_range(enemy->kind)/256;
             point=(Point){enemy->pos.x+4+dx,enemy->pos.y+4+dy};
             visible=point.x>=16 && point.x<296 && point.y>=64 && point.y<200 &&
-                (enemy->kind!=GUARD || enemy_cone(enemy->facing,dx,dy));
+                (enemy->kind!=BOMBARDIER || enemy_cone(enemy->facing,dx,dy));
         } else if (game->overlay==2 && enemy->route_at+i<enemy->route_len) {
             point=world_point(enemy->route[enemy->route_at+i]); point.x+=4; point.y+=4; visible=true;
         }
         SPR_setPosition(markers[i],point.x,point.y); SPR_setPalette(markers[i],1+enemy->kind);
         SPR_setVisibility(markers[i],visible ? VISIBLE : HIDDEN);
     }
+}
+static void effects(const Game *game)
+{
+    bool playing=game->phase<INTRO_BOMBARDIER;
+    for (u16 i=0;i<BOMB_COUNT;++i) {
+        const Bomb *bomb=&game->bombs[i]; Point point=bomb->target;
+        if (bomb->phase==BOMB_FLYING) {
+            s16 elapsed=BOMB_FLIGHT-bomb->timer;
+            point.x=bomb->from.x+(bomb->target.x-bomb->from.x)*elapsed/BOMB_FLIGHT;
+            point.y=bomb->from.y+(bomb->target.y-bomb->from.y)*elapsed/BOMB_FLIGHT-elapsed*(BOMB_FLIGHT-elapsed)/8;
+        }
+        bool live=playing && (bomb->phase==BOMB_FLYING || bomb->phase==BOMB_FUSED);
+        SPR_setPosition(bomb_sprites[i],point.x,point.y); SPR_setAnimAndFrame(bomb_sprites[i],0,(game->tick/6)%2);
+        SPR_setVisibility(bomb_sprites[i],live && point.y>=64 ? VISIBLE : HIDDEN);
+        SPR_setPosition(targets[i],bomb->target.x,bomb->target.y); SPR_setAnimAndFrame(targets[i],0,(game->tick/8)%2);
+        SPR_setVisibility(targets[i],live ? VISIBLE : HIDDEN);
+        Point cells[1+4*BOMB_REACH]; u16 count=bomb_cells(game->level,bomb,cells);
+        for (u16 j=0;j<1+4*BOMB_REACH;++j) {
+            if (j<count) SPR_setPosition(blasts[i][j],cells[j].x,cells[j].y);
+            SPR_setAnimAndFrame(blasts[i][j],0,(game->tick/3)%2);
+            SPR_setVisibility(blasts[i][j],playing && j<count ? VISIBLE : HIDDEN);
+        }
+        const Enemy *enemy=&game->enemies[i+2]; point=enemy_taser_target(enemy);
+        SPR_setPosition(tasers[i],point.x,point.y); SPR_setAnimAndFrame(tasers[i],0,(game->tick/2)%2);
+        SPR_setVisibility(tasers[i],playing && enemy->state==ZAP &&
+            !world_actor_solid(game->level,point) ? VISIBLE : HIDDEN);
+    }
+}
+static void introduction(const Game *game)
+{
+    u16 kind=game->phase-INTRO_BOMBARDIER;
+    for (u16 p=0;p<2;++p) { SPR_setVisibility(players[p],HIDDEN); SPR_setVisibility(pulses[p],HIDDEN); }
+    for (u16 i=0;i<ENEMY_COUNT;++i) { SPR_setVisibility(enemies[i],HIDDEN); SPR_setVisibility(status[i],HIDDEN); }
+    for (u16 i=0;i<SHOT_COUNT;++i) SPR_setVisibility(shots[i],HIDDEN);
+    for (u16 i=0;i<ROUTE_CAPACITY;++i) SPR_setVisibility(markers[i],HIDDEN);
+    SPR_setVisibility(exit_sprite,HIDDEN);
+    Sprite *portrait=enemies[kind*2]; SPR_setPriority(portrait,TRUE);
+    robot(portrait,(Point){152,112},0,game->phase_ticks,false,true);
 }
 void view_draw(const Game *game)
 {
@@ -141,7 +189,21 @@ void view_draw(const Game *game)
     }
     if (last_phase!=game->phase) {
         VDP_clearTextArea(1,8,38,18);
-        if (game->phase!=PLAYING) {
+        if (game->phase>=INTRO_BOMBARDIER) {
+            static const char *const names[]={"BOMBARDIER","SHOCKER","SENTRY"};
+            static const char *const descriptions[3][3]={
+                {"LOBS BOMBS OVER THIN WALLS","DODGE THE PLUS-SHAPED BLAST","FOUR SECOND THROW COOLDOWN"},
+                {"CHASES AND USES A RED TASER","ONE TILE STRAIGHT AHEAD","ONE SECOND TO RECHARGE"},
+                {"STANDS STILL AND TAKES AIM","FIRES STRAIGHT AFTER A PAUSE","THREE SECONDS TO RECHARGE"}
+            };
+            u16 kind=game->phase-INTRO_BOMBARDIER;
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+8),4,9,32,16);
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+2),5,10,30,14);
+            field("KNOW YOUR ENEMIES",11,10,24);
+            VDP_setTextPalette(kind+1); field(names[kind],15,12,14); VDP_setTextPalette(PAL3);
+            field(descriptions[kind][0],6,17,28); field(descriptions[kind][1],6,19,28);
+            field(descriptions[kind][2],6,21,28); field("< > HELP   A / START PLAY",8,23,26);
+        } else if (game->phase!=PLAYING) {
             VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+3),6,12,28,7);
             VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+2),7,13,26,5);
             static const char *const captions[]={"","CAUGHT!","AREA CLEAR","GAME OVER","MISSION COMPLETE"};
@@ -180,13 +242,14 @@ void view_draw(const Game *game)
     }
     for (u16 i=0;i<ENEMY_COUNT;++i) {
         const Enemy *enemy=&game->enemies[i];
+        SPR_setPriority(enemies[i],FALSE);
         robot(enemies[i],enemy->pos,enemy->facing,enemy->animation,enemy->moving,
               !(enemy->state==STUNNED && enemy->timer<=60 && (game->tick/6)%2));
         SPR_setPosition(status[i],enemy->pos.x,enemy->pos.y-14);
         SPR_setAnimAndFrame(status[i],0,enemy->state==STUNNED ? 1+(game->tick/20)%2 : 0);
         SPR_setVisibility(status[i],enemy->state==STUNNED || enemy->alert || enemy->state==WINDUP ? VISIBLE : HIDDEN);
         VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+
-                           (enemy->state==STUNNED ? 5 : enemy->state==CHASE || enemy->state==WINDUP ? 4 : 6)),
+                           (enemy->state==STUNNED ? 5 : enemy->state==CHASE || enemy->state==WINDUP || enemy->state==ZAP ? 4 : 6)),
                            27+i*2,3,1,1);
     }
     static const u8 frames[8]={0,1,2,1,0,1,2,1};
@@ -197,7 +260,8 @@ void view_draw(const Game *game)
         SPR_setVisibility(shots[i],shot->active ? VISIBLE : HIDDEN);
     }
     u16 selected=nearest(game); overlay(game,selected);
-    static const char *const states[]={"IDLE","PATROL","CHASE","RETURN","WINDUP","RECOVER","STUNNED"};
+    effects(game);
+    static const char *const states[]={"IDLE","PATROL","CHASE","RETURN","WINDUP","RECOVER","STUNNED","TASER"};
     if (last_selected!=selected || last_state!=game->enemies[selected].state || last_overlay!=game->overlay) {
         static const char *const modes[]={"NORMAL","SENSE","PATH"};
         field(modes[game->overlay],2,27,7); field("NEAR",10,27,5); number(selected+1,15,27,1);
@@ -206,5 +270,6 @@ void view_draw(const Game *game)
     }
     if (last_expanded!=game->nav.expanded) { number(game->nav.expanded,31,27,2); last_expanded=game->nav.expanded; }
     if (last_pause!=game->paused) { field(game->paused ? "PAUSED" : "",17,1,7); last_pause=game->paused; }
+    if (game->phase>=INTRO_BOMBARDIER) introduction(game);
     SPR_update();
 }

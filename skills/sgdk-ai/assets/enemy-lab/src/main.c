@@ -24,7 +24,7 @@ static u16 keys(u16 raw)
 }
 int main(bool hard_reset)
 {
-    (void)hard_reset; JOY_init(); game_init(&game);
+    (void)hard_reset; JOY_init(); game_new_run(&game);
     if (!view_init()) {
         SPR_reset(); SPR_update(); SYS_doVBlankProcess(); VDP_setEnable(FALSE);
         VDP_drawText("ENEMY LAB / SPRITE ALLOCATION FAILED",2,12); VDP_setEnable(TRUE);
