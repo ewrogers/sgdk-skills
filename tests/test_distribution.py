@@ -1,5 +1,6 @@
 """Installed skill resources must not require files elsewhere in the repo."""
 from pathlib import Path
+import json
 import re
 import unittest
 from urllib.parse import unquote, urlsplit
@@ -9,6 +10,19 @@ SKILLS = Path(__file__).resolve().parents[1] / "skills"
 
 
 class SkillResourcesTests(unittest.TestCase):
+    def test_directory_groups_reference_each_shipped_skill_once(self):
+        config = json.loads((SKILLS.parent / "skills.sh.json").read_text(encoding="utf-8"))
+        self.assertEqual(config["$schema"], "https://skills.sh/schemas/skills.sh.schema.json")
+        self.assertIn(config["notGrouped"], ["top", "bottom"])
+        names = []
+        for group in config["groupings"]:
+            self.assertTrue(group["title"].strip())
+            self.assertTrue(group["skills"])
+            names.extend(group["skills"])
+        shipped = {p.parent.name for p in SKILLS.glob("*/SKILL.md")}
+        self.assertEqual(set(names), shipped, "Update the directory groups when skills change")
+        self.assertEqual(len(names), len(set(names)), "A skill belongs in only one directory group")
+
     def test_relative_markdown_links_resolve_inside_each_skill(self):
         for skill in SKILLS.iterdir():
             if not skill.is_dir():
