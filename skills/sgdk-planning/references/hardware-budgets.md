@@ -199,7 +199,7 @@ SGDK 2.11 [build padding](https://github.com/Stephane-D/SGDK/blob/v2.11/makefile
 For a new project with no chosen toolchain, the tested baseline is SGDK 2.11:
 
 ```text
-ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34
+ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
 ```
 
 The image supports native Linux ARM64 and AMD64; Docker normally selects the

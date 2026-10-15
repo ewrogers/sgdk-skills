@@ -12,7 +12,7 @@ explains the evidence. Keep a working ROM for comparison.
 
 - Record the container image, SGDK version, command, first relevant error, and
   emulator/device and region. Respect a project's pinned image. Otherwise use
-  `ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34`.
+  `ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c`.
 - Run `doctor` through that image. It contains Linux ARM64 and AMD64 tools;
   Docker chooses the host architecture. A host emulator remains outside Docker.
   Windows needs Docker's Linux-container backend. Do not force AMD64 on an ARM

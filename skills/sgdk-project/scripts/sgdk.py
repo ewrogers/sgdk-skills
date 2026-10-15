@@ -11,10 +11,10 @@ import sys
 import tempfile
 
 
-DEFAULT_IMAGE = "ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34"
+DEFAULT_IMAGE = "ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c"
 DEFAULT_PLATFORMS = {
-    "linux/arm64": "ewrogers/sgdk@sha256:b32a8b4e8a41c7426b0cf8e1e56fbd674c6b0fa7c5cc9b32334fc667685a0893",
-    "linux/amd64": "ewrogers/sgdk@sha256:42960e5cfa1ed684b0dd749dd21c04d6a179f3bbb48221cc10fac9d4bb49c48b",
+    "linux/arm64": "ewrogers/sgdk@sha256:4e75cf1cd190eaea867eacc43494a1f1444b97b0c3961493fb40236c23c04000",
+    "linux/amd64": "ewrogers/sgdk@sha256:82ad84637e4be801314e6feaf3066575d2af2934ab1c22832c048e74c6e9044e",
 }
 
 

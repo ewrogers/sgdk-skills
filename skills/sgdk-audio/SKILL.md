@@ -27,7 +27,7 @@ switch Z80 drivers just to play an effect.
 Preserve an existing toolchain pin. The tested default is:
 
 ```text
-ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:7c43a41e5bfa177b59b938d56bf496419df6b55778a6b5c68c629591ccc21b34
+ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
 ```
 
 It provides Linux ARM64/AMD64 tools, including through Docker Desktop. Verify
