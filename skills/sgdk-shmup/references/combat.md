@@ -61,6 +61,12 @@ supported speed domain. A shot retires on its first hit, and invulnerability
 prevents multiple life losses in the same frame. The checks are bounded
 screen-space AABBs, not arbitrary continuous moving-shape collision.
 
+Before substepping, the lab compares a projectile's swept bounds with each
+possible target once. It substeps only when a hit is possible, preserving the
+same samples, first-hit ordering and damage rules. Twelve thousand randomized
+cases compare the complete resulting game state against the earlier simple
+routine. Invulnerable-player bullets can move directly to their endpoint.
+
 For more objects, reject distant candidates before narrow-phase testing. A
 spatial grid or banded enemy list can help, but compare its hit results with a
 simple independent reference. Do not shrink collision tolerances merely to

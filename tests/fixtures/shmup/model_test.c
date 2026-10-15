@@ -91,7 +91,7 @@ static void waves(void)
         for (u16 i=0;i<ENEMY_COUNT;i++) g.enemies[i].active=false;
     }
     assert(g.spawn_index==24 && g.wave==WAVE_COUNT && g.state==BOSS && g.boss.active);
-    g.boss.age=100; g.boss.hp=1;
+    g.boss.age=BOSS_READY_TICKS+10; g.boss.hp=1;
     g.shots[0]=(Bullet){.x=g.boss.x,.y=g.boss.y,.active=true}; game_projectiles(&g);
     assert(g.state==CLEAR && !g.boss.active && g.score>=5000);
     for (u16 i=0;i<BULLET_COUNT;i++) assert(!g.bullets[i].active);
@@ -102,14 +102,30 @@ static void boss_test(void)
 {
     fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.age=10,.hp=90,.active=true};
     game_boss_damage(&g,100); assert(g.boss.hp==90); /* Entry is telegraphed, not vulnerable. */
-    g.boss.age=100; game_boss_damage(&g,44); assert(g.boss.hp==46);
+    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=-24*UNIT,.hp=90,.active=true};
+    for (u16 i=0;i<BOSS_READY_TICKS-1;i++)
+    {
+        game_boss_damage(&g,100); game_enemies(&g);
+        assert(g.boss.hp==90);
+        for (u16 j=0;j<BULLET_COUNT;j++) assert(!g.bullets[j].active);
+    }
+    Game saved=g; g.paused=true; frames(0,100,60); assert(g.boss.age==saved.boss.age); g.paused=false;
+    g.boss.age=BOSS_READY_TICKS+10; game_boss_damage(&g,44); assert(g.boss.hp==46);
     game_boss_damage(&g,1); assert(g.boss.hp==45);
-    g.boss.age=149; game_enemies(&g);
+    g.boss.age=BOSS_READY_TICKS+299; game_enemies(&g);
     u16 count=0; for (u16 i=0;i<BULLET_COUNT;i++) if (g.bullets[i].active) count++;
-    assert(count==8); /* Low health adds the ring phase. */
+    assert(count==8); /* Second phrase: a complete ring. */
+    for (u16 i=0;i<BULLET_COUNT;i++) g.bullets[i].active=false;
+    g.boss.age=BOSS_READY_TICKS+59; game_enemies(&g);
+    count=0; for (u16 i=0;i<BULLET_COUNT;i++) count+=g.bullets[i].active;
+    assert(count==3);
+    for (u16 i=0;i<BULLET_COUNT;i++) g.bullets[i].active=false;
+    g.boss.age=BOSS_READY_TICKS+539; game_enemies(&g);
+    count=0; for (u16 i=0;i<BULLET_COUNT;i++) count+=g.bullets[i].active;
+    assert(count==1);
     game_boss_damage(&g,100); assert(g.state==CLEAR && g.score==5000 && g.boss.hp==0);
     game_boss_damage(&g,100); assert(g.score==5000); /* No double award. */
-    fresh(); g.state=BOSS; g.boss=(Boss){.age=100,.hp=10,.active=true};
+    fresh(); g.state=BOSS; g.boss=(Boss){.age=BOSS_READY_TICKS+10,.hp=10,.active=true};
     frames(B,1,60); assert(g.state==CLEAR && g.score==5000); /* A bomb can finish too. */
 }
 static void clock_test(void)
@@ -177,10 +193,38 @@ static void soak(void)
         { assert(g.bullets[i].x>=-16*UNIT && g.bullets[i].x<=(FIELD_W+16)*UNIT); }
     }
 }
+void reference_game_projectiles(Game *game);
+static u32 random_state=517;
+static u16 next_random(u16 max)
+{ random_state=random_state*1664525u+1013904223u; return (random_state>>16)%max; }
+static void equivalence(void)
+{
+    /* Dense, sparse, overlapping targets, negative fractional velocities,
+     * screen edges, invulnerability and boss defeat all share the same oracle. */
+    for (u16 trial=0;trial<12000;trial++)
+    {
+        fresh(); g.x=next_random(240*UNIT); g.y=next_random(224*UNIT);
+        g.invulnerable=next_random(2)?0:120; g.kills=next_random(12); g.power=next_random(3)+1;
+        for (u16 i=0;i<ENEMY_COUNT;i++)
+            g.enemies[i]=(Enemy){.x=next_random(240*UNIT),.y=next_random(224*UNIT),
+                .hp=next_random(3)+1,.active=next_random(2)};
+        if (trial%3==0) g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.hp=next_random(4)+1,
+            .age=trial%2?BOSS_READY_TICKS:10,.active=true};
+        for (u16 i=0;i<SHOT_COUNT;i++)
+            g.shots[i]=(Bullet){.x=next_random(256*UNIT)-8*UNIT,.y=next_random(240*UNIT)-8*UNIT,
+                .vx=(s16)next_random(193)-96,.vy=(s16)next_random(193)-96,.active=true};
+        for (u16 i=0;i<BULLET_COUNT;i++)
+            g.bullets[i]=(Bullet){.x=next_random(256*UNIT)-8*UNIT,.y=next_random(240*UNIT)-8*UNIT,
+                .vx=(s16)next_random(129)-64,.vy=(s16)next_random(129)-64,.active=true};
+        Game expected=g; reference_game_projectiles(&expected); game_projectiles(&g);
+        assert(!memcmp(&g,&expected,sizeof g));
+    }
+}
 int main(int argc,char **argv)
 {
     assert(argc==2);
-    if (!strcmp(argv[1],"layout")) layout_test();
+    if (!strcmp(argv[1],"equivalence")) equivalence();
+    else if (!strcmp(argv[1],"layout")) layout_test();
     else if (!strcmp(argv[1],"pools")) pools();
     else if (!strcmp(argv[1],"patterns")) patterns();
     else if (!strcmp(argv[1],"movement")) movement();

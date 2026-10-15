@@ -7,6 +7,13 @@ static Game game;
 __attribute__((noipa)) int main(bool hard_reset)
 {
     (void)hard_reset;
+    /* The visibility member is a piece bitmask, not SpriteVisibility. */
+    Sprite probe={0};
+    CHECK(SPR_getVisibility(&probe)==HIDDEN);
+    probe.visibility=0xFFFF;
+    CHECK(SPR_getVisibility(&probe)==VISIBLE);
+    CHECK(title_image.tilemap->w==28 && title_image.tilemap->h==14);
+    CHECK(title_image.tileset->numTile>0 && title_image.tileset->numTile<=392);
     CHECK(ship_image.maxNumTile==4 && boss_image.maxNumTile==16 && bullet_image.maxNumTile==1);
     CHECK(ship_image.animations[0]->numFrame==4 && enemy_image.animations[0]->numFrame==6);
     CHECK(bullet_image.animations[0]->numFrame==3 && pickup_image.animations[0]->numFrame==2);
@@ -28,7 +35,7 @@ __attribute__((noipa)) int main(bool hard_reset)
     game_start(&game); game.invulnerable=0;
     game_bullet(&game,game.x,game.y+5*UNIT,0,4*UNIT); game_projectiles(&game);
     CHECK(game.lives==2 && game.invulnerable==120);
-    game_start(&game); game.state=BOSS; game.boss=(Boss){.hp=10,.age=100,.active=true};
+    game_start(&game); game.state=BOSS; game.boss=(Boss){.hp=10,.age=BOSS_READY_TICKS+10,.active=true};
     game_boss_damage(&game,20); CHECK(game.state==CLEAR && game.score==5000);
     game_boss_damage(&game,20); CHECK(game.score==5000);
     game_start(&game);

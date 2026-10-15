@@ -5,6 +5,8 @@
 typedef int8_t s8;
 #define SOUND_PCM_CH2 2
 #define SOUND_PCM_CH3 3
+void XGM2_setFMVolume(u16 value);
+void XGM2_setPSGVolume(u16 value);
 void XGM2_load(const u8 *music);
 void XGM2_setLoopNumber(s8 number);
 void XGM2_playTrack(u16 track);

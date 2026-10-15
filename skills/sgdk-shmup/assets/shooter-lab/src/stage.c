@@ -64,21 +64,29 @@ void game_enemies(Game *game)
     }
     Boss *boss=&game->boss;
     if (!boss->active) return;
+    if (boss->age==BOSS_READY_TICKS+720) boss->age=BOSS_READY_TICKS;
     boss->age++; if (boss->flash) boss->flash--;
-    if (boss->age<90) boss->y+=3*UNIT/4;
-    else
+    /* Warning, fly-in, then health-bar reveal. No hostile contact or shots
+     * until the showcase finishes; the player can keep moving throughout. */
+    if (boss->age<BOSS_WARNING_TICKS) return;
+    if (boss->age<BOSS_WARNING_TICKS+BOSS_ENTRY_TICKS)
+    { boss->y+=3*UNIT/4; return; }
+    if (boss->age<BOSS_READY_TICKS) return;
+    u16 time=(boss->age-BOSS_READY_TICKS)%720;
+    u16 phase=time%240;
+    u16 motion=(time+60)%240;
+    boss->x=(60+(s16)(motion<120?motion:239-motion))*UNIT;
+    /* Three readable four-second phrases. Each has a quiet wind-up and
+     * recovery; the second half tightens the firing cadence, not the pool. */
+    u16 cadence=boss->hp>BOSS_HEALTH/2?40:30;
+    if (phase>=45 && phase<180)
     {
-        u16 phase=boss->age%240;
-        boss->x=(60+(s16)(phase<120?phase:239-phase))*UNIT;
-        if (boss->hp>BOSS_HEALTH/2)
-        {
-            if (boss->age%45==0) game_pattern(game,FAN,boss->x,boss->y+16*UNIT,game->x,game->y,0);
-        }
-        else
-        {
-            if (boss->age%75==0) game_pattern(game,RING,boss->x,boss->y,game->x,game->y,boss->age/75);
-            if (boss->age%12==0) game_pattern(game,SPIRAL,boss->x,boss->y,game->x,game->y,boss->age/12);
-        }
+        if (time<240 && phase%cadence==0)
+            game_pattern(game,FAN,boss->x,boss->y+16*UNIT,game->x,game->y,0);
+        else if (time>=240 && time<480 && phase%60==0)
+            game_pattern(game,RING,boss->x,boss->y,game->x,game->y,phase/60);
+        else if (time>=480 && phase%12==0)
+            game_pattern(game,SPIRAL,boss->x,boss->y,game->x,game->y,phase/12);
     }
     if (boss->x-game->x<18*UNIT && boss->x-game->x>-18*UNIT &&
         boss->y-game->y<18*UNIT && boss->y-game->y>-18*UNIT) game_hurt(game);

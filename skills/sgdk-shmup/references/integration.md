@@ -105,3 +105,21 @@ Build optimized ROMs for timing checks. `SYS_getFPS()` is called once per displa
 frame; `SYS_getCPULoad()` is an estimate, not a cycle-accurate profiler or a DMA
 budget. Fixed pools bound memory and work but do not make arbitrary density
 cheap. Profile the busy case before reaching for custom assembly.
+
+## Boss presentation and measured work
+
+Shooter Lab keeps the warning, fly-in and health-bar reveal on its nominal
+60 Hz game clock. The player can move during the sequence; boss damage,
+contact and firing stay disabled until the reveal finishes. The audio adapter
+uses SGDK's `XGM2_setFMVolume()` and `XGM2_setPSGVolume()` (0–100) to hand off
+between stage and boss tracks once. Pause stops that handoff too.
+
+The overhead bar and life icons use resident plane tiles, so they consume no
+extra hardware sprites. Unchanged HUD strings, sprite frames and tile indices
+are left alone. Ring/spiral emitters do not calculate an unused aimed vector.
+
+The container regression runs the old and optimized projectile workload on
+base-M68000 emulation. A measured full-pool, mostly-no-hit case used 6,807
+instructions before and 4,492 afterward, including identical setup. This is an
+instruction-count proxy, not a cycle count or an FPS guarantee. Actual frame
+load still needs a release-ROM check with rendering, audio and effects active.

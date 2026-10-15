@@ -44,8 +44,11 @@ for every enemy to leave, or retain specific threats during entry.
 ## Bosses and game states
 
 The lab distinguishes Title, Play, Boss, Clear and Game Over, with pause as a
-separate flag. An entering boss is visible but initially invulnerable. Its first
-phase fires aimed fans; at half health it adds rings and a rotating spiral.
+separate flag. The warning and fly-in leave player movement active. The health bar then
+expands before the boss becomes vulnerable or starts firing. Its attack
+cycle moves through aimed fans, rings and a rotating spiral. Below half
+health the fan cadence tightens.
+
 Both shots and bombs use the same damage/defeat path. Defeat awards its bonus
 once, clears hostile bullets and triggers a banner, fanfare and effects.
 
@@ -61,9 +64,9 @@ it does not wrap into a small number. Extra points replace pickups that would
 exceed the weapon/bomb limit. These are example rules; another game might
 reward grazing, medals, survival time or accuracy instead.
 
-The player has three tries. A hit costs one, lowers weapon power by one and
+The player has three lives. A hit costs one, lowers weapon power by one and
 clears enemy bullets. A surviving player returns to a safe position with two
-seconds of flashing invulnerability. This avoids repeatedly losing tries to
+seconds of flashing invulnerability. This avoids repeatedly losing lives to
 the same overlapping threat. The lab does not offer SRAM persistence or Continue.
 
 ## Timing

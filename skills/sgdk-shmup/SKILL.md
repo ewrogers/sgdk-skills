@@ -19,7 +19,7 @@ developer; Shooter Lab's choices are examples, not genre requirements.
 - [SGDK rendering and budgets](references/integration.md): verified APIs,
   shared sprite frames, scanlines, DMA, palettes and runtime validation.
 - [Shooter Lab](assets/shooter-lab/README.md): a playable vertical example with
-  a side HUD, six waves, weapon upgrades, bombs and a two-phase boss.
+  a side HUD, six waves, weapon upgrades, bombs and a boss with three attack phrases.
 
 The lab uses ordinary C game logic and SGDK directly. SGDK provides rendering,
 input, sound and frame processing; wave scripting, bullet patterns, hitboxes,

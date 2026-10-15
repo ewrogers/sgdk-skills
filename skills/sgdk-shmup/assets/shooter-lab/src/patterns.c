@@ -44,7 +44,7 @@ bool game_shot(Game *game,s16 x,s16 y,s16 vx,s16 vy)
 
 u16 game_pattern(Game *game,Pattern pattern,s16 x,s16 y,s16 target_x,s16 target_y,u16 phase)
 {
-    u16 angle=game_aim(target_x-x,target_y-y),count=0;
+    u16 angle=(pattern==AIMED || pattern==FAN)?game_aim(target_x-x,target_y-y):0,count=0;
     if (pattern==AIMED) return game_bullet(game,x,y,angle,2*UNIT);
     u16 needed=pattern==RING?8:pattern==FAN?3:1;
     u16 free=0;

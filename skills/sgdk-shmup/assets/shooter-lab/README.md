@@ -1,9 +1,11 @@
 # Shooter Lab
 
 A small vertical shooter built directly with SGDK. Survive six waves, collect
-weapon/bomb pickups and defeat a two-phase boss. The side HUD leaves a tall
-240×224 playfield; the remaining 80 pixels show score, tries and weapon status.
-Original native pixel art, FM/PSG music and PCM effects are included under MIT.
+weapon/bomb pickups and defeat a three-pattern boss. The side HUD leaves a tall
+240×224 playfield; the remaining 80 pixels show score, ship-shaped lives and weapon status.
+Native pixel art, original FM/PSG music and PCM effects are included.
+The PixelLab title illustration shares the ship palette at its native size;
+`res/title-art.json` records its generation and palette conversion.
 Their space theme and musical style belong to this example, not every shooter.
 
 ## Build
@@ -18,6 +20,8 @@ docker run --rm --mount "type=bind,source=$PWD,target=/workspace" ewrogers/sgdk:
 PowerShell can use `${PWD}` instead of `$PWD`. The ROM is `out/rom.bin`; keep
 `out/rom.out` for matching symbols. Use `make debug` for a diagnostic build.
 Choose Mega Drive when loading in ares. No BIOS is required.
+The full-screen title has a START option, slow space music and a starfighter
+illustration. Starting a run switches to a more driving, hopeful space track.
 
 ## Controls
 
@@ -39,8 +43,12 @@ the boss. Three hits end the run; surviving hits lower power, clear bullets and
 give flashing recovery time. Kills build a capped score chain; missed enemies
 or damage break it. Surplus pickups become points.
 
-The boss arrives after roughly 33 seconds of nominal play. Its entry is briefly
-invulnerable, then it fires aimed fans. Half health adds rings and spiral shots.
+After roughly 33 seconds, BOSS INCOMING warns you while you keep flying.
+The atmospheric stage track fades out and the boss track fades in. The boss
+flies down, then its overhead health bar expands before it can attack or take
+damage. Its three repeating phrases are aimed fans, rotating rings and a
+spiral stream, each with a wind-up and a recovery gap. Below half health, the
+fan cadence tightens. Pause freezes the entrance, music fade and attacks.
 Shots or a bomb can deliver the final hit. Clear shows a banner and fanfare;
 A or Start restarts. The lab is a demonstration, not a complete campaign.
 
@@ -52,8 +60,8 @@ A or Start restarts. The lab is a demonstration, not a complete campaign.
   then tap/hold B to verify only one bomb is spent per press.
 - Compare aimed shots, three-way fans and eight-way rings. Dodge close to a
   bullet and check the damaging core is smaller than the ship art.
-- Take a hit, recover and confirm tries/power. Lose all tries and restart.
-- Reach the boss, watch its entry and half-health phase, defeat it and restart.
+- Take a hit, recover and confirm lives/power. Lose all lives and restart.
+- Reach the boss, watch the warning, music handoff, expanding bar and three attack phrases, defeat it and restart.
 - Check music, warnings, firing/pickup/hit cues and the clear fanfare.
 - Pause during a dense pattern; actors, attacks, scroll and music should stop.
   Resume without replaying a held bomb.

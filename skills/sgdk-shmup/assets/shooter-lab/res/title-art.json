@@ -1,0 +1,11 @@
+{
+  "generator": "PixelLab Pixflux",
+  "job_id": "6e74f701-fa92-49ac-8913-32cf74144e94",
+  "seed": 45173,
+  "dimensions": [
+    224,
+    112
+  ],
+  "palette": "ship PAL1, 16 entries including transparent index 0",
+  "processing": "native dimensions preserved; nearest palette color, no dithering or resizing"
+}

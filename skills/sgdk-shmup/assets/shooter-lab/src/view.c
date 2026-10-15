@@ -6,7 +6,9 @@
 static Sprite *ship,*boss,*enemies[ENEMY_COUNT],*shots[SHOT_COUNT],*bullets[BULLET_COUNT];
 static Sprite *pickups[PICKUP_COUNT],*effects[EFFECT_COUNT];
 static u16 ship_tiles[4],enemy_tiles[6],boss_tiles[3],bullet_tiles[3],pickup_tiles[2],effect_tiles[4];
-static u16 frame;
+static u16 title_tile;
+static u16 frame,life_tile,bar_tile,old_bar=65535;
+static char hud_lines[28][9];
 static State old_state;
 static bool old_pause,drawn;
 static const char *error="UNKNOWN SETUP FAILURE";
@@ -45,11 +47,23 @@ bool view_start(void)
     VDP_setWindowHPos(TRUE,15); VDP_setWindowVPos(FALSE,0);
     VDP_setTextPlane(WINDOW); VDP_setTextPalette(PAL3); VDP_setTextPriority(TRUE);
     SPR_initEx(CACHE_TILES);
-    if ((u32)TILE_USER_INDEX+stars_image.tileset->numTile+1>TILE_USER_MAX_INDEX) FAIL("BACKGROUND VRAM BUDGET");
+    if ((u32)TILE_USER_INDEX+stars_image.tileset->numTile+4+title_image.tileset->numTile>TILE_USER_MAX_INDEX) FAIL("BACKGROUND VRAM BUDGET");
     if (!VDP_drawImageEx(BG_B,&stars_image,TILE_ATTR_FULL(PAL0,FALSE,FALSE,FALSE,TILE_USER_INDEX),0,0,FALSE,TRUE)) FAIL("BACKGROUND UPLOAD");
+    if (!VDP_drawImageEx(BG_B,&stars_image,TILE_ATTR_FULL(PAL0,FALSE,FALSE,FALSE,TILE_USER_INDEX),32,0,FALSE,TRUE)) FAIL("TITLE STARFIELD UPLOAD");
+    title_tile=TILE_USER_INDEX+stars_image.tileset->numTile+4;
     const u32 solid[8]={0x11111111,0x11111111,0x11111111,0x11111111,0x11111111,0x11111111,0x11111111,0x11111111};
     u16 panel=TILE_USER_INDEX+stars_image.tileset->numTile;
     VDP_loadTileData(solid,panel,1,CPU);
+    /* Resident HUD patterns use existing palettes and no hardware sprites. */
+    const u32 icons[24]={
+        0x00011000,0x00011000,0x00133100,0x00133100,
+        0x01333310,0x13333331,0x11011011,0x00011000,
+        0x11111111,0x10000001,0x10000001,0x10000001,
+        0x10000001,0x10000001,0x10000001,0x11111111,
+        0x11111111,0x15555551,0x15555551,0x15555551,
+        0x15555551,0x15555551,0x15555551,0x11111111};
+    life_tile=panel+1; bar_tile=panel+2;
+    VDP_loadTileData(icons,life_tile,3,CPU);
     VDP_fillTileMapRect(WINDOW,TILE_ATTR_FULL(PAL0,TRUE,FALSE,FALSE,panel),30,0,10,28);
     PAL_setPalette(PAL0,stars_image.palette->data,CPU);
     PAL_setPalette(PAL1,ship_image.palette->data,CPU);
@@ -82,9 +96,10 @@ static void place(Sprite *sprite,s16 x,s16 y,u16 size,bool active,u16 frame,cons
     /* Window's opaque, high-priority panel masks the visible part outside the
      * playfield. The simulation never admits player motion behind that panel. */
     active=active && x+size>0 && x<FIELD_W && y+size>0 && y<FIELD_H;
-    SPR_setVisibility(sprite,active?VISIBLE:HIDDEN);
+    if (SPR_getVisibility(sprite)!=(active?VISIBLE:HIDDEN)) SPR_setVisibility(sprite,active?VISIBLE:HIDDEN);
     if (!active) return;
-    SPR_setPosition(sprite,x,y); SPR_setFrame(sprite,frame); SPR_setVRAMTileIndex(sprite,tiles[frame]);
+    SPR_setPosition(sprite,x,y); if (sprite->frameInd!=frame) SPR_setFrame(sprite,frame);
+    if ((sprite->attribut&0x7FF)!=tiles[frame]) SPR_setVRAMTileIndex(sprite,tiles[frame]);
 }
 static void text(const char *value,u16 row)
 {
@@ -92,6 +107,8 @@ static void text(const char *value,u16 row)
     while (value[i] && i<8) { line[i]=value[i]; i++; }
     while (i<8) line[i++]=' ';
     line[8]=0;
+    if (!strcmp(hud_lines[row],line)) return;
+    strcpy(hud_lines[row],line);
     VDP_drawTextEx(WINDOW,line,TILE_ATTR(PAL3,TRUE,FALSE,FALSE),31,row,DMA_QUEUE);
 }
 static void hud(const Game *game,u16 hz,u16 fps)
@@ -99,8 +116,11 @@ static void hud(const Game *game,u16 hz,u16 fps)
     char line[40];
     text("SHOOTER",1); text("LAB",2);
     text("SCORE",4); uintToStr(game->score,line,8); text(line,5);
-    text("TRIES",7);
-    strcpy(line,"---"); for (u16 i=0;i<game->lives;i++) line[i]='*'; text(line,8);
+    text("LIVES",7);
+    u16 icons[8];
+    for (u16 i=0;i<8;i++) icons[i]=TILE_ATTR_FULL(PAL0,TRUE,FALSE,FALSE,life_tile-1);
+    for (u16 i=0;i<game->lives && i<3;i++) icons[i*3]=TILE_ATTR_FULL(PAL1,TRUE,FALSE,FALSE,life_tile);
+    VDP_setTileMapDataRowEx(WINDOW,icons,0,8,31,8,DMA_QUEUE_COPY);
     sprintf(line,"POWER %u",game->power); text(line,10);
     sprintf(line,"BOMBS %u",game->bombs); text(line,12);
     sprintf(line,"CHAIN %u",game->combo); text(line,14);
@@ -121,10 +141,10 @@ static void banner(const Game *game)
 {
     if (game->state==TITLE)
     {
-        VDP_drawText("S H O O T E R   L A B",4,10);
-        VDP_drawText("A OR START TO LAUNCH",5,13);
-        VDP_drawText("D-PAD MOVE  HOLD A FIRE",3,16);
-        VDP_drawText("B BOMB     C SLOW / CORE",3,18);
+        VDP_drawImageEx(BG_A,&title_image,TILE_ATTR_FULL(PAL1,FALSE,FALSE,FALSE,title_tile),6,5,FALSE,TRUE);
+        VDP_drawText("S H O O T E R   L A B",10,2);
+        VDP_drawText("> START <",16,22);
+        VDP_drawText("A / START TO LAUNCH",11,25);
     }
     else if (game->state==CLEAR || game->state==OVER)
     {
@@ -132,19 +152,58 @@ static void banner(const Game *game)
         VDP_drawText("A / START: PLAY AGAIN",5,15);
     }
 }
+/* A plane bar leaves the sprite budget available to bullets. Upload only
+ * changed tiles; temporary row storage is copied into the VBlank queue. */
+static void boss_bar(const Game *game)
+{
+    if (game->state!=BOSS) { old_bar=65535; return; }
+    u16 age=game->boss.age;
+    if (age<BOSS_WARNING_TICKS+BOSS_ENTRY_TICKS) return;
+    u16 reveal=age-(BOSS_WARNING_TICKS+BOSS_ENTRY_TICKS);
+    u16 width=reveal<BOSS_BAR_TICKS?reveal*20/BOSS_BAR_TICKS:20;
+    u16 fill=(game->boss.hp*20+BOSS_HEALTH-1)/BOSS_HEALTH;
+    u16 key=width*32+fill;
+    if (key==old_bar) return;
+    if (old_bar==65534)
+        VDP_drawTextEx(BG_A,"VOID WARDEN",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),10,1,DMA_QUEUE);
+    u16 tiles[20];
+    for (u16 i=0;i<20;i++)
+        tiles[i]=(i<(20-width)/2 || i>=(20+width)/2)?0:
+            TILE_ATTR_FULL(PAL2,TRUE,FALSE,FALSE,bar_tile+(i<fill));
+    VDP_setTileMapDataRowEx(BG_A,tiles,0,2,5,20,DMA_QUEUE_COPY);
+    old_bar=key;
+}
+
 void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
 {
     bool changed=!drawn || game->state!=old_state;
     if (changed)
     {
         /* BG_A is a stationary message layer; stars scroll on BG_B. */
-        VDP_setTextPlane(BG_A); VDP_clearTextArea(0,0,30,28); banner(game); VDP_setTextPlane(WINDOW);
+        VDP_setTextPlane(BG_A); VDP_clearTextArea(0,0,40,28);
+        VDP_setWindowHPos(game->state!=TITLE,game->state==TITLE?0:15);
+        banner(game); VDP_setTextPlane(WINDOW);
     }
-    VDP_setVerticalScroll(BG_B,-(s16)((game->ticks/2)&255));
+    if (game->state==BOSS)
+    {
+        if (game->boss.age<BOSS_WARNING_TICKS)
+        {
+            if (changed) VDP_drawTextEx(BG_A,"BOSS INCOMING",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),9,9,DMA_QUEUE);
+        }
+        else if (game->boss.age>=BOSS_WARNING_TICKS && old_bar==65535)
+        {
+            VDP_drawTextEx(BG_A,"             ",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),9,9,DMA_QUEUE);
+            old_bar=65534;
+        }
+    }
+    boss_bar(game);
+    if (game->state==TITLE && frame%30==0)
+        VDP_drawTextEx(BG_A,(frame/30)&1?"  START  ":"> START <",TILE_ATTR(PAL3,TRUE,FALSE,FALSE),16,22,DMA_QUEUE);
+    VDP_setVerticalScroll(BG_B,-(s16)((game->state==TITLE?frame/3:game->ticks/2)&255));
     bool running=game->state==PLAY || game->state==BOSS;
     u16 phase=(game->ticks/5)&1;
     place(ship,game->x,game->y,16,running && (!game->invulnerable || !(game->ticks&4)),phase+((held&C)?2:0),ship_tiles);
-    place(boss,game->boss.x,game->boss.y,32,running && game->boss.active,
+    place(boss,game->boss.x,game->boss.y,32,running && game->boss.active && game->boss.age>=BOSS_WARNING_TICKS,
           game->boss.hp<=BOSS_HEALTH/2?2:(game->ticks/12)&1,boss_tiles);
     for (u16 i=0;i<ENEMY_COUNT;i++)
     {
@@ -170,7 +229,8 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
         u16 color=game->bomb_flash && (game->bomb_flash&4)?RGB24_TO_VDPCOLOR(0x49496D):RGB24_TO_VDPCOLOR(0x000024);
         PAL_setColors(1,&color,1,DMA_QUEUE_COPY);
     }
-    if (!(frame++%10) || changed || game->paused!=old_pause) hud(game,hz,fps);
+    if (game->state!=TITLE && (!(frame%10) || changed || game->paused!=old_pause)) hud(game,hz,fps);
+    frame++;
     SPR_update(); old_state=game->state; old_pause=game->paused; drawn=true;
     VDP_setEnable(TRUE);
 }

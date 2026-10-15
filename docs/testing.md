@@ -388,3 +388,10 @@ on Unicorn. CI compares ROM hashes on native ARM64 and AMD64. These do not
 emulate VDP scanline evaluation, measure CPU headroom or establish sound quality.
 The playtest checklist covers the vertical ROM; horizontal layout guidance is
 documented separately and is not claimed as a second runtime demo.
+
+Shooter Lab also compares 12,000 randomized projectile updates against the
+pre-optimization substep routine, including full game-state side effects.
+Its M68000 probe reports instruction counts for an identical full-pool workload
+before and after broad-phase rejection. Those counts are a CPU-work proxy,
+not emulated VDP timings or a 60 FPS claim. Boss tests cover the protected
+warning/entrance/bar reveal, three attack phrases, music handoff and pause.

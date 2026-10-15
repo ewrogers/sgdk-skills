@@ -55,7 +55,7 @@ void game_hurt(Game *game)
 void game_boss_damage(Game *game,u16 damage)
 {
     Boss *boss=&game->boss;
-    if (!boss->active || boss->age<90 || !damage) return;
+    if (!boss->active || boss->age<BOSS_READY_TICKS || !damage) return;
     boss->flash=4;
     if (damage<boss->hp) { boss->hp-=damage; return; }
     boss->hp=0; boss->active=false; game->state=CLEAR; game->phase_time=0;
@@ -63,12 +63,12 @@ void game_boss_damage(Game *game,u16 damage)
     for (u16 i=0;i<BULLET_COUNT;i++) game->bullets[i].active=false;
 }
 
-static bool hit_shot(Game *game,s16 x,s16 y)
+static bool hit_shot(Game *game,s16 x,s16 y,u16 candidates)
 {
     for (u16 i=0;i<ENEMY_COUNT;i++)
     {
         Enemy *enemy=&game->enemies[i];
-        if (enemy->active && inside(x,y,enemy->x,enemy->y,10*UNIT,10*UNIT))
+        if ((candidates&(1U<<i)) && enemy->active && inside(x,y,enemy->x,enemy->y,10*UNIT,10*UNIT))
         {
             enemy->flash=6;
             if (--enemy->hp==0) game_enemy_kill(game,i);
@@ -76,7 +76,7 @@ static bool hit_shot(Game *game,s16 x,s16 y)
         }
     }
     Boss *boss=&game->boss;
-    if (boss->active && boss->age>=90 && inside(x,y,boss->x,boss->y,15*UNIT,13*UNIT))
+    if (boss->active && boss->age>=BOSS_READY_TICKS && inside(x,y,boss->x,boss->y,15*UNIT,13*UNIT))
     {
         game_boss_damage(game,1);
         return true;
@@ -84,27 +84,55 @@ static bool hit_shot(Game *game,s16 x,s16 y)
     return false;
 }
 
+/* Conservative swept bounds only reject impossible targets. The narrow phase
+ * below retains the original substep positions and enemy index priority. */
+static bool near_path(const Bullet *bullet,s16 x,s16 y,s16 hx,s16 hy)
+{
+    s16 end_x=bullet->x+bullet->vx,end_y=bullet->y+bullet->vy;
+    s16 left=bullet->x<end_x?bullet->x:end_x;
+    s16 right=bullet->x>end_x?bullet->x:end_x;
+    s16 top=bullet->y<end_y?bullet->y:end_y;
+    s16 bottom=bullet->y>end_y?bullet->y:end_y;
+    return right>=x-hx && left<x+hx && bottom>=y-hy && top<y+hy;
+}
+
 static void move(Game *game,Bullet *bullet,bool player)
 {
-    /* Power-of-two substeps keep samples at most one pixel apart without
-     * variable division in the inner loop. Positions remain in Q4 units. */
-    s16 ax=bullet->vx<0?-bullet->vx:bullet->vx;
-    s16 ay=bullet->vy<0?-bullet->vy:bullet->vy;
-    u16 count=1,shift=0,progress_x=0,progress_y=0;
-    while (ax>UNIT*count || ay>UNIT*count) { count*=2; shift++; }
-    s16 x=bullet->x,y=bullet->y;
-    for (u16 step=1;step<=count;step++)
+    u16 candidates=0;
+    bool collision=false;
+    if (player)
     {
-        progress_x+=ax; progress_y+=ay;
-        s16 offset_x=progress_x>>shift,offset_y=progress_y>>shift;
-        bullet->x=x+(bullet->vx<0?-offset_x:offset_x);
-        bullet->y=y+(bullet->vy<0?-offset_y:offset_y);
-        if (player?hit_shot(game,bullet->x,bullet->y):
-            (!game->invulnerable && inside(bullet->x,bullet->y,game->x,game->y,4*UNIT,4*UNIT)))
+        for (u16 i=0;i<ENEMY_COUNT;i++)
+            if (game->enemies[i].active && near_path(bullet,game->enemies[i].x,game->enemies[i].y,10*UNIT,10*UNIT))
+                candidates|=1U<<i;
+        collision=candidates || (game->boss.active && game->boss.age>=BOSS_READY_TICKS &&
+            near_path(bullet,game->boss.x,game->boss.y,15*UNIT,13*UNIT));
+    }
+    else collision=!game->invulnerable && near_path(bullet,game->x,game->y,4*UNIT,4*UNIT);
+    if (!collision)
+    { bullet->x+=bullet->vx; bullet->y+=bullet->vy; }
+    else
+    {
+        /* Power-of-two substeps keep samples at most one pixel apart without
+         * variable division in the inner loop. Positions remain in Q4 units. */
+        s16 ax=bullet->vx<0?-bullet->vx:bullet->vx;
+        s16 ay=bullet->vy<0?-bullet->vy:bullet->vy;
+        u16 count=1,shift=0,progress_x=0,progress_y=0;
+        while (ax>UNIT*count || ay>UNIT*count) { count*=2; shift++; }
+        s16 x=bullet->x,y=bullet->y;
+        for (u16 step=1;step<=count;step++)
         {
-            bullet->active=false;
-            if (!player) game_hurt(game);
-            return;
+            progress_x+=ax; progress_y+=ay;
+            s16 offset_x=progress_x>>shift,offset_y=progress_y>>shift;
+            bullet->x=x+(bullet->vx<0?-offset_x:offset_x);
+            bullet->y=y+(bullet->vy<0?-offset_y:offset_y);
+            if (player?hit_shot(game,bullet->x,bullet->y,candidates):
+                (!game->invulnerable && inside(bullet->x,bullet->y,game->x,game->y,4*UNIT,4*UNIT)))
+            {
+                bullet->active=false;
+                if (!player) game_hurt(game);
+                return;
+            }
         }
     }
     if (bullet->x<-8*UNIT || bullet->x>(FIELD_W+8)*UNIT ||

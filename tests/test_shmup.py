@@ -41,7 +41,7 @@ class ShooterBehaviorTests(unittest.TestCase):
         cls.binary = Path(cls.scratch.name) / ('model.exe' if os.name=='nt' else 'model')
         command = [cls.compiler,'-std=c17','-O2','-Wall','-Wextra','-Werror','-I',str(project/'inc')]
         command += [str(project/'src'/name) for name in ['game.c','patterns.c','combat.c','stage.c','video_layout.c']]
-        result = subprocess.run(command+[str(FIXTURE/'model_test.c'),'-o',str(cls.binary)], capture_output=True,text=True,timeout=60)
+        result = subprocess.run(command+[str(FIXTURE/'collision_reference.c'),str(FIXTURE/'model_test.c'),'-o',str(cls.binary)], capture_output=True,text=True,timeout=60)
         if result.returncode: raise RuntimeError(result.stdout+result.stderr)
 
     def check(self,name):
@@ -52,6 +52,7 @@ class ShooterBehaviorTests(unittest.TestCase):
     def test_h40_window_alignment_plane_ranges_and_overlap(self): self.check('layout')
     def test_pool_exhaustion_retirement_and_reuse(self): self.check('pools')
     def test_aim_ring_symmetry_fan_and_atomic_volley(self): self.check('patterns')
+    def test_broad_phase_matches_original_substeps(self): self.check('equivalence')
     def test_focus_diagonals_and_bounds_exclude_hud(self): self.check('movement')
     def test_substep_hits_single_consumption_immunity_and_score_saturation(self): self.check('combat')
     def test_power_caps_surplus_score_bomb_edges_and_damage_downgrade(self): self.check('pickups')
@@ -95,6 +96,23 @@ class ShooterAssetsTests(unittest.TestCase):
                 self.assertEqual(rows[y*(width+1)],0)
                 self.assertLess(max(rows[y*(width+1)+1:(y+1)*(width+1)]),16)
 
+    def test_title_art_is_native_indexed_and_shares_ship_palette(self):
+        data=(LAB/'res/title.png').read_bytes()
+        cursor=8; chunks={}
+        while cursor<len(data):
+            size=struct.unpack_from('>I',data,cursor)[0]
+            kind,payload=data[cursor+4:cursor+8],data[cursor+8:cursor+8+size]
+            self.assertEqual(zlib.crc32(kind+payload),struct.unpack_from('>I',data,cursor+8+size)[0])
+            chunks.setdefault(kind,bytearray()).extend(payload);cursor+=size+12
+        self.assertEqual(struct.unpack('>IIBBBBB',chunks[b'IHDR']),(224,112,8,3,0,0,0))
+        expected=bytes(c for rgb in load_generator('make_assets').PALETTES[1] for c in rgb)
+        self.assertEqual(chunks[b'PLTE'],expected)
+        rows=zlib.decompress(chunks[b'IDAT']); self.assertEqual(len(rows),225*112)
+        for row in range(112):
+            self.assertEqual(rows[row*225],0)
+            self.assertLess(max(rows[row*225+1:(row+1)*225]),16)
+        self.assertGreater(len(set(rows)),1)
+
     def test_audio_reproduction_pcm_format_and_vgm_waits_and_loop(self):
         for name,data in load_generator('make_audio').assets().items():
             self.assertEqual(data,(LAB/'res'/name).read_bytes())
@@ -114,7 +132,7 @@ class ShooterAssetsTests(unittest.TestCase):
                     else: self.fail(f'Unexpected VGM command {command}')
                 self.assertEqual(frames*735,struct.unpack_from('<I',data,0x18)[0])
                 self.assertGreater(fm,100); self.assertGreater(psg,10)
-                self.assertEqual(bool(struct.unpack_from('<I',data,0x1C)[0]),name=='course.vgm')
+                self.assertEqual(bool(struct.unpack_from('<I',data,0x1C)[0]),name in ('title.vgm','course.vgm','boss.vgm'))
 
     def test_generators_refuse_to_overwrite_source_assets(self):
         for name in ['make_assets','make_audio']:
@@ -148,7 +166,7 @@ class ShooterContainerTests(unittest.TestCase):
                 self.assertEqual(rom[0x100:0x104],b'SEGA')
                 self.assertEqual(struct.unpack_from('>I',rom,0x1A4)[0],len(rom)-1)
                 symbols=run('m68k-elf-nm','out/rom.out')
-                for name in ['ship_image','boss_image','enemy_image','bullet_image','stars_image','stage_music']:
+                for name in ['ship_image','boss_image','enemy_image','bullet_image','stars_image','title_image','title_music','stage_music','boss_music']:
                     self.assertRegex(symbols,r'\b'+name+r'\b')
                 hashes[mode]=hashlib.sha256(rom).hexdigest()
             shutil.copyfile(FIXTURE/'target_probe.c',project/'src/main.c')
@@ -161,8 +179,12 @@ class ShooterContainerTests(unittest.TestCase):
                     expected_x=math.trunc(round(math.sin(angle*math.pi/8)*256)*32/256)
                     expected_y=math.trunc(round(-math.cos(angle*math.pi/8)*256)*32/256)
                     self.assertEqual(values[angle*2:angle*2+2],[expected_x,expected_y])
-            output=ROOT/'build/shmup-integration';output.mkdir(parents=True,exist_ok=True)
+            from shmup_profile import profile
+            instructions=profile(project,run)
+            self.assertLess(instructions['game_projectiles'],instructions['reference_game_projectiles'])
+            output=ROOT/'build/shmup-integration' ;output.mkdir(parents=True,exist_ok=True)
             (output/'shmup-report.json').write_text(json.dumps({'passed':True,'hashes':hashes,
+                'collision_instruction_proxy':instructions,
                 'target_model':'executed release/debug on Unicorn 2.1.4 M68000'},indent=2)+'\n')
 
 
