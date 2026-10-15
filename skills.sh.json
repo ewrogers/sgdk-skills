@@ -31,6 +31,13 @@
         "sgdk-debug",
         "sgdk-performance"
       ]
+    },
+    {
+      "title": "Ship your game",
+      "description": "Validate and package a release candidate.",
+      "skills": [
+        "sgdk-release"
+      ]
     }
   ]
 }

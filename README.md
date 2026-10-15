@@ -24,6 +24,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-save](skills/sgdk-save/SKILL.md) | Save progress to SRAM, recover damaged saves and add controller-friendly passwords. |
 | [sgdk-performance](skills/sgdk-performance/SKILL.md) | Measure frame-rate headroom, compare optimizations and separate CPU, DMA and scanline limits. |
 | [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
+| [sgdk-release](skills/sgdk-release/SKILL.md) | Check an SGDK ROM and package the exact tested build with documents, hashes and build records. |
 
 ## Install
 
@@ -62,6 +63,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-save to add checkpoint saves, a backup slot and password entry."
 - "Use sgdk-performance to measure a busy scene and optimize it without changing gameplay."
 - "Use sgdk-debug to investigate this fault using the matching ELF file."
+- "Use sgdk-release to validate and package this release candidate without changing the ROM."
 
 Each skill works on its own. It includes focused references and, where useful,
 a helper or small example. Agents check the selected container's headers,
