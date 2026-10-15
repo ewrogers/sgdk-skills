@@ -89,10 +89,24 @@ point. That still does not guarantee a frame budget. Sprite scanlines, tile
 uploads and diagnostic text have costs separate from the math. Measure with
 the overlay hidden as well as visible.
 
+For the star projection, the lab uses SGDK's `muls(s16, s16)` on the target:
+an explicit 16-by-16 to 32-bit multiply. A portable-looking widened C multiply
+can become a general software 32-bit multiplication helper on this compiler.
+The scale is bounded at 1024 before narrowing it to the signed operand.
+Likewise, the phase values are already bounded, so a single conditional
+subtraction wraps them instead of a general modulo. Keep those preconditions
+visible and tested; the same shortcut is not valid for an arbitrary angle.
+
+The renderer marks sprites fully visible only because the model guarantees
+their entire footprint stays on screen. It is not a general recommendation
+to disable SGDK culling. HUD updates are padded and queued for VBlank instead
+of clearing and rewriting VRAM during active display.
+
 ## Primary sources
 
 - [SGDK 2.11 math API, angle units and deprecated functions](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/maths.h)
 - [SGDK 2.11 trig tables and approximation implementations](https://github.com/Stephane-D/SGDK/blob/v2.11/src/maths.c)
+- [SGDK 2.11 sprite visibility controls](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/sprite_eng.h)
 - [68000 multiply/divide instructions](https://www.nxp.com/docs/en/reference-manual/M68000PRM.pdf)
 
 Host tests check the lab's model against independent real-valued oracles.

@@ -20,27 +20,48 @@ static bool create_sprites(void)
         stars[i] = SPR_addSprite(&star_image, 0, 0, TILE_ATTR(PAL1, FALSE, FALSE, FALSE));
         if (!stars[i]) return false;
         SPR_setAutoAnimation(stars[i], FALSE);
+        SPR_setVisibility(stars[i], VISIBLE); /* The model keeps the whole sprite onscreen. */
     }
     for (u16 i = 0; i < ORBIT_COUNT; i++)
     {
         orbits[i] = SPR_addSprite(&orb_image, 0, 0, TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
         if (!orbits[i]) return false;
         SPR_setAutoAnimation(orbits[i], FALSE);
+        SPR_setVisibility(orbits[i], VISIBLE);
     }
     return true;
+}
+
+static void write_line(char line[40], u16 row)
+{
+    u16 length = strlen(line);
+    while (length < 38) line[length++] = ' ';
+    line[38] = 0;
+    /* RowEx copies its temporary tile data into SGDK's DMA queue buffer. */
+    VDP_drawTextEx(BG_A, line, TILE_ATTR(PAL0, TRUE, FALSE, FALSE), 1, row, DMA_QUEUE);
 }
 
 static void draw_metrics(u16 hz, u16 fps)
 {
     char line[40];
+    static bool was_visible = true;
     static const char *names[] = {"ORBIT", "FIGURE EIGHT", "SPIRAL"};
-    VDP_clearText(1, 1, 38);
-    VDP_clearText(1, 2, 38);
-    if (!demo.metrics) return;
+    if (!demo.metrics)
+    {
+        if (was_visible)
+        {
+            line[0] = 0;
+            write_line(line, 1);
+            write_line(line, 2);
+        }
+        was_visible = false;
+        return;
+    }
+    was_visible = true;
     sprintf(line, "MATH LAB  %s  %s", names[demo.pattern], demo.paused ? "PAUSED" : "      ");
-    VDP_drawText(line, 1, 1);
+    write_line(line, 1);
     sprintf(line, "%uHZ %uFPS SPEED %u/8 LOAD %u/100", hz, fps, demo.speed, SYS_getCPULoad());
-    VDP_drawText(line, 1, 2);
+    write_line(line, 2);
 }
 
 int main(bool hard_reset)
@@ -86,10 +107,11 @@ int main(bool hard_reset)
             SPR_setPosition(stars[i], demo.stars[i].screen.x - 4, demo.stars[i].screen.y - 4);
             SPR_setFrame(stars[i], demo.stars[i].shade);
         }
+        u16 animation_phase = (demo.ticks / 12) & 3;
         for (u16 i = 0; i < ORBIT_COUNT; i++)
         {
             SPR_setPosition(orbits[i], demo.orbit[i].x - 8, demo.orbit[i].y - 8);
-            SPR_setFrame(orbits[i], (i / 4 + demo.ticks / 12) % 4);
+            SPR_setFrame(orbits[i], (i / 4 + animation_phase) & 3);
         }
         if (!(frame++ % 10)) draw_metrics(hz, fps);
         SPR_update();

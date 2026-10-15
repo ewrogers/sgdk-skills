@@ -17,6 +17,8 @@ __attribute__((noipa)) int main(bool hard_reset)
     if (F32_sin(FIX16(90)) != FIX32(1)) return 10;
     if (F16_toRoundedInt(FIX16(1.5)) != 1) return 11;
     if (F16_toRoundedInt(FIX16(1.75)) != 2) return 12;
+    if (muls(-123, 1024) != -125952) return 13;
+    if (muls(-32768, -32768) != 1073741824L) return 14;
     vu16 *port = (vu16 *)VDP_DATA_PORT;
     for (u16 i = 0; i < 360; i++) *port = F16_sin(FIX16(i));
     return 0;

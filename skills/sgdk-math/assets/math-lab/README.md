@@ -73,6 +73,10 @@ or mapper.
 `src/demo.c` owns the portable simulation. `src/main.c` initializes the actual
 SGDK tables, samples input and renders the model. The host tests use independent
 trig values; separate M68000 execution tests check the selected SDK routines.
+The target uses SGDK's native `muls` helper for bounded 16-bit products and
+conditional wrapping for bounded angles. All sprites remain fully on screen,
+so the renderer skips redundant visibility calculations. HUD updates use the
+VBlank DMA queue.
 The original indexed sheets can be regenerated into a new folder with
 `python3 tools/make_art.py new-art`; it refuses to overwrite source art.
 

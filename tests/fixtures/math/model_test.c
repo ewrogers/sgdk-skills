@@ -21,6 +21,9 @@ static void projection(void)
     assert(!demo_project(0, 0, 0, perspective, &point));
     assert(!demo_project(0, 0, 256, perspective, &point));
     assert(point.x == 123 && point.y == 45);
+    u16 invalid[256] = {0};
+    invalid[16] = 65535;
+    assert(!demo_project(0, 0, 16, invalid, &point));
     for (u16 z = 16; z <= 255; z++)
         for (s16 x = -128; x <= 127; x += 7)
             for (s16 y = -96; y <= 95; y += 9)
@@ -76,6 +79,8 @@ static void patterns(void)
                 double y = 122 + sin(angle * (pattern == 1 ? 2 : 1)) * (pattern == 2 ? radius * 3 / 4 : 58);
                 assert(fabs(demo.orbit[i].x - x) < 2.5);
                 assert(fabs(demo.orbit[i].y - y) < 2.5);
+                assert(demo.orbit[i].x >= 8 && demo.orbit[i].x <= 312);
+                assert(demo.orbit[i].y >= 8 && demo.orbit[i].y <= 216);
             }
         }
         assert(demo.phase == 0);

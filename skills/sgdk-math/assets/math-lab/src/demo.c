@@ -1,4 +1,23 @@
 #include "demo.h"
+#ifdef __m68k__
+#include <maths.h>
+#endif
+
+static s32 product(s16 left, s16 right)
+{
+#ifdef __m68k__
+    /* Explicit 16x16 -> 32 MULS, rather than a general 32-bit helper. */
+    return muls(left, right);
+#else
+    return (s32)left * right;
+#endif
+}
+
+/* Every caller supplies [0, 718]. One subtraction replaces a general modulo. */
+static u16 wrap_angle(u16 angle)
+{
+    return angle >= 360 ? angle - 360 : angle;
+}
 
 static u32 next_random(Demo *demo)
 {
@@ -22,10 +41,12 @@ static void reset_star(Demo *demo, DemoStar *star, bool scatter_depth)
 bool demo_project(s16 x, s16 y, u16 depth, const u16 perspective[256], DemoPoint *out)
 {
     if (depth < 16 || depth > 255) return false;
+    u16 scale = perspective[depth];
+    if (scale > 1024) return false;
     /* Widen before multiplying. Divide signed values rather than shifting
      * them: C17 division explicitly truncates toward zero on every host. */
-    s32 px = 160 + (s32)x * perspective[depth] / 256;
-    s32 py = 120 + (s32)y * perspective[depth] / 256;
+    s32 px = 160 + product(x, (s16)scale) / 256;
+    s32 py = 120 + product(y, (s16)scale) / 256;
     if (px < 4 || px > 315 || py < 40 || py > 211) return false;
     out->x = (s16)px;
     out->y = (s16)py;
@@ -41,24 +62,24 @@ s16 demo_lerp(s16 from, s16 to, u16 amount)
 u32 demo_distance_sq(s16 dx, s16 dy)
 {
     /* Each signed product fits s32; add as u32 to cover (-32768,-32768). */
-    return (u32)((s32)dx * dx) + (u32)((s32)dy * dy);
+    return (u32)product(dx, dx) + (u32)product(dy, dy);
 }
 
 static s16 sine_at(const Demo *demo, u16 angle)
 {
-    return demo->sine[angle % 360];
+    return demo->sine[wrap_angle(angle)];
 }
 
 static void formation(Demo *demo)
 {
     for (u16 i = 0; i < ORBIT_COUNT; i++)
     {
-        u16 angle = (demo->phase + i * 360 / ORBIT_COUNT) % 360;
+        u16 angle = wrap_angle(demo->phase + i * 360 / ORBIT_COUNT);
         s16 x = sine_at(demo, angle + 90);
         s16 y = sine_at(demo, demo->pattern == 1 ? angle * 2 : angle);
         s16 radius = demo->pattern == 2 ? 18 + i * 4 : 72;
-        demo->orbit[i].x = 160 + (s32)x * radius / 64;
-        demo->orbit[i].y = 122 + (s32)y * (demo->pattern == 2 ? radius * 3 / 4 : 58) / 64;
+        demo->orbit[i].x = 160 + product(x, radius) / 64;
+        demo->orbit[i].y = 122 + product(y, demo->pattern == 2 ? radius * 3 / 4 : 58) / 64;
     }
 }
 
@@ -84,7 +105,7 @@ void demo_step(Demo *demo)
 {
     if (demo->paused) return;
     demo->ticks++;
-    demo->phase = (demo->phase + demo->speed) % 360;
+    demo->phase = wrap_angle(demo->phase + demo->speed);
     for (u16 i = 0; i < STAR_COUNT; i++)
     {
         DemoStar *star = &demo->stars[i];
