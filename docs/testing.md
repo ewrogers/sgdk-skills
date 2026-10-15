@@ -85,9 +85,14 @@ a recording SDK fixture. They do not simulate the Z80 mixer or test its priority
 algorithm. Asset checks validate the original VGM's timing/loop commands, WAV
 format and reproducibility, and overwrite protection. Docker checks API contracts,
 builds release/debug ROMs, and verifies linked audio addresses, padded lengths
-and zero-filled sample tails. The lab's music is a PSG fixture; FM instruments,
-music percussion, audible transitions, PAL playback and graphics-DMA contention
-still require listening checks with representative content.
+and zero-filled sample tails. Sound Lab's original music now includes FM, PSG and two sampled drums. Tests
+parse its VGM stream timing, FM patch/key events and DAC sample ranges, then
+inspect the converted music's FM/PSG blocks and sample table. Additional checks
+cover contention/DMA switch chords, DMA-delay setup, region-aware fade durations,
+four-second tempo measurements including counter wrap, and disposable PAL/NTSC
+headers with custom-header protection. Audible transitions, region
+tempo and DMA contention still require listening checks; these tests do not
+execute the Z80 mixer or certify hardware playback.
 
 Gameplay tests execute movement, fractional wall checks, half-open collision
 bounds, projectile substeps, hit retirement, pool exhaustion/reuse and camera

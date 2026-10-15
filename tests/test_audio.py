@@ -28,7 +28,8 @@ class AudioBehaviorTests(unittest.TestCase):
             if os.environ.get("SGDK_REQUIRE_HOST_CC") == "1":
                 raise RuntimeError("CI requires a C17 compiler for audio behavior tests")
             raise unittest.SkipTest("Audio behavior tests need clang, cc or gcc")
-        cls.folder = tempfile.TemporaryDirectory(prefix="sgdk audio host ")
+        (ROOT / "build").mkdir(exist_ok=True)
+        cls.folder = tempfile.TemporaryDirectory(prefix="sgdk audio host ", dir=ROOT / "build")
         cls.addClassCleanup(cls.folder.cleanup)
         project = Path(cls.folder.name) / "copied lab"
         shutil.copytree(LAB, project)
@@ -58,6 +59,9 @@ class AudioBehaviorTests(unittest.TestCase):
     def test_simultaneous_effects_choose_alarm(self): self.check_case("effect_conflict")
     def test_fade_owns_transport_but_allows_effects(self): self.check_case("fade")
     def test_stop_wins_simultaneous_transport_requests(self): self.check_case("transport_conflict")
+    def test_one_second_fades_use_detected_pal_ntsc_refresh(self): self.check_case("regions")
+    def test_contention_and_dma_chords_consume_their_inputs(self): self.check_case("test_switches")
+    def test_four_second_measurement_in_both_regions_and_counter_wrap(self): self.check_case("timing")
 
 
 class AudioAssetTests(unittest.TestCase):
@@ -82,7 +86,7 @@ class AudioAssetTests(unittest.TestCase):
                         self.assertLess(max(frames), 255)
                         self.assertLessEqual(abs(frames[-1] - 128), 1)
 
-    def test_vgm_timing_loop_and_psg_commands(self):
+    def test_vgm_timing_loop_fm_psg_and_dac_streams(self):
         data = self.generator.music()
         read = lambda offset: struct.unpack_from("<I", data, offset)[0]
         self.assertEqual(data[:4], b"Vgm ")
@@ -90,26 +94,74 @@ class AudioAssetTests(unittest.TestCase):
         self.assertEqual(read(8), 0x160)
         start = read(0x34) + 0x34
         self.assertEqual(start, 256)
-        self.assertEqual(read(0x1C) + 0x1C, start)
-        samples, writes, cursor = 0, 0, start
+        loop = read(0x1C) + 0x1C
+        samples, cursor = 0, start
+        fm, psg, streams, banks, frequencies = [], [], [], [], []
         while data[cursor] != 0x66:
             command = data[cursor]
             if command == 0x50:
-                writes += 1
+                psg.append(data[cursor + 1])
                 cursor += 2
+            elif command == 0x52:
+                fm.append((cursor, data[cursor+1], data[cursor+2]))
+                cursor += 3
             elif command == 0x62:
                 samples += 735
                 cursor += 1
+            elif command == 0x67:
+                self.assertEqual(data[cursor+1:cursor+3], b"\x66\x00")
+                length = read(cursor+3)
+                banks.append(data[cursor+7:cursor+7+length])
+                cursor += 7 + length
+            elif command == 0x90:
+                self.assertEqual(data[cursor+1:cursor+5], b"\0\x02\0\x2A")
+                cursor += 5
+            elif command == 0x91:
+                self.assertEqual(data[cursor+1:cursor+5], b"\0\0\x01\0")
+                cursor += 5
+            elif command == 0x92:
+                frequencies.append(read(cursor+2)); cursor += 6
+            elif command == 0x93:
+                self.assertEqual(data[cursor+1], 0)
+                self.assertEqual(data[cursor+6], 1)
+                streams.append((samples, read(cursor+2), read(cursor+7)))
+                cursor += 11
+            elif command == 0x94:
+                self.assertEqual(data[cursor+1], 0); cursor += 2
             else:
                 self.fail(f"Unexpected command {command:#x}")
         self.assertEqual(cursor, len(data) - 1)
-        self.assertEqual(samples, 88200)
+        self.assertEqual(samples, 176400)
         self.assertEqual(samples, read(0x18))
         self.assertEqual(samples, read(0x20))
-        self.assertEqual(writes, 36)
+        self.assertEqual(read(0x24), 60)
+        self.assertEqual(frequencies, [13300])
+        self.assertEqual(len(banks), 1)
+        self.assertEqual(len(banks[0]), 2926)
+        self.assertLess(min(banks[0]), 80)
+        self.assertGreater(max(banks[0]), 180)
+        self.assertGreater(loop, start + len(banks[0]))
+        self.assertEqual(len(streams), 16)
+        for beat, (time, offset, length) in enumerate(streams):
+            self.assertEqual(time, beat * 15 * 735)
+            self.assertEqual((offset, length), (0, 1330) if beat % 2 == 0 else (1330, 1596))
+            self.assertLessEqual(offset + length, len(banks[0]))
+            self.assertLessEqual(abs(banks[0][offset+length-1] - 128), 1)
+        patch = {register: value for position, register, value in fm if position < loop}
+        for channel in [0, 1]:
+            self.assertEqual(patch[0xB0 + channel] & 7, 4)
+            self.assertLess(patch[0x40 + channel], 127)  # Audible modulator.
+            self.assertLess(patch[0x48 + channel], 127)  # Audible carrier.
+            self.assertEqual(patch[0xB4 + channel], 0xC0)
+        self.assertEqual(sum(register == 0x28 and value in [0xF0, 0xF1]
+                             for _, register, value in fm), 16)
+        self.assertGreater(len({value for _, reg, value in fm if reg == 0xA0}), 4)
+        self.assertIn(0xE7, psg)  # Noise accompaniment as well as tone0.
+        self.assertIn(0x9A, psg)
 
     def test_standalone_generator_preserves_existing_files(self):
-        with tempfile.TemporaryDirectory(prefix="sgdk audio art ") as folder:
+        (ROOT / "build").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="sgdk audio art ", dir=ROOT / "build") as folder:
             root = Path(folder)
             script = root / "make_lab_audio.py"
             shutil.copy2(SKILL / "scripts/make_lab_audio.py", script)
@@ -123,10 +175,45 @@ class AudioAssetTests(unittest.TestCase):
             self.assertEqual(before, {p.name: p.read_bytes() for p in output.iterdir()})
 
 
+class RegionHeaderTests(unittest.TestCase):
+    def test_disposable_region_headers_and_custom_header_protection(self):
+        (ROOT / "build").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="sound regions ", dir=ROOT / "build") as folder:
+            root = Path(folder)
+            sdk = root / "fake SDK"
+            source = sdk / "src/boot/rom_head.c"
+            source.parent.mkdir(parents=True)
+            template = '#include "genesis.h"\nconst ROMHeader rom_header = {\n    "JUE             "\n};\n'
+            source.write_text(template)
+            project = root / "disposable project"
+            project.mkdir()
+            helper = root / "region_header.py"
+            shutil.copy2(LAB / "tools/region_header.py", helper)
+            for region, code in [("ntsc", "U"), ("pal", "E"), ("auto", "JUE")]:
+                result = subprocess.run([sys.executable, str(helper), region, "--sdk", str(sdk),
+                                         "--project", str(project)], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                generated = (project / "src/boot/rom_head.c").read_text()
+                self.assertIn('"' + code.ljust(16) + '"', generated)
+                self.assertEqual(source.read_text(), template)
+            output = project / "src/boot/rom_head.c"
+            output.write_text("user's custom ROM header")
+            result = subprocess.run([sys.executable, str(helper), "pal", "--sdk", str(sdk),
+                                     "--project", str(project)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(output.read_text(), "user's custom ROM header")
+            source.write_text("unfamiliar SDK header")
+            result = subprocess.run([sys.executable, str(helper), "pal", "--sdk", str(sdk),
+                                     "--project", str(project)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(output.read_text(), "user's custom ROM header")
+
+
 @unittest.skipUnless(os.environ.get("SGDK_SKILLS_INTEGRATION") == "1", "Docker integration is opt-in")
 class AudioContainerTests(unittest.TestCase):
     def test_sdk_api_builds_and_linked_audio_alignment(self):
-        with tempfile.TemporaryDirectory(prefix="sgdk audio container ") as folder:
+        (ROOT / "build").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="sgdk audio container ", dir=ROOT / "build") as folder:
             project = Path(folder) / "sound lab"
             shutil.copytree(LAB, project)
             base = ["docker", "run", "--rm"]
@@ -193,6 +280,25 @@ void (*pcm4_play)(const u8 *, u32, SoundPCMChannel, bool) = SND_PCM4_startPlay;
             self.assertEqual([size for _, size in assets[1:]], [3328, 13312])
             for (address, size), raw_size in zip(assets[1:], [3325, 13300]):
                 self.assertEqual(rom[address + raw_size:address + size], bytes(size - raw_size))
+            compiled = rom[assets[0][0]:sum(assets[0])]
+            self.assertEqual(compiled[0], 0x10)  # Compiled XGM2 has no ASCII ident.
+            self.assertEqual(compiled[1] & 3, 0)  # NTSC source, single track.
+            sample_blocks, fm_blocks, psg_blocks = struct.unpack_from("<HHH", compiled, 2)
+            self.assertGreater(sample_blocks, 0)
+            self.assertGreater(fm_blocks, 0)
+            self.assertGreater(psg_blocks, 0)
+            sample_offsets = [v for v in struct.unpack_from("<124H", compiled, 8) if v != 0xFFFF]
+            self.assertEqual(len(sample_offsets), 3)  # Two drums plus final size marker.
+            self.assertEqual(sample_offsets[0], 0)
+            self.assertEqual(sample_offsets[-1], sample_blocks)
+            self.assertLess(sample_offsets[0], sample_offsets[1])
+            self.assertLess(sample_offsets[1], sample_offsets[2])
+            for region, code in [("ntsc", b"U"), ("pal", b"E")]:
+                run("python3", "tools/region_header.py", region)
+                run("build", "clean")
+                run("build", "release")
+                regional = (project / "out/rom.bin").read_bytes()
+                self.assertEqual(regional[0x1F0:0x200], code.ljust(16, b" "))
 
 
 if __name__ == "__main__":
