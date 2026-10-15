@@ -1,16 +1,16 @@
 # Docker workflow
 
-The tested default is SGDK 2.11 in this immutable multi-platform image:
+Use the latest published multi-platform toolchain:
 
 ```text
-ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
+ewrogers/sgdk:latest
 ```
 
-It contains GCC 16.2.0, binutils 2.47, GDB 18.1, Java and SGDK's resource tools.
+It contains the cross-compiler, binutils, GDB, Java and SGDK's resource tools.
 It sets `GDK=/opt/sgdk`, puts the tools on `PATH` and defaults to
 `EXTRA_FLAGS=-std=gnu17`. Libraries are built with the same compiler, preserving
-SGDK's optimizer workarounds. Prefer a digest for reproducibility; the shorter
-`ewrogers/sgdk:2.11` tag can move when the toolchain is updated.
+SGDK's optimizer workarounds. `latest` receives toolchain fixes, so run `doctor`
+and check the installed version before relying on version-specific behavior.
 
 ## Host differences
 
@@ -24,10 +24,10 @@ SGDK's optimizer workarounds. Prefer a digest for reproducibility; the shorter
   `--platform linux/amd64` is available for deliberate checks; an opposite
   architecture may use emulation and be slower.
 
-For an explicit platform with the default image, the helper selects the verified
-architecture-specific digest from that index. This avoids a Docker Desktop
-cache conflict when testing both architectures locally. Custom image references
-are passed through unchanged.
+The helper uses `--pull=always` for the default image, including an explicit
+platform. Docker selects the current architecture variant; no child digest is
+stored in the helper. A custom `--image` override is passed through without a
+forced pull so local development images still work.
 
 Host helper behavior is tested on Windows, macOS and Linux in CI. Container
 builds run on native Linux ARM64 and AMD64; Windows Docker runtime verification
@@ -52,18 +52,17 @@ Docker CLI directly with `-it`.
 Without Python, the equivalent release build on macOS/Linux/WSL is:
 
 ```sh
-docker run --rm -v "$PWD:/workspace" ewrogers/sgdk:2.11 build release
+docker run --rm --pull=always -v "$PWD:/workspace" ewrogers/sgdk:latest build release
 ```
 
 In native PowerShell use:
 
 ```powershell
-docker run --rm --mount "type=bind,source=$($PWD.Path),target=/workspace" ewrogers/sgdk:2.11 build release
+docker run --rm --pull=always --mount "type=bind,source=$($PWD.Path),target=/workspace" ewrogers/sgdk:latest build release
 ```
 
-These shorter examples use the moving tag for readability. Use the pinned
-reference above, or the project's existing pin, for reproducible work. A bind
-mount's host folder must exist and be shared with Docker Desktop. A permissions
+These commands pull the latest published tools before running. A bind mount's
+host folder must exist and be shared with Docker Desktop. A permissions
 error is not a reason to run a privileged container or mount the Docker socket.
 
 ## Find the real API

@@ -38,7 +38,7 @@ SGDK music or sprite animation will not automatically pause with game state.
 
 ## Use the SDK's fixed-point format
 
-Target the original 68000, without an FPU. The pinned toolchain rejects other
+Target the original 68000, without an FPU. The published toolchain rejects other
 CPU/FPU settings; do not use later 68k instructions in handwritten assembly.
 
 SGDK 2.11's `fix16` has six fractional bits and `fix32` has ten. `fastfix16` and

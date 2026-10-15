@@ -7,6 +7,9 @@ Practical agent skills for making Sega Mega Drive and Genesis games with
 [SGDK Docker toolchain](https://github.com/ewrogers/sgdk-docker), keep your project
 on your computer, and use an agent to help with setup, assets and debugging.
 
+For Sega CD development, see [Megadev Docker](https://github.com/ewrogers/megadev-docker)
+and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development).
+
 | Skill | What to ask it for |
 | --- | --- |
 | [sgdk-planning](skills/sgdk-planning/SKILL.md) | Turn a game idea into a first playable milestone, hardware budgets and practical tests. |
@@ -58,8 +61,9 @@ Ask your agent to use a skill for a concrete task. For example:
 
 Each skill works on its own. It includes focused references and, where useful,
 a helper or small example. Agents check the selected container's headers,
-manuals and samples before proposing unfamiliar API calls. The default is a
-verified SGDK 2.11 image digest; an existing project's pin takes precedence.
+manuals and samples before proposing unfamiliar API calls. The default is
+`ewrogers/sgdk:latest`. Pull it before building, and check the installed SDK's
+version when consulting the references.
 
 The guidance accounts for CPU work, RAM, VRAM, palettes, sprite scanlines and
 transfer bandwidth separately. It helps you use SGDK directly and leaves your
@@ -88,3 +92,13 @@ and the exact validation boundaries.
 
 The skills and original examples are MIT licensed. SGDK and the bundled
 toolchain retain their own licenses.
+
+## Disclaimer
+
+SGDK Skills is an independent community project. It is not affiliated with,
+endorsed by or sponsored by SEGA CORPORATION or SEGA SAMMY HOLDINGS INC.
+SEGA and related names, logos and trademarks belong to their respective owners.
+They are used here to identify the hardware and tools this project supports.
+
+This repository's original work is available under the [MIT License](LICENSE).
+Third-party software and materials retain their own licenses and notices.

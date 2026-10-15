@@ -20,7 +20,7 @@ Do not confuse SGDK's XOR-folded checksum with a generic Sega word-sum checksum.
 
 ## SGDK banking is a deliberate configuration
 
-The pinned SDK sets `ENABLE_BANK_SWITCH` to `0`. Its supported automatic binary
+The SGDK 2.11 implementation sets `ENABLE_BANK_SWITCH` to `0`. Its supported automatic binary
 resource banking uses the Sega/SSF mapper; that does not imply support for every
 mapper. Enabling it requires consistent SDK configuration, rebuilt libraries,
 project headers and the appropriate ROM header. Do not assume that adding one

@@ -91,7 +91,7 @@ SGDK's `TILE_ATTR_FULL` combines the fields without checking the index; an out-o
 For diagnosis without a full ROM build, run ResComp in a writable scratch copy:
 
 ```text
-docker run --rm --mount "type=bind,source=PROJECT,target=/workspace" IMAGE java -jar /opt/sgdk/bin/rescomp.jar res/resources.res out/resources.s
+docker run --rm --pull=always --mount "type=bind,source=PROJECT,target=/workspace" IMAGE java -jar /opt/sgdk/bin/rescomp.jar res/resources.res out/resources.s
 ```
 
 Create `out` first. Conversion may create intermediate files, so do not treat it as a read-only validator. A full build additionally catches generated symbol/type mistakes and link failures.

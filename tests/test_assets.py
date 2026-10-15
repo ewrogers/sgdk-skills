@@ -15,8 +15,7 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = ROOT / "skills/sgdk-assets/assets/import-example"
 DEFAULT_IMAGE = (
-    "ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47"
-    "@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c"
+    "ewrogers/sgdk:latest"
 )
 
 

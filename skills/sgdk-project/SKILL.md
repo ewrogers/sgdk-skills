@@ -11,9 +11,9 @@ or replace an existing build system as part of setup.
 
 ## Establish the project
 
-1. Inspect existing source, resource files, Makefiles and toolchain pins. Preserve
-   the project's SDK version and conventions unless an upgrade is requested.
-2. If no toolchain is selected, use the tested image in
+1. Inspect existing source, resource files and Makefiles. Preserve the project's
+   structure and conventions.
+2. Use `ewrogers/sgdk:latest`, as described in
    [the Docker workflow](references/docker-workflow.md). Prefer its native
    architecture; do not force AMD64 on an ARM64 machine.
 3. Run `doctor` and check the relevant headers, resource manual and upstream

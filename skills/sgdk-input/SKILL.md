@@ -50,12 +50,12 @@ is required for a handful of actions.
 
 The example owns SGDK's single joy callback and mouse accumulators. Integrate
 that ownership with existing input code rather than installing competing
-handlers. Leave the project's toolchain pin unchanged. For a new scratch
+handlers. Use `ewrogers/sgdk:latest` for the toolchain. For a new scratch
 project, the example documents the tested Docker image and build commands.
 
 ## Verify the behavior, not just compilation
 
-Compile against the real pinned SDK. Test press/hold/release, alternate
+Compile against the real SGDK 2.11 implementation. Test press/hold/release, alternate
 bindings, opposite directions, baseline after reset, and each player's
 independent state. For mouse input, test all supported buttons, both motion
 axes, capture/mapping in the emulator and direct versus Team Player routing.

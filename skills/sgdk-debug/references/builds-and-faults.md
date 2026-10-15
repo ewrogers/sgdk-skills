@@ -2,15 +2,15 @@
 
 ## Reproduce the build
 
-Use the project's pinned image or the fallback in `SKILL.md`. In the commands
+Use the project's selected image or the fallback in `SKILL.md`. In the commands
 below, replace `IMAGE` and the absolute project path. Keep the whole mount
 argument quoted. Docker Desktop on Windows accepts an accessible path such as
 `C:/Projects/game`; Linux and macOS use their normal absolute paths.
 
 ```sh
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE doctor
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE build clean
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE build debug
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE doctor
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE build clean
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE build debug
 ```
 
 `build` invokes SGDK's makefile. Other commands run directly, with arguments
@@ -36,9 +36,9 @@ An apparent return address in a stack dump is a clue, not a verified call stack.
 Use the ELF from the **same build**, not a rebuilt version with shifted addresses:
 
 ```sh
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-addr2line -e out/rom.out -f -C -i 0x00001234
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-objdump -d -S out/rom.out
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-nm -n -S out/rom.out
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-addr2line -e out/rom.out -f -C -i 0x00001234
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-objdump -d -S out/rom.out
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-nm -n -S out/rom.out
 ```
 
 `rom.out` is an ELF, despite its extension. `symbol.txt` is SGDK's ordered symbol
@@ -86,8 +86,8 @@ tool compatibility, not correctness, cycle savings, or hardware performance.
 ## Account for bytes honestly
 
 ```sh
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-size -A out/rom.out
-docker run --rm --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-objdump -h out/rom.out
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-size -A out/rom.out
+docker run --rm --pull=always --mount "type=bind,source=/absolute/path/to/game,target=/workspace" IMAGE m68k-elf-objdump -h out/rom.out
 ```
 
 Use ELF section addresses and SGDK's linker script to distinguish ROM and RAM.
@@ -108,7 +108,7 @@ or apply a generic Sega checksum as if it were SGDK's build-time XOR checksum.
 
 ## Sources
 
-Verified against the pinned SGDK 2.11 container. Recheck these when changing SDKs:
+Verified against the SGDK 2.11 implementation. Recheck these when changing SDKs:
 
 - [Build flags, outputs, and symbol injection](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/makefile.gen)
 - [Linker memory layout](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/md.ld)

@@ -14,7 +14,7 @@ Stock SGDK 2.11 pads to 128 KiB boundaries with zero fill and its XOR-folded
 checksum. That is distinct from selecting a physical cart capacity or padding
 to a power of two. A generic Sega word-sum validator can give a false alarm.
 
-The pinned SDK's `ENABLE_BANK_SWITCH` defaults to `0`. Its automatic resource
+The SGDK 2.11 implementation's `ENABLE_BANK_SWITCH` defaults to `0`. Its automatic resource
 banking supports the Sega/SSF scheme. Check rebuilt SDK libraries and project
 configuration together; changing project flags alone is not evidence that the
 prebuilt library implements the selected mapper.

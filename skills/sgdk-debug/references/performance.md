@@ -83,7 +83,7 @@ the backdrop uses a selected palette entry. More RAM cannot buy more CRAM.
 
 ## Sources
 
-Verified against the pinned SGDK 2.11 container:
+Verified against the SGDK 2.11 implementation:
 
 - [Counters and VBlank contracts](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/inc/sys.h)
 - [Counter implementation](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/src/sys.c)

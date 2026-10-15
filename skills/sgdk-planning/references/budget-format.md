@@ -71,7 +71,7 @@ incomplete even with `complete: true`.
 Count disjoint allocations. If you include a reserved sprite VRAM pool, do not
 add its occupied tiles again. Track occupancy separately in the plan. Shared
 sprite definitions in ROM do not automatically share each instance's VRAM.
-See [hardware budgets](hardware-budgets.md) for the pinned SGDK behavior.
+See [hardware budgets](hardware-budgets.md) for the documented SGDK behavior.
 
 ### Palettes and sprites
 
@@ -98,7 +98,7 @@ derive these peaks from positions, clipping or image dimensions.
 - `bytes_before_padding`: complete ROM payload size, or `null`. This is not an
   ELF size or the sum of source PNG/WAV files.
 - `alignment_bytes`: padding boundary, default `131072` (128 KiB), matching the
-  pinned SGDK build. Final size rounds up to this boundary.
+  selected SGDK build. Final size rounds up to this boundary.
 - `mapping`: `"standard"`, `"banked"` or `"unknown"`, default `"unknown"`.
 - `cartridge_bytes`: optional physical cartridge capacity.
 

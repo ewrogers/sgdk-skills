@@ -85,7 +85,7 @@ positions, or decide whether an update will finish on time.
 
 | Risk | Useful check | What it does not prove |
 | --- | --- | --- |
-| Unfamiliar SDK/resource behavior | Inspect the pinned declarations/manual and compile a small example. | Correct display, audio or timing. |
+| Unfamiliar SDK/resource behavior | Inspect the installed declarations/manual and compile a small example. | Correct display, audio or timing. |
 | Large or animated art | Export real frames, inspect generated resources, preview in a ROM. | That every future formation fits. |
 | Crowded sprites | Test representative positions and worst-case overlap. | DMA and CPU headroom. |
 | Scrolling or heavy frame changes | Measure peak transfer/decompression work in the intended video mode. | The rest of the game is free. |

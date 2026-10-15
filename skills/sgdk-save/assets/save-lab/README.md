@@ -6,7 +6,7 @@ some progress, save it, then test recovery without needing a whole game.
 Copy this folder to a **new** project directory and build there:
 
 ```sh
-docker run --rm --mount "type=bind,source=$(pwd),target=/workspace" ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c build
+docker run --rm --pull=always --mount "type=bind,source=$(pwd),target=/workspace" ewrogers/sgdk:latest build
 ```
 
 In PowerShell, use `${PWD}` instead of `$(pwd)` and Docker's Linux-container

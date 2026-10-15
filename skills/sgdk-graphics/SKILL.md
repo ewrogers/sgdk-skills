@@ -13,12 +13,12 @@ scene system or a new engine.
 
 Identify what moves, what stays fixed, and which colors change together. Read
 the project's resource declarations and frame loop before assigning palettes,
-tile ranges or a second graphics update. Preserve its toolchain pin.
+tile ranges or a second graphics update.
 
 For a new project, use the tested Linux ARM64/AMD64 toolchain:
 
 ```text
-ewrogers/sgdk:2.11-gcc16.2.0-binutils2.47@sha256:fd7a891d37773f792aad528bb6640d63bc0bd8e86ed140b8ef43d296f035f51c
+ewrogers/sgdk:latest
 ```
 
 Check unfamiliar calls in that image's `/opt/sgdk/inc` and `/opt/sgdk/src`, and
