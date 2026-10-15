@@ -30,6 +30,10 @@ project, then checks that its references, scripts and original assets arrived.
 It does not install into your home directory. Relative-link checks also reject
 missing resources and dependencies on sibling skills or repository-root files.
 
+Installation tests keep telemetry disabled so repeated CI runs do not affect
+directory install counts. The repository's `skills.sh.json` groups the public
+directory page; a host check keeps those groups in sync with the shipped skills.
+
 ## Build real ROMs
 
 With Docker running in Linux-container mode, enable the resource and debugging

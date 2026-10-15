@@ -1,5 +1,7 @@
 # SGDK Skills
 
+[![skills.sh](https://skills.sh/b/ewrogers/sgdk-skills)](https://skills.sh/ewrogers/sgdk-skills)
+
 Practical agent skills for making Sega Mega Drive and Genesis games with
 [SGDK](https://github.com/Stephane-D/SGDK). Build through the
 [SGDK Docker toolchain](https://github.com/ewrogers/sgdk-docker), keep your project
