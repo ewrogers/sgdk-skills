@@ -369,3 +369,22 @@ actual M68000 instructions on Unicorn. CI compares release/debug ROM hashes on
 native ARM64 and AMD64. Host models and target CPU execution do not emulate
 VDP streaming, sound playback, TV readability or real frame-time headroom.
 Follow the lab's playtest checklist in ares and, when available, on hardware.
+
+## Shoot-em-ups
+
+Shooter Lab tests execute its actual pattern, pool, movement, collision, wave,
+scoring and boss code. They cover symmetry and aimed directions, complete-volley
+exhaustion, substep contacts, immunity, weapon/bomb limits, score saturation,
+phase changes, one defeat bonus, restart, nominal PAL/NTSC cadence and pause.
+A 100,000-step run checks bounds. Authored attack scenarios count sprite and
+pixel occupancy per scanline; these do not prove arbitrary patterns are safe.
+Art/audio tests reproduce native indexed sheets and VGM/WAV sources, inspect
+palettes, dimensions, PNG integrity, PCM format and music waits/loops, and reject
+overwrites. A recording sound fixture checks priorities, pause and one fanfare.
+
+Container tests compile standalone release/debug ROMs and execute selected
+pattern, movement, collision, clock and resource checks as actual M68000 code
+on Unicorn. CI compares ROM hashes on native ARM64 and AMD64. These do not
+emulate VDP scanline evaluation, measure CPU headroom or establish sound quality.
+The playtest checklist covers the vertical ROM; horizontal layout guidance is
+documented separately and is not claimed as a second runtime demo.

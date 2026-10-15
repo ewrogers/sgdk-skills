@@ -84,6 +84,7 @@ jobs:
             build/ai-integration/ai-report.json
             build/math-integration/math-report.json
             build/platformer-integration/platformer-report.json
+            build/shmup-integration/shmup-report.json
 
   compare:
     name: Compare generated ROMs
@@ -137,4 +138,10 @@ jobs:
           platforms = {arch: json.loads(paths[0].read_text()) for arch, paths in platform_reports.items()}
           assert all(report["passed"] for report in platforms.values())
           assert platforms["amd64"]["hashes"] == platforms["arm64"]["hashes"], platforms
-          print("Standard, banked, transition, enemy, math and platformer release/debug ROMs match across native ARM64 and AMD64.")
+          shooter_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("shmup-report.json"))
+                             for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in shooter_reports.values()), shooter_reports
+          shooters = {arch: json.loads(paths[0].read_text()) for arch, paths in shooter_reports.items()}
+          assert all(report["passed"] for report in shooters.values())
+          assert shooters["amd64"]["hashes"] == shooters["arm64"]["hashes"], shooters
+          print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")
