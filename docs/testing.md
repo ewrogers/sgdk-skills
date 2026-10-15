@@ -155,6 +155,14 @@ register-to-port writes without helper calls. Emulator checks separately cover
 the intentional masked band, CRAM dots, controls and music with scrolling DMA.
 Physical-console timing and other VDP modes remain unverified.
 
+The separate Split Lab tests cover independent cameras, viewport-origin offsets,
+50/60Hz cadence, CPU/manual control, world bounds and whole-sprite culling at
+HUD/divider edges. Fake ports record VSRAM packing, Window handoff, pending/late
+interrupts, bounded HBlank failures and stop/rearm behavior. Both labs build in
+release/debug with U/E headers and undergo interrupt disassembly checks. These
+do not emulate the VDP or establish interlace, streaming-cache or hardware
+support. Split Lab deliberately uses noninterlaced output and a resident world.
+
 ## Release candidate checks
 
 Release tests check SGDK's whole-file XOR checksum against an independent

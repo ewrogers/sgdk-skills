@@ -10,6 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 LAB = ROOT / "skills/sgdk-raster/assets/raster-lab"
+SPLIT_LAB = ROOT / "skills/sgdk-raster/assets/split-lab"
 FIXTURE = ROOT / "tests/fixtures/raster"
 
 
@@ -34,9 +35,20 @@ class RasterBehaviorTests(unittest.TestCase):
                            capture_output=True, text=True, timeout=60)
         if r.returncode:
             raise RuntimeError((r.stdout + r.stderr)[-6000:])
+        split = Path(cls.folder.name) / "copied split lab"
+        shutil.copytree(SPLIT_LAB, split)
+        cls.split_binary = Path(cls.folder.name) / ("split-test.exe" if os.name == "nt" else "split-test")
+        r = subprocess.run([compiler, "-std=c17", "-Wall", "-Wextra", "-Werror", "-DRASTER_TEST",
+                            "-I", str(FIXTURE), "-I", str(split / "inc"),
+                            str(split / "src/split_model.c"), str(split / "src/split_video.c"),
+                            str(FIXTURE / "split_test.c"), "-o", str(cls.split_binary)],
+                           capture_output=True, text=True, timeout=60)
+        if r.returncode:
+            raise RuntimeError((r.stdout + r.stderr)[-6000:])
 
     def check(self, case):
-        r = subprocess.run([str(self.binary), case], capture_output=True, text=True, timeout=10)
+        binary = self.split_binary if case.startswith("split-") else self.binary
+        r = subprocess.run([str(binary), case], capture_output=True, text=True, timeout=10)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertEqual(r.stdout.strip(), case)
 
@@ -44,15 +56,24 @@ class RasterBehaviorTests(unittest.TestCase):
     def test_wave_tables_all_phases_and_quantized_palette_bounds(self): self.check("tables")
     def test_one_shot_split_copied_palettes_and_vdp_state_restoration(self): self.check("split")
     def test_late_setup_delayed_interrupt_and_bounded_fifo_timeout(self): self.check("failure")
+    def test_split_independent_players_cpu_route_pause_and_regions(self): self.check("split-model")
+    def test_split_camera_offsets_and_software_sprite_clipping(self): self.check("split-views")
+    def test_split_vsram_hud_handoff_and_bounded_failures(self): self.check("split-video")
 
 
 @unittest.skipUnless(os.environ.get("SGDK_SKILLS_INTEGRATION") == "1", "Docker integration is opt-in")
 class RasterContainerTests(unittest.TestCase):
     def test_real_api_both_build_modes_interrupt_abi_and_region_headers(self):
+        self.verify_lab(LAB, "water_split_interrupt")
+
+    def test_split_lab_both_modes_interrupt_abi_and_region_headers(self):
+        self.verify_lab(SPLIT_LAB, "split_video_interrupt")
+
+    def verify_lab(self, lab, handler):
         (ROOT / "build").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="raster container ", dir=ROOT / "build") as folder:
             project = Path(folder) / "raster lab"
-            shutil.copytree(LAB, project)
+            shutil.copytree(lab, project)
             base = ["docker", "run", "--rm"]
             if os.environ.get("SGDK_PLATFORM"):
                 base += ["--platform", os.environ["SGDK_PLATFORM"]]
@@ -81,13 +102,14 @@ class RasterContainerTests(unittest.TestCase):
                 self.assertEqual(rom[0x100:0x104], b"SEGA")
                 self.assertEqual(len(rom) % 131072, 0)
                 assembly = run("m68k-elf-objdump", "-d", "out/rom.out")
-                match = re.search(r"<water_split_interrupt>:\n(.*?)(?=\n\n)", assembly, re.S)
+                match = re.search(r"<" + handler + r">:\n(.*?)(?=\n\n)", assembly, re.S)
                 self.assertIsNotNone(match)
                 code = match.group(1)
                 self.assertRegex(code, r"\brte\b")
                 self.assertNotRegex(code, r"\b(?:rts|jsr|bsr\w*)\b")
                 self.assertGreaterEqual(len(re.findall(r"\bdbf\b", code)), 2)
-                self.assertGreaterEqual(len(re.findall(r"movel %d[0-7],%a[0-7]@", code)), 3)
+                self.assertGreaterEqual(len(re.findall(r"movel %d[0-7],%a[0-7]@", code)),
+                                        3 if handler == "water_split_interrupt" else 2)
             # Change only this disposable project's generated SDK header.
             header_file = project / "src/boot/rom_head.c"
             original = header_file.read_text()

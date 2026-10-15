@@ -1,6 +1,6 @@
 ---
 name: sgdk-raster
-description: Implement SGDK per-line scrolling and H-interrupt display effects, including waterline palette switches. Use for water ripples, heat haze, road-style scroll tables and mid-frame palette changes, rather than ordinary sprites or whole-plane scrolling.
+description: Implement SGDK per-line scrolling and H-interrupt display effects, including waterline palette switches and split-screen cameras. Use for water ripples, heat haze, road-style scroll tables, mid-frame palette changes and two-view displays, rather than ordinary sprites or whole-plane scrolling.
 ---
 
 # SGDK Raster
@@ -21,10 +21,14 @@ their timing assumptions to another video mode or driver.
   persistent DMA sources, MAP ownership and separate RAM/transfer costs.
 - [Waterline palettes](references/waterline-palettes.md): the interrupt ABI,
   HBlank synchronization, palette ownership and a deliberately masked split.
+- [Split-screen cameras](references/split-screen.md): two independent views,
+  resident map ownership, sprite clipping and the difference from Sonic 2 interlace.
 - [Timing and validation](references/timing-and-validation.md): interrupt/main
   coordination, PAL/NTSC, audio interaction and what each test proves.
 - [Raster Lab](assets/raster-lab/README.md): Level Lab's original map/robot and
   Sound Lab's original music reused in a standalone, installable example.
+- [Split Lab](assets/split-lab/README.md): a separate two-camera ROM with a CPU
+  second player, a masked midpoint and per-view sprite projections.
 
 ## Make the ownership explicit
 
@@ -56,3 +60,8 @@ pan the camera, cross the split with a sprite and listen with graphics DMA
 active. Check the HUD stays unchanged and late/timeout diagnostics stay stable.
 Host tests and a clean emulator image do not certify CRAM timing on a console;
 record hardware and emulator evidence separately.
+
+For split-screen, also check camera independence, viewport-origin offsets,
+sprite disappearance at each view's edges and the shared scanline budget.
+The supplied Split Lab uses normal noninterlaced output and one resident world;
+do not present it as Sonic 2's double-resolution renderer or a streaming solution.

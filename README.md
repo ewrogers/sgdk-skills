@@ -16,7 +16,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
 | [sgdk-graphics](skills/sgdk-graphics/SKILL.md) | Display sprites, play animations, scroll backgrounds and add palette effects. |
-| [sgdk-raster](skills/sgdk-raster/SKILL.md) | Add per-line waves and H-interrupt waterline palette effects with explicit timing budgets. |
+| [sgdk-raster](skills/sgdk-raster/SKILL.md) | Add per-line waves, waterline palette effects and split-screen cameras with explicit timing budgets. |
 | [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
 | [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
