@@ -39,7 +39,7 @@ static void draw_metrics(u16 hz, u16 fps)
     if (!demo.metrics) return;
     sprintf(line, "MATH LAB  %s  %s", names[demo.pattern], demo.paused ? "PAUSED" : "      ");
     VDP_drawText(line, 1, 1);
-    sprintf(line, "%uHZ %uFPS  SPEED %u/8  CPU %u%%", hz, fps, demo.speed, SYS_getCPULoad());
+    sprintf(line, "%uHZ %uFPS SPEED %u/8 LOAD %u/100", hz, fps, demo.speed, SYS_getCPULoad());
     VDP_drawText(line, 1, 2);
 }
 

@@ -31,9 +31,11 @@ class MathBehaviorTests(unittest.TestCase):
         project = Path(cls.scratch.name) / 'independent math lab'
         shutil.copytree(LAB, project)
         cls.binary = Path(cls.scratch.name) / ('model.exe' if os.name == 'nt' else 'model')
+        # MSVC's CRT includes the math functions; there is no separate m.lib.
+        math_library = [] if os.name == 'nt' else ['-lm']
         result = subprocess.run([compiler, '-std=c17', '-O2', '-Wall', '-Wextra', '-Werror',
                                  '-I', str(project / 'inc'), str(project / 'src/demo.c'),
-                                 str(FIXTURE / 'model_test.c'), '-lm', '-o', str(cls.binary)],
+                                 str(FIXTURE / 'model_test.c'), *math_library, '-o', str(cls.binary)],
                                 capture_output=True, text=True, timeout=60)
         if result.returncode:
             raise RuntimeError(result.stdout + result.stderr)
