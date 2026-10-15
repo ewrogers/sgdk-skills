@@ -8,6 +8,20 @@ Gold guards patrol with a sight cone, red hunters chase around obstacles, and
 purple sentries stop and aim before firing. An `!` and alert sound tell you
 you've been spotted. Use the stun pulse to create an opening: `zZ` marks a
 stunned enemy, which flashes during the last second before recovering.
+Your pulse recharges in three seconds. Its HUD bar fills blue, then turns green
+when ready; a second bar appears if P2 joins. Pause freezes the recharge.
+
+The blue entry tiles mark your starting position, sheltered by nearby walls.
+They do not grant immunity. Each new area starts at the previous area's exit,
+and its music becomes faster and more ominous as you progress.
+
+Robots use smaller body collision boxes and wider entry doorways to make tight
+spaces easier to navigate. The outer wall marks the playfield boundary. Interior
+walls make you cross each room rather than taking a shortcut along the edge.
+
+Reaching an exit plays a short clear jingle. Caught, Area Clear, Game Over and
+Mission Complete appear on solid panels above the actors. Music pauses at
+Game Over and completion; the game is still waiting for Start, with no timeout.
 
 ## Build
 
@@ -70,6 +84,13 @@ last place they saw you for two seconds, then return home.
   recovery without becoming stuck. Pause should freeze those timers and paths.
 - Reach all exits. Get caught and check that only one try is lost, the area
   restarts, and Game Over waits for a fresh Start press. B restarts the whole run.
+- Listen for one clear jingle per exit. Check that banner text stays readable
+  over walls and enemies, and that its background disappears on the next area.
+- Leave Game Over waiting, then press Start. It should restart even after a long
+  wait; stopped music alone does not mean the game has crashed.
+- Walk through each entry doorway slightly off-center. Check that the visible
+  bottom wall matches where movement stops, and that the exits require going
+  around the interior walls.
 
 ## How it works
 
@@ -87,13 +108,17 @@ increasing them or adapting the grid to larger creatures.
 
 All art/audio is original work reused or made for this skill collection.
 `tools/make_assets.py` reproduces the indexed pulse, projectile, status, try and
-exit graphics in a new folder and refuses to overwrite existing files. The
-robot sheet and FM/PSG music remain resident in ROM. This example does not
+exit graphics and clear jingle in a new folder and refuses to overwrite existing
+files. `tools/make_music.py` reproduces the three FM area loops. The robot sheet,
+music and samples remain resident in ROM. This example does not
 require another installed skill.
 
 Host tests execute the actual C model, compare shortest paths with an independent
 oracle and check HUD calls with a recording SDK. Container tests check real
-APIs and release/debug ROMs. NTSC ares playtests cover the controls and flow;
+APIs and release/debug ROMs (256 KiB padded, with embedded symbols in debug).
+Adapter tests wait ten minutes or more at each end screen at both refresh rates,
+then restart and check input polling, music restoration and one-shot clear audio.
+NTSC ares playtests cover the controls and flow;
 PAL visual timing, CPU measurements and physical hardware remain separate.
 
 See [states and perception](../../references/behavior.md) for the exact rules.

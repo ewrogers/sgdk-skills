@@ -1,25 +1,64 @@
 #include "world.h"
 
-/* One bit per 16-pixel cell. Edges outside this arena are solid too. */
-static const u32 walls[LEVEL_COUNT][GRID_H]={{
-    0,1UL<<5,1UL<<5,(1UL<<5)|(1UL<<8)|(1UL<<9)|(1UL<<11),
-    (1UL<<5)|(1UL<<8)|(1UL<<9)|(1UL<<11),(1UL<<5)|(1UL<<11),
-    1UL<<11,1UL<<11,0
-},{
-    0,(1UL<<3)|(1UL<<12),(1UL<<3)|(1UL<<12),(1UL<<3)|(1UL<<7)|(1UL<<12),
-    (1UL<<7)|(1UL<<12),(1UL<<7)|(1UL<<12),1UL<<7,1UL<<7,0
-},{
-    0,(1UL<<4)|(1UL<<14),(1UL<<4)|(1UL<<14),(1UL<<4)|(1UL<<9)|(1UL<<14),
-    (1UL<<4)|(1UL<<9)|(1UL<<14),(1UL<<4)|(1UL<<9)|(1UL<<14),1UL<<9,1UL<<9,0
-}};
+/* Each character is a 16-pixel cell: # is a wall, . is floor.
+   Alternating baffles block perimeter shortcuts. Sheltered entries have
+   two-cell doorways; the visible outer frame matches the solid arena bounds. */
+static const char walls[LEVEL_COUNT][GRID_H][GRID_W+1]={
+    {
+        ".....#.........#..",
+        ".....#.........#..",
+        ".....#.....#...#..",
+        ".....#..##.#...#..",
+        ".....#..##.#...#..",
+        ".....#.....#...#..",
+        "#..#.#.....#......",
+        "...#.......#......",
+        "...#.......#......"
+    },
+    {
+        "....#........##...",
+        "....#........##...",
+        "....#...#....#.#..",
+        "....#...#....#....",
+        "....#...#....#....",
+        "....#...#....#....",
+        "........#....#....",
+        "........#.........",
+        "........#........."
+    },
+    {
+        "...##.........#...",
+        "...##.........#...",
+        "#...#....#....#...",
+        "....#....#....#...",
+        "....#....#....#...",
+        "....#....#....#...",
+        "....#....#........",
+        ".........#........",
+        ".........#........"
+    }
+};
 Point world_exit(u16 level)
 {
     static const Point exits[LEVEL_COUNT]={{288,64},{32,64},{272,64}};
     return exits[level];
 }
+Point world_entry(u16 level,u16 player)
+{
+    if (!level) return (Point){player ? 48 : 32,192};
+    Point entry=world_exit(level-1);
+    if (player) entry.x+=entry.x>160 ? -16 : 16;
+    return entry;
+}
+bool world_entry_pad(u16 level,Point position)
+{
+    Point entry=world_entry(level,0);
+    s16 left=entry.x>160 ? 256 : 16,top=entry.y<128 ? 64 : 176;
+    return position.x>=left && position.x+16<=left+48 && position.y>=top && position.y+16<=top+32;
+}
 bool world_wall(u16 level,s16 column,s16 row)
 {
-    return level>=LEVEL_COUNT || column<0 || column>=GRID_W || row<0 || row>=GRID_H || (walls[level][row]&(1UL<<column));
+    return level>=LEVEL_COUNT || column<0 || column>=GRID_W || row<0 || row>=GRID_H || walls[level][row][column]=='#';
 }
 bool world_solid(u16 level,s16 x,s16 y,s16 width,s16 height)
 {
@@ -51,9 +90,16 @@ u16 world_goal(u16 level,Point target)
 bool world_move(u16 level,Point *position,s16 dx,s16 dy)
 {
     Point before=*position;
-    if (!world_solid(level,position->x+dx,position->y,16,16)) position->x+=dx;
-    if (!world_solid(level,position->x,position->y+dy,16,16)) position->y+=dy;
+    if (!world_actor_solid(level,(Point){position->x+dx,position->y})) position->x+=dx;
+    if (!world_actor_solid(level,(Point){position->x,position->y+dy})) position->y+=dy;
     return before.x!=position->x || before.y!=position->y;
+}
+bool world_actor_solid(u16 level,Point position)
+{
+    /* Keep the artwork inside the arena, but allow two pixels of clearance
+       around the body against interior walls and doorframes. */
+    return position.x<16 || position.y<64 || position.x>288 || position.y>192 ||
+        world_solid(level,position.x+ACTOR_INSET,position.y+ACTOR_INSET,ACTOR_SIZE,ACTOR_SIZE);
 }
 bool world_line(u16 level,Point from,Point to)
 {

@@ -2,6 +2,7 @@
 #define ENEMY_FAKE_GENESIS_H
 #include <stddef.h>
 #include "game.h"
+typedef int8_t s8;
 #define TRUE true
 #define FALSE false
 #define PAL0 0
@@ -9,9 +10,20 @@
 #define PAL2 2
 #define PAL3 3
 #define TILE_USER_INDEX 16
+#define JOY_1 0
+#define JOY_2 1
+#define BUTTON_UP 1
+#define BUTTON_DOWN 2
+#define BUTTON_LEFT 4
+#define BUTTON_RIGHT 8
+#define BUTTON_A 16
+#define BUTTON_B 32
+#define BUTTON_C 64
+#define BUTTON_START 128
+typedef enum { SOUND_PCM_CH1,SOUND_PCM_CH2,SOUND_PCM_CH3,SOUND_PCM_CH4 } SoundPCMChannel;
 #define RGB24_TO_VDPCOLOR(rgb) ((((rgb)>>20)&14)|(((rgb)>>8)&224)|(((rgb)<<4)&3584))
-#define TILE_ATTR(p,prio,v,h) ((p)<<13)
-#define TILE_ATTR_FULL(p,prio,v,h,t) (((p)<<13)|(t))
+#define TILE_ATTR(p,prio,v,h) (((p)<<13)|((prio)<<15))
+#define TILE_ATTR_FULL(p,prio,v,h,t) (TILE_ATTR(p,prio,v,h)|(t))
 typedef enum { VISIBLE,HIDDEN,AUTO_FAST,AUTO_SLOW } SpriteVisibility;
 typedef enum { BG_A,BG_B,WINDOW } VDPPlane;
 typedef enum { CPU,DMA,DMA_QUEUE,DMA_QUEUE_COPY } TransferMethod;
@@ -29,6 +41,7 @@ void VDP_setScreenHeight224(void);
 void VDP_setPlaneSize(u16 w,u16 h,bool setupVram);
 void VDP_setTextPlane(VDPPlane plane);
 void VDP_setTextPalette(u16 palette);
+void VDP_setTextPriority(u16 priority);
 void VDP_setBackgroundColor(u8 value);
 void VDP_loadTileData(const u32 *data,u16 index,u16 count,TransferMethod method);
 void VDP_fillTileMapRect(VDPPlane plane,u16 attr,u16 x,u16 y,u16 w,u16 h);
@@ -46,5 +59,15 @@ void SPR_setHFlip(Sprite *sprite,bool flip);
 void SPR_setVFlip(Sprite *sprite,bool flip);
 void SPR_setPalette(Sprite *sprite,u16 palette);
 void SPR_update(void);
+void SPR_reset(void);
 bool SYS_doVBlankProcess(void);
+void JOY_init(void);
+u16 JOY_readJoypad(u16 joy);
+u16 SYS_isPAL(void);
+void XGM2_load(const u8 *song);
+void XGM2_setLoopNumber(s8 count);
+void XGM2_playTrack(u16 track);
+void XGM2_pause(void);
+void XGM2_resume(void);
+bool XGM2_playPCM(const u8 *sample,u32 length,SoundPCMChannel channel);
 #endif

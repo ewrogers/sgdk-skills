@@ -47,9 +47,15 @@ the optional shot; no active projectile is overwritten.
 
 The player's stun pulse has a 32-pixel range, respects walls and lasts 90 ticks
 on the enemy. The `zZ` marker stays visible, with a body flash during the final
-60 ticks. `!` and a short sound mark acquisition; firing has a separate sound.
+60 ticks. A pulse recharges for 180 ticks (three seconds); its HUD bar fills blue
+and turns green when ready. Pause freezes the cooldown. `!` and a short sound
+mark acquisition; firing has a separate sound.
 Sounds triggered together are coalesced into the lab's two SFX channels rather
 than creating an unbounded event queue.
+
+Each area has a marked entry pad, with later entries placed at the preceding
+exit. Nearby walls shelter the entry using the same collision and sight rules
+as the rest of the map. The marker grants no immunity or targeting exemption.
 
 ## Timing, input and presentation
 
@@ -75,6 +81,13 @@ separate clock.
 Music uses `XGM2_pause()` / `XGM2_resume()` so it retains its place. PCM effects
 may finish while the game is paused. Songs and samples remain resident in ROM;
 this example does not establish safe bank-remapping behavior for audio.
+Area changes load a distinct FM loop. Game Over and completion pause the music
+while normal input and VBlank continue; Start begins another run without a timeout.
+
+The result panels live on plane B, behind high-priority text on plane A but
+above low-priority actors. Putting both text and its background on one plane
+would replace background tiles with transparent font cells, making the panel
+look cut out. Redraw the playfield when leaving a panel, including a same-area retry.
 
 Sources: [sprite API](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/sprite_eng.h),
 [XGM2 API](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/snd/xgm2.h).

@@ -6,10 +6,15 @@ A platformer may need authored jump links; a flying enemy may only need steering
 A uniform four-neighbor grid is a useful starting point for a small top-down
 arena, but it is not a complete navigation solution for every game.
 
-Enemy Lab uses 18 by 9 cells, each 16 pixels square, for a 16-pixel actor. A solid
-cell is also solid to movement and sight. Diagonal search edges are absent, so
-routes cannot cut across a wall corner. Movement checks the full actor bounds
-and slides along a blocked axis.
+Enemy Lab uses 18 by 9 cells, each 16 pixels square. Robots have 16-pixel artwork
+and a centered 12-by-12 collision box. The two-pixel margin makes doorways less
+fussy without changing the visible robot. Projectiles test the same body box.
+
+A solid cell blocks movement and sight. Diagonal search edges are absent, so
+routes cannot cut across a wall corner. Movement checks the body bounds and
+slides along a blocked axis, while keeping the artwork inside the arena.
+Entry doorways are two cells wide. A visible outer wall marks the arena edge;
+alternating interior walls prevent reaching an exit by hugging the perimeter.
 
 If adapting this to larger actors, build walkability for their footprint. A
 large boss needs wider corridors than the player. For changing maps, include a
@@ -58,7 +63,7 @@ The two search arrays use 648 bytes, and the six waypoint arrays use 192 bytes.
 Those are model storage costs, not total game RAM: enemy/player state, SGDK's
 sprite pool, DMA buffers, audio driver and stack need space too.
 
-The renderer reserves 224 sprite tiles (7,168 VRAM bytes) and seven background/
+The renderer reserves 224 sprite tiles (7,168 VRAM bytes) and ten background/
 HUD tiles. It allocates 44 logical sprite objects. The two 64-pixel pulse sprites
 split into multiple hardware sprites; the worst-case reservation is 50 hardware
 pieces. Actual visibility is lower, but per-scanline sprite/pixel limits still

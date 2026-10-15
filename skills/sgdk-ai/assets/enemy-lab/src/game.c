@@ -7,19 +7,18 @@ void game_load_level(Game *game,u16 level)
     bool second=game->players[1].active; u8 overlay=game->overlay;
     *game=(Game){0}; game->tries=tries; game->overlay=overlay; game->level=level;
     game->players[0].active=true; game->players[1].active=second;
-    static const Point spawns[LEVEL_COUNT][2]={{{32,192},{48,192}},{{288,192},{272,192}},{{32,192},{48,192}}};
     static const Point homes[LEVEL_COUNT][ENEMY_COUNT]={
-        {{48,80},{256,176},{144,80},{256,96},{128,176},{240,144}},
+        {{48,80},{256,176},{144,80},{240,96},{128,176},{240,144}},
         {{48,96},{256,176},{144,80},{208,176},{112,112},{240,112}},
-        {{64,80},{256,176},{128,80},{208,96},{112,176},{272,144}}
+        {{96,80},{256,176},{128,80},{208,96},{112,176},{272,144}}
     };
     static const Point patrols[LEVEL_COUNT][ENEMY_COUNT]={
-        {{80,80},{224,176},{176,80},{256,64},{128,176},{240,144}},
+        {{80,80},{224,176},{176,80},{240,64},{128,176},{240,144}},
         {{48,144},{224,176},{176,80},{256,176},{112,112},{240,112}},
-        {{64,128},{224,176},{160,80},{208,128},{112,176},{272,144}}
+        {{96,128},{224,176},{160,80},{208,128},{112,176},{272,144}}
     };
     for (u16 p=0;p<2;++p) {
-        game->players[p].pos=spawns[level][p]; game->players[p].hits=hits[p];
+        game->players[p].pos=world_entry(level,p); game->players[p].hits=hits[p];
         game->players[p].invulnerable=120;
     }
     for (u16 i=0;i<ENEMY_COUNT;++i) {
@@ -56,7 +55,7 @@ static void pulse(Game *game,u16 p)
 {
     Player *player=&game->players[p];
     if (!player->active || player->cooldown) return;
-    player->pulse=16; player->cooldown=30;
+    player->pulse=16; player->cooldown=STUN_COOLDOWN;
     for (u16 i=0;i<ENEMY_COUNT;++i) {
         Enemy *enemy=&game->enemies[i]; s16 dx=enemy->pos.x-player->pos.x,dy=enemy->pos.y-player->pos.y;
         if ((long)dx*dx+(long)dy*dy<=32*32 && world_line(game->level,player->pos,enemy->pos)) {
@@ -111,7 +110,7 @@ void game_frame(Game *game,const Input *input,u16 ticks)
         for (u16 p=0;p<2;++p) if (game->players[p].active) {
             s16 dx=game->players[p].pos.x-exit.x,dy=game->players[p].pos.y-exit.y;
             if (dx>-12 && dx<12 && dy>-12 && dy<12) {
-                game->phase=AREA_CLEAR; game->phase_ticks=60; return;
+                game->phase=AREA_CLEAR; game->phase_ticks=60; game->events|=EVENT_CLEAR; return;
             }
         }
     }

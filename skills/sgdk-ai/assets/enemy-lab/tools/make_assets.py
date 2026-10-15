@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Create Enemy Lab's original indexed pulse, projectile and waypoint sheets."""
 import argparse
+import io
+import math
 from pathlib import Path
 import struct
+import wave
 import zlib
 
 COLORS=[(0,0,0),(0,0,0),(36,36,36),(73,73,73),(109,109,109),(146,146,146),
@@ -63,13 +66,28 @@ def assets():
             'tries.png':indexed(32,16,hearts),'exit.png':indexed(32,16,goal)}
 
 
+def clear_jingle():
+    """A short rising chime with a small ROM footprint."""
+    rate=13300; samples=bytearray()
+    for frequency in (523.25,659.25,783.99,1046.5):
+        length=rate//10
+        for i in range(length):
+            envelope=min(i/40,1)*(1-i/length)**2
+            tone=math.sin(2*math.pi*frequency*i/rate)+0.25*math.sin(4*math.pi*frequency*i/rate)
+            samples.append(128+round(68*envelope*tone))
+    output=io.BytesIO()
+    with wave.open(output,'wb') as sound:
+        sound.setparams((1,1,rate,0,'NONE','not compressed')); sound.writeframes(samples)
+    return output.getvalue()
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('output',type=Path)
-    args=parser.parse_args(); files=assets()
+    args=parser.parse_args(); files={**assets(),'clear.wav':clear_jingle()}
     if any((args.output/name).exists() for name in files): parser.error('Choose a new output folder; assets already exist')
     args.output.mkdir(parents=True,exist_ok=True)
     for name,data in files.items(): (args.output/name).write_bytes(data)
-    print(f'Created {len(files)} indexed sprite sheets')
+    print(f'Created {len(files)-1} indexed sprite sheets and a clear jingle')
 
 
 if __name__=='__main__': main()

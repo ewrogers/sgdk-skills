@@ -10,6 +10,7 @@ static Sprite *tries[3],*exit_sprite;
 static u16 last_level=0xFFFF,last_phase=0xFFFF;
 static u16 last_selected=0xFFFF,last_state=0xFFFF,last_overlay=0xFFFF,last_pause=0xFFFF;
 static u16 last_expanded=0xFFFF;
+static u16 last_charge[2]={0xFFFF,0xFFFF};
 static const u32 floor_tile[8]={0x22222222,0x22222222,0x22222222,0x22222222,
                                0x22222222,0x22222222,0x22222222,0x22222223};
 static const u32 wall_tile[8]={0x66666666,0x65555554,0x65555554,0x65555554,
@@ -21,6 +22,11 @@ static const u32 hud_tiles[5][8]={
     {0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB},
     {0xAAAAAAAA,0xA999999A,0xA999999A,0xA999999A,0xA999999A,0xA999999A,0xA999999A,0xAAAAAAAA}
 };
+static const u32 extra_tiles[3][8]={
+    {0xBBBBBBBB,0xB222222B,0xB222222B,0xB222222B,0xB222222B,0xB222222B,0xB222222B,0xBBBBBBBB},
+    {0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB,0xBBBBBBBB},
+    {0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD}
+};
 static void field(const char *value,u16 x,u16 y,u16 width)
 {
     char buffer[41]; if (x+width<=40 && text_field(buffer,sizeof buffer,value,width)) VDP_drawText(buffer,x,y);
@@ -31,14 +37,14 @@ static void number(u16 value,u16 x,u16 y,u16 width)
 }
 static Sprite *sprite(const SpriteDefinition *definition,u16 palette)
 {
-    Sprite *result=SPR_addSprite(definition,0,0,TILE_ATTR(palette,TRUE,FALSE,FALSE));
+    Sprite *result=SPR_addSprite(definition,0,0,TILE_ATTR(palette,FALSE,FALSE,FALSE));
     if (result) { SPR_setAutoAnimation(result,FALSE); SPR_setVisibility(result,HIDDEN); }
     return result;
 }
 bool view_init(void)
 {
     VDP_setEnable(FALSE); VDP_setScreenWidth320(); VDP_setScreenHeight224();
-    VDP_setPlaneSize(64,32,TRUE); VDP_setTextPlane(BG_A); VDP_setTextPalette(PAL3);
+    VDP_setPlaneSize(64,32,TRUE); VDP_setTextPlane(BG_A); VDP_setTextPalette(PAL3); VDP_setTextPriority(TRUE);
     VDP_setBackgroundColor(1);
     u16 colors[64];
     for (u16 p=0;p<4;++p) for (u16 i=0;i<16;++i) colors[p*16+i]=hero_image.palette->data[i];
@@ -58,6 +64,7 @@ bool view_init(void)
     VDP_loadTileData(floor_tile,TILE_USER_INDEX,1,DMA);
     VDP_loadTileData(wall_tile,TILE_USER_INDEX+1,1,DMA);
     VDP_loadTileData(&hud_tiles[0][0],TILE_USER_INDEX+2,5,DMA);
+    VDP_loadTileData(&extra_tiles[0][0],TILE_USER_INDEX+7,3,DMA);
     VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+2),0,0,40,8);
     VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+3),0,7,40,1);
     SPR_initEx(8*hero_image.maxNumTile+SHOT_COUNT*shot_image.maxNumTile+
@@ -79,6 +86,7 @@ bool view_init(void)
     field("ENEMY LAB",2,1,12); field("AREA",27,1,5);
     field("TRIES",2,3,5); field("ALERT",20,3,6);
     field("REACH EXIT   J STUN   START PAUSE",2,5,36);
+    field("STUN",2,6,4);
     SPR_update(); SYS_doVBlankProcess(); VDP_setEnable(TRUE); return true;
 }
 static void robot(Sprite *sprite,Point point,u8 facing,u16 animation,bool moving,bool visible)
@@ -118,16 +126,24 @@ static void overlay(const Game *game,u16 selected)
 }
 void view_draw(const Game *game)
 {
-    if (last_level!=game->level) {
+    /* Text replaces whole tiles on A. Keep the opaque panel underneath on B,
+       at high priority so low-priority actors cannot cover its lettering. */
+    if (last_level!=game->level || (last_phase!=game->phase && game->phase==PLAYING)) {
+        u16 border=TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+1);
+        VDP_fillTileMapRect(BG_B,border,1,8,1,18);
+        VDP_fillTileMapRect(BG_B,border,38,8,1,18);
+        VDP_fillTileMapRect(BG_B,border,1,26,38,1);
         for (u16 y=0;y<GRID_H;++y) for (u16 x=0;x<GRID_W;++x)
-            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+world_wall(game->level,x,y)),
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+
+                               (world_entry_pad(game->level,world_point(y*GRID_W+x)) ? 7 : world_wall(game->level,x,y))),
                                2+x*2,8+y*2,2,2);
         number(game->level+1,32,1,1); field("OF 3",34,1,4); last_level=game->level;
     }
     if (last_phase!=game->phase) {
         VDP_clearTextArea(1,8,38,18);
         if (game->phase!=PLAYING) {
-            VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+2),6,12,28,7);
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+3),6,12,28,7);
+            VDP_fillTileMapRect(BG_B,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,TILE_USER_INDEX+2),7,13,26,5);
             static const char *const captions[]={"","CAUGHT!","AREA CLEAR","GAME OVER","MISSION COMPLETE"};
             field(captions[game->phase],11,14,23);
             field(game->phase==GAME_OVER || game->phase==COMPLETE ? "START FOR A NEW RUN" :
@@ -138,6 +154,19 @@ void view_draw(const Game *game)
     for (u16 i=0;i<3;++i) {
         SPR_setPosition(tries[i],64+i*20,24); SPR_setAnimAndFrame(tries[i],0,i<game->tries ? 0 : 1);
         SPR_setVisibility(tries[i],VISIBLE);
+    }
+    for (u16 p=0;p<2;++p) {
+        const Player *player=&game->players[p];
+        u16 fill=(STUN_COOLDOWN-player->cooldown)*10/STUN_COOLDOWN;
+        u16 charge=player->active ? (player->cooldown ? fill : 20) : 30;
+        if (last_charge[p]!=charge) {
+            u16 x=p ? 27 : 8;
+            VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,TILE_USER_INDEX+2),x,6,10,1);
+            if (p) field(player->active ? "P2" : "",23,6,3);
+            if (player->active && fill) VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,FALSE,FALSE,FALSE,
+                TILE_USER_INDEX+(player->cooldown ? 8 : 9)),x,6,fill,1);
+            last_charge[p]=charge;
+        }
     }
     Point exit=world_exit(game->level); SPR_setPosition(exit_sprite,exit.x,exit.y);
     SPR_setAnimAndFrame(exit_sprite,0,(game->tick/20)%2); SPR_setVisibility(exit_sprite,VISIBLE);

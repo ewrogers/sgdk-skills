@@ -1,5 +1,6 @@
 """Run Enemy Lab's actual C model and compile its standalone SGDK adapter."""
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import wave
 import zlib
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -48,9 +50,30 @@ class EnemyBehaviorTests(unittest.TestCase):
     def test_eight_direction_projectiles_pool_limits_hits_walls_and_retirement(self): self.check('shots')
     def test_input_edges_join_pause_and_nominal_pal_ntsc_timing(self): self.check('clock')
     def test_off_grid_stun_recovery_collision_safe_long_run_and_reset(self): self.check('run')
+    def test_entries_continue_from_previous_exit_and_offer_physical_cover(self): self.check('entry')
+    def test_stun_three_second_cooldown_rejects_spam_and_freezes_when_paused(self): self.check('stun')
+    def test_offset_doorway_clearance_walkable_exit_routes_and_no_perimeter_shortcuts(self): self.check('doors')
 
 
 class EnemyViewTests(unittest.TestCase):
+    def test_adapter_polls_input_after_ten_minute_end_screen_wait_and_clear_sound_fires_once(self):
+        cc=next((p for name in ['clang','cc','gcc'] if (p:=shutil.which(name))),None)
+        if not cc:
+            if os.environ.get('SGDK_REQUIRE_HOST_CC')=='1': self.fail('C17 compiler required')
+            self.skipTest('C17 compiler required')
+        (ROOT/'build').mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='enemy adapter ',dir=ROOT/'build') as folder:
+            binary=Path(folder)/('adapter.exe' if os.name=='nt' else 'adapter')
+            fixture=ROOT/'tests/fixtures/ai'
+            p=subprocess.run([cc,'-std=c17','-O2','-Wall','-Wextra','-Werror',
+                              '-I',str(fixture),'-I',str(LAB/'inc'),
+                              *[str(LAB/'src'/name) for name in SOURCES],
+                              str(fixture/'main_test.c'),'-o',str(binary)],capture_output=True,text=True,timeout=60)
+            self.assertEqual(p.returncode,0,p.stdout+p.stderr)
+            p=subprocess.run([str(binary)],capture_output=True,text=True,timeout=15)
+            self.assertEqual(p.returncode,0,p.stdout+p.stderr)
+            self.assertEqual(p.stdout.strip(),'adapter')
+
     def test_graphical_hud_palette_roles_facing_alert_stun_warning_and_level_panels(self):
         cc=next((p for name in ['clang','cc','gcc'] if (p:=shutil.which(name))),None)
         if not cc:
@@ -71,10 +94,38 @@ class EnemyViewTests(unittest.TestCase):
 
 
 class EnemyAssetTests(unittest.TestCase):
+    def test_original_area_music_reproduces_and_has_valid_timing_and_loop_commands(self):
+        spec=importlib.util.spec_from_file_location('enemy_music',LAB/'tools/make_music.py')
+        module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        songs=[]
+        for area in range(3):
+            data=module.music(area); songs.append(data)
+            self.assertEqual(data,(LAB/f'res/area_{area+1}.vgm').read_bytes())
+            self.assertEqual(data[:4],b'Vgm ')
+            self.assertEqual(struct.unpack_from('<I',data,4)[0]+4,len(data))
+            loop=struct.unpack_from('<I',data,0x1C)[0]+0x1C
+            pos=256; ticks=0; starts=set()
+            while pos<len(data):
+                starts.add(pos); command=data[pos]; pos+=1
+                if command==0x52: pos+=2
+                elif command==0x62: ticks+=1
+                elif command==0x66: break
+                else: self.fail(f'Unexpected generated VGM command: {command:#x}')
+            self.assertEqual(pos,len(data)); self.assertIn(loop,starts)
+            self.assertEqual(struct.unpack_from('<I',data,0x18)[0],ticks*735)
+            self.assertEqual(struct.unpack_from('<I',data,0x20)[0],ticks*735)
+        self.assertEqual(len(set(songs)),3)
+
     def test_generated_indexed_sheets_reproduce_and_reject_overwrites(self):
         (ROOT/'build').mkdir(exist_ok=True)
         spec=importlib.util.spec_from_file_location('enemy_art',LAB/'tools/make_assets.py')
         module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        sound=module.clear_jingle()
+        self.assertEqual(sound,(LAB/'res/clear.wav').read_bytes())
+        with wave.open(io.BytesIO(sound),'rb') as wav:
+            self.assertEqual((wav.getnchannels(),wav.getsampwidth(),wav.getframerate()),(1,1,13300))
+            self.assertEqual(wav.getnframes(),5320)
+            self.assertGreater(max(wav.readframes(5320)),128)
         dimensions={'marker.png':(8,8),'shot.png':(24,8),'pulse.png':(256,64),'status.png':(48,16),'tries.png':(32,16),'exit.png':(32,16)}
         for name,data in module.assets().items():
             self.assertEqual(data,(LAB/'res'/name).read_bytes())
@@ -120,12 +171,14 @@ class EnemyContainerTests(unittest.TestCase):
                 run('make','clean'); log=run('make',mode)
                 self.assertIn('-fno-strict-aliasing',log)
                 self.assertNotIn('warning:',re.sub(r'\x1b\[[0-9;]*m','',log))
-                rom=(project/'out/rom.bin').read_bytes(); self.assertEqual(len(rom),131072)
+                rom=(project/'out/rom.bin').read_bytes()
+                self.assertEqual(len(rom),262144)
                 self.assertEqual(rom[0x100:0x104],b'SEGA')
                 self.assertEqual(struct.unpack_from('>I',rom,0x1A4)[0],len(rom)-1)
                 self.assertNotEqual(rom[0x1B0:0x1B2],b'RA')
                 symbols=run('m68k-elf-nm','-n','out/rom.out')
-                for name in ['hero_image','pulse_image','shot_image','marker_image','status_image','tries_image','exit_image','arena_music','hit_sound','stun_sound','alert_sound','fire_sound']:
+                for name in ['hero_image','pulse_image','shot_image','marker_image','status_image','tries_image','exit_image',
+                             'area_one_music','area_two_music','area_three_music','hit_sound','stun_sound','alert_sound','fire_sound','clear_sound']:
                     self.assertRegex(symbols,r'\b'+name+r'\b')
                 hashes[mode]=hashlib.sha256(rom).hexdigest()
             out=ROOT/'build/ai-integration'; out.mkdir(parents=True,exist_ok=True)
