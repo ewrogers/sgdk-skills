@@ -48,9 +48,10 @@ The planes are 64x32 tiles and wrap at 512x256 pixels. This shows parallax, not
 large-level streaming. Each background is loaded once. The sprite engine's
 reservation is established before checking the remaining static tile range.
 
-The optional [art generator](../../scripts/make_lab_art.py) recreates the three
-PNGs in a new output directory using only Python's standard library. It refuses
-to replace existing files.
+To recreate the three PNGs, run `python3 scripts/make_lab_art.py NEW_DIRECTORY`
+from the installed `sgdk-graphics` skill folder. This optional generator uses
+only Python's standard library and refuses to replace existing files. It is
+part of the skill, not a build dependency of this copied project.
 
 ## Visual checks
 

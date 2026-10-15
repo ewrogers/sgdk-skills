@@ -36,6 +36,8 @@ SGDK 2.11; do not assume another version behaves identically.
 - [Graphics Lab](assets/graphics-lab/README.md): a standalone example with two
   scrolling planes, an animated sprite, a one-shot animation, a fade and a
   palette cycle. Copy it into a new folder when a small reproduction is useful.
+  Its optional [art generator](scripts/make_lab_art.py) recreates the supplied
+  PNGs in a new directory without external image libraries.
 
 ## Keep the budgets separate
 
