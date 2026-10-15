@@ -18,6 +18,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-graphics](skills/sgdk-graphics/SKILL.md) | Display sprites, play animations, scroll backgrounds and add palette effects. |
 | [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
+| [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
 | [sgdk-save](skills/sgdk-save/SKILL.md) | Save progress to SRAM, recover damaged saves and add controller-friendly passwords. |
 | [sgdk-performance](skills/sgdk-performance/SKILL.md) | Measure frame-rate headroom, compare optimizations and separate CPU, DMA and scanline limits. |
@@ -54,6 +55,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-graphics to animate a character over a scrolling background with a fixed HUD."
 - "Use sgdk-audio to add music, prioritized effects and a pause-menu transition."
 - "Use sgdk-input to add 3/6-button pad and mouse controls, with Team Player support."
+- "Use sgdk-ui to add a title screen, options, pause menu and fixed score display."
 - "Use sgdk-gameplay to add a scrolling player, wall collision and reusable bullets."
 - "Use sgdk-save to add checkpoint saves, a backup slot and password entry."
 - "Use sgdk-performance to measure a busy scene and optimize it without changing gameplay."
