@@ -11,8 +11,8 @@ Run the Python tests from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-Python checks use the standard library. Input behavior tests also need a C17
-compiler (`clang`, `cc` or `gcc`) to execute the actual example adapter with a
+Python checks use the standard library. Input and graphics behavior tests also need a C17
+compiler (`clang`, `cc` or `gcc`) to execute the actual example modules with a
 fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
 host checks on macOS, Linux and Windows without requiring Docker. Docker tests
 are skipped unless explicitly enabled.
@@ -62,6 +62,17 @@ checks verify the fake SDK's constants and API signatures against real SGDK,
 then compile and link Input Lab in release and debug modes. These checks do
 not execute SGDK's hardware protocols. Follow the skill's device checklist for
 emulator or console validation, including its documented SGDK 2.11 caveats.
+
+Graphics tests exercise the lab's tile-budget boundaries, allocation failures,
+animation request edges and completion latch, pause state, parallax wrap,
+palette ownership, copied temporary transfers and teardown ordering. The fake
+SDK records calls; it does not emulate SGDK's animation scheduler or the VDP.
+Art tests check reproducibility, indexed pixels, PNG checksums and overwrite
+protection. Docker checks compile real APIs and both build modes, then use GDB
+to read the compiled sprite's dimensions, animation counts and per-frame holds.
+The scrolling lab uses wrapping planes; the large-map and line/column guidance
+has API compatibility checks, not an executed map-streaming test. Follow the
+lab's visual checklist to check the screen and frame timing separately.
 
 ## Architectures and image versions
 
