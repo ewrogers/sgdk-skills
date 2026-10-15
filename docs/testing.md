@@ -369,3 +369,37 @@ actual M68000 instructions on Unicorn. CI compares release/debug ROM hashes on
 native ARM64 and AMD64. Host models and target CPU execution do not emulate
 VDP streaming, sound playback, TV readability or real frame-time headroom.
 Follow the lab's playtest checklist in ares and, when available, on hardware.
+
+## Shoot-em-ups
+
+Shooter Lab tests execute its actual pattern, pool, movement, collision, wave,
+scoring and boss code. They cover symmetry and aimed directions, complete-volley
+exhaustion, substep contacts, immunity, weapon/bomb limits, score saturation,
+phase changes, one defeat bonus, restart, nominal PAL/NTSC cadence and pause.
+A 100,000-step run checks bounds. Authored attack scenarios count sprite and
+pixel occupancy per scanline; these do not prove arbitrary patterns are safe.
+Art/audio tests reproduce native indexed sheets and VGM/WAV sources, inspect
+palettes, dimensions, PNG integrity, PCM format and music waits/loops, and reject
+overwrites. A recording sound fixture checks priorities, pause and one fanfare.
+
+Container tests compile standalone release/debug ROMs and execute selected
+pattern, movement, collision, clock and resource checks as actual M68000 code
+on Unicorn. CI compares ROM hashes on native ARM64 and AMD64. These do not
+emulate VDP scanline evaluation, measure CPU headroom or establish sound quality.
+The playtest checklist covers the vertical ROM; horizontal layout guidance is
+documented separately and is not claimed as a second runtime demo.
+
+Shooter Lab also compares 12,000 randomized projectile updates against the
+pre-optimization substep routine, including full game-state side effects.
+Its M68000 probe reports instruction counts for an identical full-pool workload
+before and after broad-phase rejection. Those counts are a CPU-work proxy,
+not emulated VDP timings or a 60 FPS claim. Boss tests cover the protected
+warning/entrance/bar reveal, three attack phrases, music handoff and pause.
+
+Shooter Lab's second stage checks carrying state between stages, automatic and
+manual advance, timed boss-guard windows, opposite ship-relative Twin orbits,
+shared firing capacity and full upgrade loss on damage. Shield tests cover
+single absorption and expiry. Bomb tests cover arming delay, outward clearing,
+one-time nonlethal boss damage, empty-stock feedback and pause. The compiled
+font keeps 96 ASCII slots, and sprite-definition probes verify actual frame and
+hardware-piece counts for the sparse boss dissolve and utility sprites.

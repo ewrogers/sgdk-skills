@@ -22,6 +22,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
 | [sgdk-levels](skills/sgdk-levels/SKILL.md) | Import Tiled levels, stream large maps, and keep collision and cameras aligned. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
+| [sgdk-shmup](skills/sgdk-shmup/SKILL.md) | Build vertical or horizontal shooters with bullet patterns, waves, power-ups, scoring and bosses. |
 | [sgdk-platformer](skills/sgdk-platformer/SKILL.md) | Tune jumps, slopes, moving platforms, enemy stomps, powers and hidden passages. |
 | [sgdk-math](skills/sgdk-math/SKILL.md) | Use fixed-point numbers, angles, aiming, interpolation and perspective effects without guessing at precision or range. |
 | [sgdk-ai](skills/sgdk-ai/SKILL.md) | Build enemy states, sight/detection, target selection and bounded navigation with predictable search work. |
@@ -67,6 +68,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-ui to add a title screen, options, pause menu and fixed score display."
 - "Use sgdk-levels to import a Tiled level with scrolling, walls and camera limits."
 - "Use sgdk-gameplay to add a scrolling player, wall collision and reusable bullets."
+- "Use sgdk-shmup to build a scrolling shooter with readable bullet patterns, upgrades and a boss."
 - "Use sgdk-platformer to build a responsive scrolling course with wall jumps, stomps and secrets."
 - "Use sgdk-math to build a fixed-point starfield and orbiting formations."
 - "Use sgdk-cartridge to load stage graphics and music from separate ROM banks while keeping shared assets pinned."
