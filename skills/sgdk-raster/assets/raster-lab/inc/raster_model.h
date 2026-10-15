@@ -1,5 +1,6 @@
 #ifndef RASTER_LAB_MODEL_H
 #define RASTER_LAB_MODEL_H
+#include "water_fx.h"
 #ifdef __m68k__
 #include <types.h>
 #else
@@ -18,6 +19,7 @@ enum { RASTER_LINES = 224, RASTER_MIN_LINE = 64, RASTER_MAX_LINE = 192,
 typedef struct {
     u16 waterline, camera_x, phase, clock, previous;
     bool tint, waves, music, paused;
+    WaterFx fx;
 } RasterModel;
 
 void raster_model_init(RasterModel *state);

@@ -5,7 +5,7 @@
 Prepare colors, packed pairs and scroll tables in ordinary code. The handler
 should only synchronize and write its bounded, precomputed data. Avoid SDK
 operations that allocate, decompress, manipulate the sprite engine or take the
-Z80 bus. The lab's assembly is confined to the edge-wait/three-write sequence;
+Z80 bus. The lab's assembly is confined to the edge-wait/two-write sequence;
 the model and frame setup remain normal C.
 
 An H interrupt can arrive between a main-loop VDP command and its data. Protect
@@ -32,7 +32,7 @@ or `E`, then clean/rebuild. Do not change installed SDK files or host emulator
 preferences. Confirm the ROM's actual `NTSC 60` or `PAL 50` display; a header
 alone is not evidence that the emulator selected that mode.
 
-Music uses the existing original FM/PSG/PCM phrase through XGM2. Ordinary
+Music uses an original slow FM pad/bell phrase through XGM2, without percussion. Ordinary
 graphics DMA remains in `SYS_doVBlankProcess()` with SGDK's bus protection and
 its optional short delay enabled. The H handler performs no ROM-to-VDP DMA and
 does not request/reset the Z80. Those choices reduce avoidable interference,

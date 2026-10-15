@@ -25,8 +25,8 @@ their timing assumptions to another video mode or driver.
   resident map ownership, sprite clipping and the difference from Sonic 2 interlace.
 - [Timing and validation](references/timing-and-validation.md): interrupt/main
   coordination, PAL/NTSC, audio interaction and what each test proves.
-- [Raster Lab](assets/raster-lab/README.md): Level Lab's original map/robot and
-  Sound Lab's original music reused in a standalone, installable example.
+- [Raster Lab](assets/raster-lab/README.md): a standalone water scene with original
+  foam, bubbles, splashes and soft FM music over Level Lab's map/robot.
 - [Split Lab](assets/split-lab/README.md): a separate two-camera ROM with a CPU
   second player, a masked midpoint and per-view sprite projections.
 
@@ -44,8 +44,9 @@ calls to a scanline handler.
 pending event during VBlank; do not let that consume the intended active split.
 
 Do not claim a whole palette fits inside one HBlank. Display blank alone does
-not hide CRAM dots. The lab uses a visible transition band and four colors per
-fresh HBlank across eight lines. That is a conservative teaching design, not
+not hide CRAM dots, nor does an opaque sprite. The lab writes only two colors per
+fresh HBlank, skips unchanged pairs and masks the mixed-palette rows with animated
+surface sprites on an unchanged palette. That is a conservative teaching design, not
 a cycle-exact reproduction of Sonic's renderer or a universal raster API.
 
 ## Prove the result

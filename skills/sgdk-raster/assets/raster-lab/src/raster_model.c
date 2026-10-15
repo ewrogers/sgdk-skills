@@ -6,6 +6,7 @@ static const s16 wave[32] = {0, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 3, 3, 2, 2, 1,
 void raster_model_init(RasterModel *s)
 {
     *s = (RasterModel){.waterline = 128, .tint = TRUE, .waves = TRUE, .music = TRUE};
+    water_fx_init(&s->fx, 60, s->waterline);
 }
 
 bool raster_model_step(RasterModel *s, u16 held, u16 hz)
@@ -30,6 +31,8 @@ bool raster_model_step(RasterModel *s, u16 held, u16 hz)
         if (x > 704) x = 704; /* Original 1024-pixel map minus 320-pixel view. */
         s->waterline = line;
         s->camera_x = x;
+        u16 travel = s->phase < 128 ? s->phase : 255 - s->phase;
+        water_fx_step(&s->fx, 60 + travel, s->waterline);
     }
     return TRUE;
 }
@@ -56,8 +59,8 @@ bool raster_tint(const u16 *source, u16 *target, u16 count)
         u16 g = (((c >> 5) & 7) + 1) / 2;
         u16 b = ((c >> 9) & 7) / 2 + 3;
         /* A stylized underwater palette, not a physical light simulation.
-           Preserve black index zero in each bank for the masked waterline. */
-        target[i] = i % 16 ? (b << 9) | (g << 5) | (r << 1) : 0;
+           Keep black outlines/unused entries black, reducing CRAM writes. */
+        target[i] = i % 16 && c ? (b << 9) | (g << 5) | (r << 1) : 0;
     }
     return TRUE;
 }

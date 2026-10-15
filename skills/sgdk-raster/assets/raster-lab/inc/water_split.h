@@ -7,6 +7,7 @@
 void water_split_init(const u16 *dry, const u16 *wet);
 void water_split_prepare(u16 line, bool enabled);
 void water_split_stop(void);
+u16 water_split_pair_count(void);
 u16 water_split_late(void);
 u16 water_split_timeouts(void);
 u16 water_split_last_line(void);

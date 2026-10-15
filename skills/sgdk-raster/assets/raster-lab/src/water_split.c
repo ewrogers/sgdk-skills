@@ -25,14 +25,16 @@ enum { POLL_LIMIT = 1024 };
 _Static_assert(POLL_LIMIT == 1024, "Keep the assembly edge-wait bound and host protocol in sync");
 static u16 dry_palette[32];
 static u32 wet_pairs[16];
-static volatile u16 armed_line, blank_command, display_command, increment_command, no_hint_command;
+static u32 wet_commands[16];
+static u16 changed_pairs;
+static volatile u16 armed_line, increment_command, no_hint_command;
 static volatile u16 late_count, timeout_count, last_line, setup_late;
 static volatile bool armed, installed;
 
-/* Preload command/colors BEFORE the edge wait. Only three register-to-port
+/* Preload command/colors BEFORE the edge wait. Only two register-to-port
    longword writes follow the fresh HBlank edge. Generic C may reload RAM too
    late; this is the only hand-timed assembly seam in the lab. */
-static inline __attribute__((always_inline)) bool write_chunk(u32 command, u32 first, u32 second)
+static inline __attribute__((always_inline)) bool write_chunk(u32 command, u32 colors)
 {
 #ifndef RASTER_TEST
     u16 polls, success;
@@ -50,14 +52,13 @@ static inline __attribute__((always_inline)) bool write_chunk(u32 command, u32 f
         "dbra %[polls],3b\n"
         "bra.s 5f\n"
         "4: move.l %[command],(%[control])\n"
-        "move.l %[first],(%[data])\n"
-        "move.l %[second],(%[data])\n"
+        "move.l %[colors],(%[data])\n"
         "moveq #1,%[success]\n"
         "bra.s 6f\n"
         "5: moveq #0,%[success]\n"
         "6:\n"
         : [polls] "=&d" (polls), [success] "=&d" (success)
-        : [command] "d" (command), [first] "d" (first), [second] "d" (second),
+        : [command] "d" (command), [colors] "d" (colors),
           [control] "a" (VDP_CTRL_PORT), [data] "a" (VDP_DATA_PORT)
         : "cc", "memory");
     return success != 0;
@@ -72,7 +73,7 @@ static inline __attribute__((always_inline)) bool write_chunk(u32 command, u32 f
         if (STATUS() & VDP_HBLANK_FLAG) { rising = TRUE; break; }
     if (!rising) return FALSE;
     COMMAND(command);
-    DATA(first); DATA(second);
+    DATA(colors);
     return TRUE;
 #endif
 }
@@ -81,7 +82,12 @@ void water_split_init(const u16 *dry, const u16 *wet)
 {
     VDP_setHInterrupt(FALSE);
     for (u16 i = 0; i < 32; ++i) dry_palette[i] = dry[i];
-    for (u16 i = 0; i < 16; ++i) wet_pairs[i] = ((u32)wet[i * 2] << 16) | wet[i * 2 + 1];
+    changed_pairs = 0;
+    for (u16 i = 0; i < 16; ++i) {
+        if (wet[i * 2] == dry[i * 2] && wet[i * 2 + 1] == dry[i * 2 + 1]) continue;
+        wet_commands[changed_pairs] = VDP_WRITE_CRAM_ADDR(i * 4);
+        wet_pairs[changed_pairs++] = ((u32)wet[i * 2] << 16) | wet[i * 2 + 1];
+    }
     late_count = timeout_count = last_line = setup_late = 0;
     armed = FALSE;
     installed = TRUE;
@@ -96,9 +102,7 @@ void water_split_prepare(u16 line, bool enabled)
     /* A late frame must not restore CRAM during active display. Skip its split. */
     if (!(STATUS() & VDP_VBLANK_FLAG)) { ++setup_late; ++late_count; return; }
     PAL_setColors(0, dry_palette, 32, CPU);
-    if (!enabled || line < RASTER_MIN_LINE || line > RASTER_MAX_LINE) return;
-    display_command = 0x8100 | VDP_getReg(1);
-    blank_command = display_command & (u16)~0x40;
+    if (!enabled || !changed_pairs || line < RASTER_MIN_LINE || line > RASTER_MAX_LINE) return;
     increment_command = 0x8F00 | VDP_getReg(15);
     no_hint_command = 0x8000 | (VDP_getReg(0) & (u16)~0x10);
     armed_line = line;
@@ -120,10 +124,9 @@ HINTERRUPT_CALLBACK water_split_interrupt(void)
     u16 line = LINE();
     last_line = line;
     if (line + 1 < armed_line || line > armed_line + 1) { ++late_count; return; }
-    CONTROL(blank_command);
     bool settled = FALSE;
-    /* Let forced blank take effect before CRAM writes. Starting the burst
-       immediately can still expose pixels from the VDP's rendering pipeline. */
+    /* The visible PAL2 surface sprites cover the mixed-palette rows. Never
+       disable display here: forced blank would hide those sprites as well. */
     for (u16 poll = 0; poll < POLL_LIMIT; ++poll) {
         u16 status = STATUS();
         if (LINE() >= line + 1 &&
@@ -134,16 +137,16 @@ HINTERRUPT_CALLBACK water_split_interrupt(void)
     }
     if (!settled) { ++timeout_count; goto restore; }
     CONTROL(0x8F02); /* CRAM autoincrement two; restore the saved R15 later. */
-    /* Display blank alone does not hide CRAM dots. Transfer four colors per
-       fresh HBlank across eight lines, rather than bursting during visible pixels. */
-    for (u16 chunk = 0; chunk < 8; ++chunk)
-        if (!write_chunk(VDP_WRITE_CRAM_ADDR(chunk * 8), wet_pairs[chunk * 2], wet_pairs[chunk * 2 + 1])) {
+    /* A sprite does not hide CRAM dots. Transfer only two colors per fresh
+       HBlank and omit unchanged pairs. This lab's art needs eight such edges. */
+    for (u16 chunk = 0; chunk < changed_pairs; ++chunk)
+        if (!write_chunk(wet_commands[chunk], wet_pairs[chunk])) {
             ++timeout_count;
             goto restore;
         }
     settled = FALSE;
-    /* Wait for a later HBlank and an empty FIFO. Bounds avoid a stuck ROM on
-       an unexpected timing path; display is restored even if this times out. */
+    /* Drain before restoring R15. Bounds avoid a stuck ROM on an unexpected
+       timing path. Display stays enabled, including on failure. */
     for (u16 poll = 0; poll < POLL_LIMIT; ++poll) {
         u16 status = STATUS();
         if (LINE() >= line + 3 &&
@@ -155,7 +158,6 @@ HINTERRUPT_CALLBACK water_split_interrupt(void)
     if (!settled) ++timeout_count;
 restore:
     CONTROL(increment_command);
-    CONTROL(display_command);
 }
 
 void water_split_stop(void)
@@ -169,6 +171,7 @@ void water_split_stop(void)
 }
 
 u16 water_split_late(void) { return late_count; }
+u16 water_split_pair_count(void) { return changed_pairs; }
 u16 water_split_timeouts(void) { return timeout_count; }
 u16 water_split_last_line(void) { return last_line; }
 u16 water_split_setup_late(void) { return setup_late; }

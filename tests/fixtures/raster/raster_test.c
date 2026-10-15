@@ -124,6 +124,7 @@ static void split(void)
     u16 dry[32], wet[32];
     for (u16 i = 0; i < 32; ++i) { dry[i] = i * 2; wet[i] = 0x600 | (i * 2); }
     reset_io(); water_split_init(dry, wet);
+    assert(water_split_pair_count() == 16);
     assert(callback == water_split_interrupt && !enabled);
     water_split_prepare(128, TRUE);
     assert(enabled && counter == 127 && palette_calls == 1);
@@ -137,11 +138,13 @@ static void split(void)
     current_line = 127;
     status_value = VDP_FIFOEMPTY_FLAG | VDP_HBLANK_FLAG;
     callback();
-    assert(pair_count == 16 && cram_command == VDP_WRITE_CRAM_ADDR(56));
+    assert(pair_count == 16 && cram_command == VDP_WRITE_CRAM_ADDR(60));
     for (u16 i = 0; i < 16; ++i)
         assert(pairs[i] == ((u32)(0x600 | (i * 4)) << 16 | (0x600 | (i * 4 + 2))));
-    assert(writes[0] == 0x8004 && writes[1] == 0x8134 && writes[2] == 0x8F02);
-    assert(writes[write_count - 2] == 0x8F04 && writes[write_count - 1] == 0x8174);
+    assert(writes[0] == 0x8004 && writes[1] == 0x8F02);
+    assert(writes[write_count - 1] == 0x8F04);
+    for (u16 i = 0; i < write_count; ++i)
+        assert((writes[i] & 0xFF00) != 0x8100); /* Never blank the visible surface sprites. */
     assert(water_split_late() == 0 && water_split_timeouts() == 0);
     u16 written = pair_count;
     callback(); assert(pair_count == written); /* Repeated interrupt is a no-op. */
@@ -155,12 +158,26 @@ static void split(void)
     u16 calls = palette_calls;
     water_split_prepare(128, TRUE); /* A remaining frame callback cannot rearm. */
     assert(!enabled && palette_calls == calls);
+    /* Sparse palettes write only changed pairs, retaining their real CRAM
+       addresses instead of compacting colors into the wrong entries. */
+    memset(wet, 0, sizeof wet); memset(dry, 0, sizeof dry);
+    wet[2] = 0x222; wet[25] = 0x666;
+    reset_io(); water_split_init(dry, wet); water_split_prepare(128, TRUE);
+    assert(water_split_pair_count() == 2);
+    current_line = 127; status_value = VDP_FIFOEMPTY_FLAG | VDP_HBLANK_FLAG;
+    callback();
+    assert(pair_count == 2 && pairs[0] == 0x02220000 && pairs[1] == 0x666);
+    assert(cram_command == VDP_WRITE_CRAM_ADDR(48));
+    reset_io(); water_split_init(dry, dry); water_split_prepare(128, TRUE);
+    assert(!enabled && palette_calls == 1); /* Nothing to tint, no active IRQ. */
+    water_split_stop();
 }
 
 static void failure(void)
 {
-    u16 palette[32] = {0};
-    reset_io(); water_split_init(palette, palette);
+    u16 palette[32] = {0}, wet[32];
+    for (u16 i = 0; i < 32; ++i) wet[i] = 0x600;
+    reset_io(); water_split_init(palette, wet);
     status_value = 0;
     water_split_prepare(128, TRUE);
     assert(!enabled && !palette_calls && water_split_late() == 1);
@@ -172,17 +189,61 @@ static void failure(void)
     callback();
     assert(pair_count == 0 && status_reads <= 1026);
     assert(water_split_timeouts() == 1);
-    assert(writes[write_count - 1] == 0x8174); /* Always restore display. */
+    assert(writes[write_count - 1] == 0x8F04); /* Restore autoincrement without blanking. */
     reset_io(); water_split_prepare(128, TRUE);
     current_line = 127; status_value = VDP_HBLANK_FLAG; /* FIFO never drains. */
     callback();
-    assert(water_split_timeouts() == 2 && writes[write_count - 1] == 0x8174);
+    assert(water_split_timeouts() == 2 && writes[write_count - 1] == 0x8F04);
     reset_io(); water_split_prepare(128, TRUE);
     current_line = 127; status_value = VDP_HBLANK_FLAG | VDP_FIFOEMPTY_FLAG;
     starve_after_data = TRUE; /* Completion timeout after the palette burst. */
     callback();
-    assert(pair_count == 2 && water_split_timeouts() == 3);
-    assert(writes[write_count - 1] == 0x8174);
+    assert(pair_count == 1 && water_split_timeouts() == 3);
+    assert(writes[write_count - 1] == 0x8F04);
+}
+
+static void effects(void)
+{
+    WaterFx fx;
+    water_fx_init(&fx, 60, 128);
+    assert(!fx.underwater && !fx.splash_left);
+    water_fx_step(&fx, 127, 128); assert(!fx.splash_left);
+    water_fx_step(&fx, 128, 128); assert(fx.splash_left == WATER_SPLASH_TICKS);
+    water_fx_step(&fx, 127, 128); assert(fx.splash_left == WATER_SPLASH_TICKS);
+    for (u16 i = 0; i < WATER_SPLASH_TICKS; ++i) water_fx_step(&fx, 127, 128);
+    assert(!fx.splash_left);
+    water_fx_init(&fx, 180, 128); /* Already submerged: do not invent an entry splash. */
+    for (u16 i = 0; i < 23; ++i) water_fx_step(&fx, 180, 128);
+    for (u16 i = 0; i < WATER_BUBBLES; ++i) assert(!fx.bubbles[i].active);
+    water_fx_step(&fx, 180, 128);
+    assert(fx.bubbles[0].active && fx.bubbles[0].y == 177 && !fx.bubbles[0].age);
+    for (u16 i = 0; i < 8; ++i) water_fx_step(&fx, 180, 128);
+    assert(fx.bubbles[0].y == 169 && fx.bubbles[0].age == 8);
+    water_fx_step(&fx, 180, 160); assert(!fx.bubbles[0].active); /* Rising surface hides it. */
+    for (u16 i = 0; i < WATER_BUBBLES; ++i)
+        fx.bubbles[i] = (WaterBubble){.y = 200, .active = true};
+    fx.emit_clock = 23;
+    water_fx_step(&fx, 180, 128); /* Exhaustion preserves existing bubbles. */
+    for (u16 i = 0; i < WATER_BUBBLES; ++i)
+        assert(fx.bubbles[i].y == 199 && fx.bubbles[i].age == 1);
+    for (u16 i = 0; i < 100; ++i) water_fx_step(&fx, 60, 128);
+    for (u16 i = 0; i < WATER_BUBBLES; ++i) assert(!fx.bubbles[i].active);
+    assert(!fx.splash_left && !fx.emit_clock);
+    for (u16 i = 0; i < 24; ++i) water_fx_step(&fx, 180, 128);
+    assert(fx.bubbles[0].active && fx.bubbles[0].y == 177 && !fx.bubbles[0].age);
+    RasterModel n, p;
+    raster_model_init(&n); raster_model_init(&p);
+    for (u16 i = 0; i < 600; ++i) raster_model_step(&n, 0, 60);
+    for (u16 i = 0; i < 500; ++i) raster_model_step(&p, 0, 50);
+    assert(n.fx.splash_left == p.fx.splash_left && n.fx.emit_clock == p.fx.emit_clock);
+    for (u16 i = 0; i < WATER_BUBBLES; ++i) {
+        assert(n.fx.bubbles[i].active == p.fx.bubbles[i].active);
+        assert(n.fx.bubbles[i].y == p.fx.bubbles[i].y && n.fx.bubbles[i].age == p.fx.bubbles[i].age);
+    }
+    raster_model_step(&n, RASTER_PAUSE, 60);
+    WaterFx frozen = n.fx;
+    for (u16 i = 0; i < 100; ++i) raster_model_step(&n, 0, 60);
+    assert(memcmp(&frozen, &n.fx, sizeof frozen) == 0);
 }
 
 int main(int argc, char **argv)
@@ -192,6 +253,7 @@ int main(int argc, char **argv)
     else if (!strcmp(argv[1], "tables")) tables();
     else if (!strcmp(argv[1], "split")) split();
     else if (!strcmp(argv[1], "failure")) failure();
+    else if (!strcmp(argv[1], "effects")) effects();
     else return 2;
     puts(argv[1]);
     return 0;

@@ -4,11 +4,12 @@
 
 The world and sprite keep their tiles and color indexes. Above the waterline,
 PAL0/PAL1 contain their dry colors. Below it, the handler changes those same
-entries to precomputed blue-tinted colors. The HUD uses PAL3 and stays unchanged.
+entries to precomputed blue-tinted colors. Water-effect sprites use PAL2 and the
+HUD uses PAL3; both stay unchanged.
 VBlank restores the dry colors before the next frame begins.
 
 This does not allocate two more hardware palette banks: it reuses the same two
-at different times. The lab occupies three of the four banks in each region
+at different times. The lab occupies all four banks in each region
 of the screen. Colors can differ across the frame, but a pixel still uses the
 normal VDP palette/index rules.
 
@@ -20,24 +21,28 @@ can upload 64 colors invisibly inside a single HBlank.
 ## Why the lab has a transition band
 
 CRAM writes can produce colored dots during visible output. Temporarily
-disabling display improves transfer bandwidth, but does not by itself hide
-those dots. The lab therefore blanks a small surface band and uploads four
-colors on each of eight fresh HBlank edges. It restores display after the FIFO
-drains at a later HBlank. Expect a roughly tile-high masked band, not a seamless
-single-pixel boundary. Its exact width/alignment needs visual validation.
+disabling display does not by itself hide those dots and also hides sprites.
+The lab keeps display enabled and transfers two colors per fresh HBlank,
+skipping unchanged pairs. Black outlines and unused black entries stay black.
+Its current art needs eight pairs; a guard rejects changes that exceed the
+surface's coverage. An opaque animated foam strip on PAL2 conceals the rows
+where only part of the world palette has changed. This is not translucency.
 
-The small assembly routine preloads two packed color pairs and their CRAM
-command before waiting for HBlank to clear and rise again. It then emits three
+The small assembly routine preloads one packed color pair and its CRAM
+command before waiting for HBlank to clear and rise again. It then emits two
 register-to-port longword writes. Merely entering an H interrupt is not enough:
 the interrupt request and HBlank flag have different timing.
 
 Both edge waits are bounded. The C wrapper also bounds its settling/completion
-waits and restores the saved display/autoincrement state on failure. A timeout
+waits and restores the saved autoincrement state on failure. Display remains
+enabled throughout. A timeout
 can leave a partial palette for the rest of that frame; next VBlank restores
 the dry palette. The diagnostic makes this failure visible instead of hanging.
 
 This trades visible surface space and main-CPU time for a more conservative
-first example. Do not generalize its timing to H32, interlace, another clock or
+example. The ten surface sprites use the full H40 sprite-pixel budget on their
+rows, intentionally occluding the robot during the crossing. Do not generalize
+its timing to H32, interlace, another clock or
 an arbitrary number of colors. If a game needs a tighter seam, profile a smaller
 set of changed colors and inspect the actual target code before tuning it.
 
@@ -54,7 +59,7 @@ An already pending interrupt during VBlank is ignored without consuming the
 armed split. During active display, the first expected event disables further
 H interrupts and performs the switch. An unexpectedly late event is skipped.
 
-The handler owns PAL0/PAL1 and temporarily changes display and autoincrement.
+The handler owns PAL0/PAL1 and temporarily changes autoincrement.
 Saved commands preserve the other register bits and restore the final state
 expected by SGDK's cache. Do not run an independent fade or palette uploader
 over these banks without composing both dry and wet variants deliberately.
