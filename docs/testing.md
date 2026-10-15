@@ -142,6 +142,19 @@ and dimensions, including the directional robot sheet. Walk/idle phase and
 pause tests exercise the simulation-driven animation. Emulator checks cover visible streaming and collision
 alignment; physical-console DMA timing and PAL visuals remain separate checks.
 
+## Release candidate checks
+
+Release tests check SGDK's whole-file XOR checksum against an independent
+16-bit-word oracle, detect changes in headers/vectors/payload/padding and show
+why cancelling XOR changes need a stronger release identity hash. They exercise
+the stock stack alias and fixed ROM-end warning, malformed/oversize files,
+SRAM overlap, CLI failures, standalone installation, exact packaged bytes,
+manifest hashes, deterministic ZIPs and no-overwrite behavior. Docker tests use
+SGDK's actual `sizebnd` as an oracle and build the existing Menu Lab in both
+modes. The release ROM and ELF are packaged before debug outputs replace them.
+These are file/build checks, not proof of game behavior, matching source lines,
+banked-cartridge compatibility or physical hardware support.
+
 ## Architectures and image versions
 
 CI runs the Docker checks on separate native Linux ARM64 and AMD64 runners. The
