@@ -74,9 +74,12 @@ class PlatformAssetsTests(unittest.TestCase):
         expected_sizes = {'course.png': (112, 16), 'hero.png': (160, 24),
                           'enemies.png': (320, 16), 'items.png': (208, 16)}
         for name, data in module.assets().items():
-            self.assertEqual(data, (LAB / name).read_bytes(), name)
             if not name.endswith('.png'):
+                # Text source can be checked out with CRLF on Windows. Keep
+                # binary art byte-exact and compare text through newline decoding.
+                self.assertEqual(data.decode('utf-8'), (LAB / name).read_text(encoding='utf-8'), name)
                 continue
+            self.assertEqual(data, (LAB / name).read_bytes(), name)
             offset, compressed = 8, bytearray()
             while offset < len(data):
                 size = struct.unpack_from('>I', data, offset)[0]
