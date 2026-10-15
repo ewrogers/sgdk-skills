@@ -1,0 +1,46 @@
+{
+  "terrain": {
+    "name": "Charcoal and stone",
+    "source": "Exact native-pixel drawing in PixelLab workbench; no resampling or color quantization",
+    "rgb": [
+      "000000",
+      "222222",
+      "666666",
+      "AAAAAA",
+      "444444",
+      "888888",
+      "CCCCCC",
+      "EEEEEE",
+      "000000",
+      "000000",
+      "000000",
+      "000000",
+      "000000",
+      "000000",
+      "000000",
+      "000000"
+    ]
+  },
+  "robot": {
+    "name": "Scout copper and silver",
+    "source": "Exact native-pixel drawing in PixelLab workbench; no resampling or color quantization",
+    "rgb": [
+      "000000",
+      "000000",
+      "222222",
+      "444444",
+      "888888",
+      "CCCCCC",
+      "EEEEEE",
+      "AA6644",
+      "EEAA44",
+      "000000",
+      "000000",
+      "000000",
+      "000000",
+      "000000",
+      "000000",
+      "000000"
+    ]
+  }
+}
