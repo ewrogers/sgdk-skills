@@ -1,8 +1,17 @@
 #include <genesis.h>
 #include "game.h"
 #include "resources.h"
+#include "view.h"
 #define CHECK(value) do { if (!(value)) return __LINE__; } while (0)
 static Game game;
+static u16 frame_tiles(const SpriteDefinition *definition)
+{
+    u16 total=0;
+    for (u16 a=0;a<definition->numAnimation;a++)
+        for (u16 f=0;f<definition->animations[a]->numFrame;f++)
+            total+=definition->animations[a]->frames[f]->tileset->numTile;
+    return total;
+}
 /* Console startup ignores main's result. Keep it observable to direct entry. */
 __attribute__((noipa)) int main(bool hard_reset)
 {
@@ -12,12 +21,19 @@ __attribute__((noipa)) int main(bool hard_reset)
     CHECK(SPR_getVisibility(&probe)==HIDDEN);
     probe.visibility=0xFFFF;
     CHECK(SPR_getVisibility(&probe)==VISIBLE);
+    CHECK(sci_font.numTile==96);
+    CHECK(frame_tiles(&ship_image)+frame_tiles(&enemy_image)+frame_tiles(&boss_image)+
+        frame_tiles(&bullet_image)+frame_tiles(&pickup_image)+frame_tiles(&effect_image)+
+        frame_tiles(&utility_image)+frame_tiles(&twin_image)<=FRAME_CACHE_TILES);
+    CHECK(1+1+ENEMY_COUNT+SHOT_COUNT+BULLET_COUNT+PICKUP_COUNT+EFFECT_COUNT+2+3+8<=80);
+    CHECK(twin_image.animations[0]->numFrame==2 && twin_image.maxNumSprite==1);
+    CHECK(utility_image.animations[0]->numFrame==4 && utility_image.maxNumSprite==1);
     CHECK(title_image.tilemap->w==28 && title_image.tilemap->h==14);
     CHECK(title_image.tileset->numTile>0 && title_image.tileset->numTile<=392);
     CHECK(ship_image.maxNumTile==4 && boss_image.maxNumTile==16 && bullet_image.maxNumTile==1);
     CHECK(ship_image.animations[0]->numFrame==4 && enemy_image.animations[0]->numFrame==6);
-    CHECK(bullet_image.animations[0]->numFrame==3 && pickup_image.animations[0]->numFrame==2);
-    CHECK(boss_image.animations[0]->numFrame==3 && effect_image.animations[0]->numFrame==4);
+    CHECK(bullet_image.animations[0]->numFrame==5 && pickup_image.animations[0]->numFrame==4);
+    CHECK(boss_image.animations[0]->numFrame==7 && effect_image.animations[0]->numFrame==4);
     CHECK(ship_image.maxNumSprite==1 && enemy_image.maxNumSprite==1 && boss_image.maxNumSprite==1);
     CHECK(bullet_image.maxNumSprite==1 && pickup_image.maxNumSprite==1 && effect_image.maxNumSprite==1);
     CHECK(game_video_layout_valid(64,32,0xE000,0xC000,0xD000));

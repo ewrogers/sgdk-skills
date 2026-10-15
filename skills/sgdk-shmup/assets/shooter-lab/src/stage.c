@@ -17,8 +17,10 @@ void game_stage(Game *game)
             if (!game->enemies[i].active)
             {
                 const Spawn *spawn=&stage_spawns[game->spawn_index];
-                game->enemies[i]=(Enemy){.x=spawn->x*UNIT,.home=spawn->x*UNIT,.y=-12*UNIT,
-                    .hp=spawn->kind==TURRET?5:spawn->kind==SWEEPER?3:2,.kind=spawn->kind,.active=true};
+                s16 x=game->stage==2?FIELD_W-spawn->x:spawn->x;
+                EnemyKind kind=game->stage==2?(EnemyKind)((spawn->kind+1)%3):spawn->kind;
+                game->enemies[i]=(Enemy){.x=x*UNIT,.home=x*UNIT,.y=-12*UNIT,
+                    .hp=kind==TURRET?5:kind==SWEEPER?3:2,.kind=kind,.active=true};
                 game->wave=1+game->spawn_index/4; game->spawn_index++;
                 break;
             }
@@ -75,11 +77,26 @@ void game_enemies(Game *game)
     u16 time=(boss->age-BOSS_READY_TICKS)%720;
     u16 phase=time%240;
     u16 motion=(time+60)%240;
-    boss->x=(60+(s16)(motion<120?motion:239-motion))*UNIT;
+    s16 travel=motion<120?motion:239-motion;
+    if (boss->hp<=BOSS_HEALTH/2)
+    {
+        boss->x=(30+travel*3/2)*UNIT;
+        s16 dive=phase>=90 && phase<150?(phase<120?phase-90:150-phase):0;
+        boss->y=(44+dive*2)*UNIT;
+    }
+    else { boss->x=(60+travel)*UNIT; boss->y=44*UNIT; }
+    if (game->stage==2)
+    {
+        u16 cross=(time*2+60)%240;
+        s16 sweep=cross<120?cross:239-cross;
+        u16 vertical=time%180;
+        boss->x=(24+sweep*8/5)*UNIT;
+        boss->y=(40+(s16)(vertical<90?vertical:179-vertical)/2)*UNIT;
+    }
     /* Three readable four-second phrases. Each has a quiet wind-up and
      * recovery; the second half tightens the firing cadence, not the pool. */
     u16 cadence=boss->hp>BOSS_HEALTH/2?40:30;
-    if (phase>=45 && phase<180)
+    if (!game_boss_guarded(game) && phase>=45 && phase<180)
     {
         if (time<240 && phase%cadence==0)
             game_pattern(game,FAN,boss->x,boss->y+16*UNIT,game->x,game->y,0);
@@ -90,4 +107,11 @@ void game_enemies(Game *game)
     }
     if (boss->x-game->x<18*UNIT && boss->x-game->x>-18*UNIT &&
         boss->y-game->y<18*UNIT && boss->y-game->y>-18*UNIT) game_hurt(game);
+}
+
+bool game_boss_guarded(const Game *game)
+{
+    if (game->stage!=2 || !game->boss.active || game->boss.age<BOSS_READY_TICKS) return false;
+    u16 phase=(game->boss.age-BOSS_READY_TICKS)%180;
+    return phase<(game->boss.hp<=BOSS_HEALTH/2?75:45);
 }

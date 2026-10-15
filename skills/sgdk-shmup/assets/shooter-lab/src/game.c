@@ -3,21 +3,21 @@
 void game_init(Game *game)
 {
     *game=(Game){0}; game->state=TITLE;
-    game->x=120*UNIT; game->y=192*UNIT; game->lives=3; game->power=1; game->bombs=2;
+    game->x=120*UNIT; game->y=192*UNIT; game->lives=3; game->power=1; game->bombs=2; game->stage=1;
 }
 void game_start(Game *game)
 {
     game_init(game); game->state=PLAY; game->invulnerable=90; game->events=EVENT_START;
 }
 
-static void bomb(Game *game)
+static void next_stage(Game *game)
 {
-    if (!game->bombs) return;
-    game->bombs--; game->bomb_flash=24; game->events|=EVENT_BOMB;
-    game->invulnerable=90;
-    for (u16 i=0;i<BULLET_COUNT;i++) game->bullets[i].active=false;
-    for (u16 i=0;i<ENEMY_COUNT;i++) if (game->enemies[i].active) game_enemy_kill(game,i);
-    game_boss_damage(game,20);
+    u32 score=game->score;
+    u8 lives=game->lives,power=game->power,bombs=game->bombs,twins=game->twins;
+    bool shield=game->shield; u16 shield_time=game->shield_time,held=game->held;
+    game_start(game); game->stage=2; game->score=score;
+    game->lives=lives; game->power=power; game->bombs=bombs; game->twins=twins;
+    game->shield=shield; game->shield_time=shield_time; game->held=held;
 }
 
 static void player(Game *game,u16 held,u16 pressed)
@@ -42,10 +42,16 @@ static void player(Game *game,u16 held,u16 pressed)
             fired=game_shot(game,game->x+4*UNIT,game->y-6*UNIT,UNIT,-6*UNIT)||fired;
             if (game->power==3) fired=game_shot(game,game->x,game->y-8*UNIT,0,-6*UNIT)||fired;
         }
+        if ((game->ticks/10)%2==0)
+            for (u16 i=0;i<game->twins;i++)
+            {
+                s16 x,y; game_twin_point(game,i,&x,&y);
+                fired=game_shot(game,x,y-6*UNIT,0,-6*UNIT)||fired;
+            }
         if (fired) game->events|=EVENT_FIRE;
         game->fire_wait=10;
     }
-    if (pressed&B) bomb(game);
+    if (pressed&B) game_bomb_launch(game);
 }
 
 static void pickups(Game *game)
@@ -60,7 +66,10 @@ static void pickups(Game *game)
         if (dx>-12*UNIT && dx<12*UNIT && dy>-12*UNIT && dy<12*UNIT)
         {
             item->active=false; game->events|=EVENT_PICKUP;
-            if (!item->kind) { if (game->power<3) game->power++; else game_add_score(game,250); }
+            game->pickup_kind=item->kind;
+            if (item->kind==3) { if (game->twins<2) game->twins++; else game_add_score(game,250); }
+            else if (item->kind==2) { game->shield=true; game->shield_time=SHIELD_TICKS; }
+            else if (!item->kind) { if (game->power<3) game->power++; else game_add_score(game,250); }
             else { if (game->bombs<3) game->bombs++; else game_add_score(game,250); }
         }
     }
@@ -70,13 +79,19 @@ void game_step(Game *game,u16 held,u16 pressed)
 {
     if (game->paused || game->state==TITLE) return;
     if (game->state==CLEAR || game->state==OVER)
-    { game->phase_time=(game->phase_time+1)%360; return; }
+    {
+        if (game->phase_time<65535) game->phase_time++;
+        if (game->state==CLEAR && game->stage==1 && game->phase_time>=360) next_stage(game);
+        return;
+    }
     game->ticks++; game->phase_time++;
+    if (game->shield_time && --game->shield_time==0) game->shield=false;
     if (game->invulnerable) game->invulnerable--;
     if (game->bomb_flash) game->bomb_flash--;
     player(game,held,pressed);
     game_stage(game); game_enemies(game);
     if (game->state==OVER) return;
+    game_bomb_step(game);
     game_projectiles(game);
     if (game->state==CLEAR || game->state==OVER) return;
     pickups(game);
@@ -85,10 +100,13 @@ void game_step(Game *game,u16 held,u16 pressed)
         Effect *effect=&game->effects[i];
         if (effect->life) { effect->life--; effect->x+=effect->vx; effect->y+=effect->vy; }
     }
-    /* Two guaranteed upgrades keep the sample approachable even after misses. */
-    if (game->ticks==360 || game->ticks==1080)
+    if (game->stage==2 && (game->ticks==240 || game->ticks==600))
         for (u16 i=0;i<PICKUP_COUNT;i++) if (!game->pickups[i].active)
-        { game->pickups[i]=(Pickup){.x=120*UNIT,.y=16*UNIT,.active=true}; break; }
+        { game->pickups[i]=(Pickup){.x=120*UNIT,.y=16*UNIT,.kind=3,.active=true}; break; }
+    /* Guaranteed upgrades keep the sample approachable even after misses. */
+    if (game->ticks==360 || game->ticks==720 || game->ticks==1080 || game->ticks==1440)
+        for (u16 i=0;i<PICKUP_COUNT;i++) if (!game->pickups[i].active)
+        { game->pickups[i]=(Pickup){.x=120*UNIT,.y=16*UNIT,.kind=game->ticks%720==0?2:0,.active=true}; break; }
 }
 
 void game_frame(Game *game,u16 held,u16 hz)
@@ -96,7 +114,12 @@ void game_frame(Game *game,u16 held,u16 hz)
     u16 pressed=held&~game->held;
     game->held=held; game->events=0;
     if ((game->state==TITLE || game->state==CLEAR || game->state==OVER) && (pressed&(A|START)))
-    { game_start(game); game->held=held; return; }
+    {
+        if (game->state==CLEAR && game->phase_time<BOSS_DEATH_TICKS) return;
+        if (game->state==CLEAR && game->stage==1) next_stage(game);
+        else game_start(game);
+        game->held=held; return;
+    }
     if (game->state==PLAY || game->state==BOSS)
         if (pressed&START) game->paused=!game->paused;
     if (game->paused || (hz!=50 && hz!=60)) return;

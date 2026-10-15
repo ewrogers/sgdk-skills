@@ -15,13 +15,17 @@ typedef int32_t s32;
 #define UNIT 16
 #define FIELD_W 240
 #define FIELD_H 224
-#define SHOT_COUNT 12
+#define SHOT_COUNT 16
 #define BULLET_COUNT 32
 #define ENEMY_COUNT 6
 #define PICKUP_COUNT 3
 #define EFFECT_COUNT 6
 #define WAVE_COUNT 6
 #define BOSS_HEALTH 90
+#define BOMB_ARM_TICKS 45
+#define BOMB_BLAST_TICKS 40
+#define SHIELD_TICKS 600
+#define BOSS_DEATH_TICKS 120
 #define BOSS_WARNING_TICKS 120
 #define BOSS_ENTRY_TICKS 90
 #define BOSS_BAR_TICKS 60
@@ -29,7 +33,7 @@ typedef int32_t s32;
 
 enum { UP=1,DOWN=2,LEFT=4,RIGHT=8,B=16,C=32,A=64,START=128 };
 enum { EVENT_FIRE=1,EVENT_KILL=2,EVENT_HURT=4,EVENT_PICKUP=8,EVENT_BOMB=16,
-       EVENT_BOSS=32,EVENT_CLEAR=64,EVENT_START=128 };
+       EVENT_BOSS=32,EVENT_CLEAR=64,EVENT_START=128,EVENT_SHIELD_BREAK=256,EVENT_BLAST=512,EVENT_BOMB_EMPTY=1024 };
 typedef enum { TITLE,PLAY,BOSS,CLEAR,OVER } State;
 typedef enum { SCOUT,SWEEPER,TURRET } EnemyKind;
 typedef enum { AIMED,FAN,RING,SPIRAL } Pattern;
@@ -42,6 +46,7 @@ typedef struct {
     bool active;
 } Enemy;
 typedef struct { s16 x,y; u8 kind; bool active; } Pickup;
+typedef struct { s16 x,y; u16 age,radius; bool active,boss_hit; } Payload;
 typedef struct { s16 x,y,vx,vy; u8 life; } Effect;
 typedef struct {
     s16 x,y;
@@ -55,10 +60,14 @@ typedef struct {
     Pickup pickups[PICKUP_COUNT];
     Effect effects[EFFECT_COUNT];
     Boss boss;
+    Payload payload;
+    u16 shield_time;
+    u8 pickup_kind;
+    bool shield;
     s16 x,y;
     u32 ticks,score;
     u16 held,clock,events,spawn_index,invulnerable,bomb_flash,phase_time,denied;
-    u8 lives,power,bombs,fire_wait,combo,kills,wave;
+    u8 lives,power,bombs,fire_wait,combo,kills,wave,stage,twins;
     State state;
     bool paused;
 } Game;
@@ -83,4 +92,9 @@ void game_boss_damage(Game *game,u16 damage);
 void game_add_score(Game *game,u32 amount);
 void game_effect(Game *game,s16 x,s16 y);
 void game_stage(Game *game);
+bool game_boss_guarded(const Game *game);
+void game_twin_point(const Game *game,u16 index,s16 *x,s16 *y);
+void game_bomb_launch(Game *game);
+void game_bomb_step(Game *game);
+void game_blast_point(const Game *game,u16 index,s16 *x,s16 *y);
 #endif

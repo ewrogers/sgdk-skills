@@ -395,3 +395,11 @@ Its M68000 probe reports instruction counts for an identical full-pool workload
 before and after broad-phase rejection. Those counts are a CPU-work proxy,
 not emulated VDP timings or a 60 FPS claim. Boss tests cover the protected
 warning/entrance/bar reveal, three attack phrases, music handoff and pause.
+
+Shooter Lab's second stage checks carrying state between stages, automatic and
+manual advance, timed boss-guard windows, opposite ship-relative Twin orbits,
+shared firing capacity and full upgrade loss on damage. Shield tests cover
+single absorption and expiry. Bomb tests cover arming delay, outward clearing,
+one-time nonlethal boss damage, empty-stock feedback and pause. The compiled
+font keeps 96 ASCII slots, and sprite-definition probes verify actual frame and
+hardware-piece counts for the sparse boss dissolve and utility sprites.

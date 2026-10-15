@@ -7,5 +7,6 @@
     112
   ],
   "palette": "ship PAL1, 16 entries including transparent index 0",
-  "processing": "native dimensions preserved; nearest palette color, no dithering or resizing"
+  "processing": "native dimensions preserved; nearest palette color, no dithering or resizing",
+  "particle_cleanup": "PixelLab guarded pixel edit 5fb3e86c-dd70-4636-b0c1-cba402f21b03 removes 161 isolated speck pixels; runtime particles replace them"
 }

@@ -36,7 +36,7 @@ void game_enemy_kill(Game *game,u16 index)
             if (!game->pickups[i].active)
             {
                 game->pickups[i]=(Pickup){.x=enemy->x,.y=enemy->y,
-                    .kind=game->kills%6==0?1:0,.active=true};
+                    .kind=(game->kills/3-1)%(game->stage==2?4:3),.active=true};
                 break;
             }
 }
@@ -44,20 +44,26 @@ void game_enemy_kill(Game *game,u16 index)
 void game_hurt(Game *game)
 {
     if (game->invulnerable || game->state==CLEAR || game->state==OVER) return;
+    if (game->shield)
+    {
+        game->shield=false; game->shield_time=0; game->invulnerable=60;
+        game->events|=EVENT_SHIELD_BREAK; game_effect(game,game->x,game->y); return;
+    }
     game->events|=EVENT_HURT; game->combo=0;
-    if (game->power>1) game->power--;
+    game->power=1; game->twins=0; game->shield=false; game->shield_time=0;
     for (u16 i=0;i<BULLET_COUNT;i++) game->bullets[i].active=false;
     game_effect(game,game->x,game->y);
-    if (--game->lives==0) { game->state=OVER; return; }
+    if (--game->lives==0) { game->state=OVER; game->phase_time=0; return; }
     game->invulnerable=120; game->x=120*UNIT; game->y=192*UNIT;
 }
 
 void game_boss_damage(Game *game,u16 damage)
 {
     Boss *boss=&game->boss;
-    if (!boss->active || boss->age<BOSS_READY_TICKS || !damage) return;
+    if (!boss->active || boss->age<BOSS_READY_TICKS || game_boss_guarded(game) || !damage) return;
     boss->flash=4;
     if (damage<boss->hp) { boss->hp-=damage; return; }
+    game->payload.active=false;
     boss->hp=0; boss->active=false; game->state=CLEAR; game->phase_time=0;
     game->events|=EVENT_CLEAR; game_add_score(game,5000);
     for (u16 i=0;i<BULLET_COUNT;i++) game->bullets[i].active=false;

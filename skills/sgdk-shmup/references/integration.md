@@ -56,11 +56,12 @@ PAL3 for bullets/pickups/effects/font. Every sheet stays within sixteen entries,
 with index zero transparent for sprites. These colors and the space theme are
 specific to Shooter Lab; the skill does not prescribe an aesthetic.
 
-A 160-tile sprite reservation is 5,120 VRAM bytes. The lab preloads all frames
-and shares their indices: 16 ship tiles, 24 enemy tiles, 48 boss tiles, three
-bullet tiles, eight pickup tiles and sixteen effect tiles before any SDK
-optimization. Background patterns must end below the sprite reservation;
-fonts and VDP tables consume additional VRAM.
+A 384-tile sprite reservation is 12,288 VRAM bytes. The lab preloads every
+frame and shares the resulting indices. Its native frame canvases need at most
+361 tiles before ResComp cropping and duplicate sharing. A target probe sums
+actual compiled frame tile counts and checks them against the reservation.
+Background/title/HUD patterns must end below that reservation; the normal font
+and VDP tables consume additional VRAM.
 
 `SPR_addSpriteEx(..., flags=0)` leaves tile ownership with the manual cache.
 Set frame geometry before selecting its resident tile index. Do not add
@@ -69,8 +70,9 @@ The temporary `SPR_loadAllFrames()` table is copied then freed during setup.
 
 ## Frame and scanline limits
 
-The fixed records require at most 61 hardware sprites: player, boss, six
-enemies, twelve player shots, 32 hostile shots, three pickups and six effects.
+The fixed records reserve at most 78 one-piece hardware sprites: player, boss,
+six enemies, sixteen player shots, 32 hostile shots, three pickups, six effects,
+two Twins, player/boss shields, a payload and eight blast-front effects.
 Some states do not show all those categories at once. Total H40 capacity is
 80 sprites, but each scanline has its own limit of 20 sprites and 320 sprite
 pixels. An 80-object budget is not a promise that a crowded row can draw them.
@@ -114,12 +116,55 @@ contact and firing stay disabled until the reveal finishes. The audio adapter
 uses SGDK's `XGM2_setFMVolume()` and `XGM2_setPSGVolume()` (0–100) to hand off
 between stage and boss tracks once. Pause stops that handoff too.
 
-The overhead bar and life icons use resident plane tiles, so they consume no
+The red overhead bar and life icons use resident plane tiles, so they consume no
 extra hardware sprites. Unchanged HUD strings, sprite frames and tile indices
 are left alone. Ring/spiral emitters do not calculate an unused aimed vector.
 
 The container regression runs the old and optimized projectile workload on
-base-M68000 emulation. A measured full-pool, mostly-no-hit case used 6,807
-instructions before and 4,492 afterward, including identical setup. This is an
+base-M68000 emulation. A measured full-pool, mostly-no-hit case used 8,184
+instructions before and 5,170 afterward, including identical setup. This is an
 instruction-count proxy, not a cycle count or an FPS guarantee. Actual frame
 load still needs a release-ROM check with rendering, audio and effects active.
+
+## Bounded presentation effects
+
+The title replaces isolated painted specks with 32 moving one-pixel sprites,
+reusing hostile-bullet objects while the game is inactive. Gameplay adds two
+utility sprites (shield and payload) and eight blast-front effects, plus two Twins and a boss guard, for 78
+reserved hardware pieces at maximum. A configured cache holds all frames;
+there is still no per-frame image upload or allocation. Scanline tests include
+active shields and payloads, not just ordinary shots.
+
+`weapons.c` owns the delayed bomb's arming/radius and one-time boss damage. Pause
+freezes it with the rest of the model. Do not use a cosmetic ring's sprite
+positions as the collision rule. The destruction presentation starts immediately
+at boss defeat; its star/banner/fanfare wait for the two-second sequence.
+
+The example's six short robot announcements share PCM channel 3. Ordinary
+kill/hit cues do not interrupt a voice already playing; boss/game-over messages
+can preempt it. Firing stays on channel 2. Music keeps FM/PSG, so these choices
+avoid taking a music PCM channel. Choose different priorities or no speech for
+a different game. WAV sources are committed and portable; optional regeneration
+uses the open-source eSpeak NG synthesizer with a light offline robot effect. The original bitmap font occupies the
+normal 96 ASCII slots and replaces the default font without growing that region.
+
+The boss resource explicitly disables sprite cutting (`NONE` optimization) so
+its sparse dissolve frames stay one 32×32 hardware piece. This spends more
+resident tiles to keep the sprite/scanline budget predictable. The target
+resource probe checks that compiled count rather than assuming it from PNG size.
+
+The HUD's colored counters use two compact copies of only their required
+letters/digits (48 tiles total), rather than three extra complete fonts or
+changing palette entries used by the sprites. The enraged boss uses a wider,
+faster deterministic sweep and a repeated dive. The bar changes color at the
+same health threshold. The final star uses two native frames plus a small bob;
+it remains animated after the fanfare.
+
+Stage 2 carries score, lives and remaining upgrades from the first clear. Its
+boss guard is a model-side timed rule, not just a drawn aura. Tests check that
+protected hits consume shots without reducing health, and that exposed windows
+accept damage. Twin offsets interpolate the existing direction table, remain
+relative to the ship and stay opposite for two satellites. Their firing is
+staggered in time to stay inside the sixteen-shot pool. A life loss resets power
+and removes Twins; shield absorption preserves both. The second backdrop and
+music are lab presentation choices, not required shooter conventions.

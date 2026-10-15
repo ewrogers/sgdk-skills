@@ -40,7 +40,7 @@ class ShooterBehaviorTests(unittest.TestCase):
         shutil.copytree(LAB, project)
         cls.binary = Path(cls.scratch.name) / ('model.exe' if os.name=='nt' else 'model')
         command = [cls.compiler,'-std=c17','-O2','-Wall','-Wextra','-Werror','-I',str(project/'inc')]
-        command += [str(project/'src'/name) for name in ['game.c','patterns.c','combat.c','stage.c','video_layout.c']]
+        command += [str(project/'src'/name) for name in ['game.c','patterns.c','combat.c','weapons.c','stage.c','video_layout.c']]
         result = subprocess.run(command+[str(FIXTURE/'collision_reference.c'),str(FIXTURE/'model_test.c'),'-o',str(cls.binary)], capture_output=True,text=True,timeout=60)
         if result.returncode: raise RuntimeError(result.stdout+result.stderr)
 
@@ -58,6 +58,8 @@ class ShooterBehaviorTests(unittest.TestCase):
     def test_power_caps_surplus_score_bomb_edges_and_damage_downgrade(self): self.check('pickups')
     def test_authored_waves_boss_entry_clear_and_restart(self): self.check('waves')
     def test_boss_entry_damage_phase_change_and_single_defeat_award(self): self.check('boss')
+    def test_shield_expiry_single_absorption_and_delayed_radial_bomb(self): self.check('weapons')
+    def test_stage_flow_twin_orbits_upgrades_death_and_boss_guard_windows(self): self.check('stage2')
     def test_nominal_pal_ntsc_cadence_and_frozen_pause(self): self.check('clock')
     def test_authored_attack_scanline_scenarios_leave_headroom(self): self.check('pressure')
     def test_hundred_thousand_mixed_input_steps_stay_bounded(self): self.check('soak')
@@ -73,8 +75,8 @@ class ShooterBehaviorTests(unittest.TestCase):
 
 class ShooterAssetsTests(unittest.TestCase):
     def test_native_indexed_art_sizes_palettes_checksums_and_reproduction(self):
-        sizes={'ship.png':(64,16),'enemies.png':(96,16),'boss.png':(96,32),
-               'bullets.png':(24,8),'pickups.png':(32,16),'effects.png':(64,16),'stars.png':(256,256)}
+        sizes={'ship.png':(64,16),'enemies.png':(96,16),'boss.png':(224,32),
+               'bullets.png':(40,8),'pickups.png':(64,16),'effects.png':(64,16),'utility.png':(128,32),'twins.png':(32,16),'font.png':(768,8),'stars.png':(256,256)}
         for name,data in load_generator('make_assets').assets().items():
             self.assertEqual(data,(LAB/'res'/name).read_bytes())
             offset,compressed=8,bytearray()
@@ -132,7 +134,16 @@ class ShooterAssetsTests(unittest.TestCase):
                     else: self.fail(f'Unexpected VGM command {command}')
                 self.assertEqual(frames*735,struct.unpack_from('<I',data,0x18)[0])
                 self.assertGreater(fm,100); self.assertGreater(psg,10)
-                self.assertEqual(bool(struct.unpack_from('<I',data,0x1C)[0]),name in ('title.vgm','course.vgm','boss.vgm'))
+                self.assertEqual(bool(struct.unpack_from('<I',data,0x1C)[0]),name in ('title.vgm','course.vgm','stage2.vgm','game_over.vgm','boss.vgm'))
+
+    def test_voice_clips_are_bounded_pcm_and_not_silent(self):
+        for name in ['bomb','power','shield','boss','over','twin']:
+            with wave.open(str(LAB/'res'/('voice_'+name+'.wav'))) as wav:
+                self.assertEqual((wav.getnchannels(),wav.getsampwidth(),wav.getframerate()),(1,2,13300))
+                self.assertGreater(wav.getnframes(),3000)
+                self.assertLess(wav.getnframes(),13300*3)
+                samples=struct.unpack('<'+'h'*wav.getnframes(),wav.readframes(wav.getnframes()))
+                self.assertGreater(max(samples)-min(samples),10000)
 
     def test_generators_refuse_to_overwrite_source_assets(self):
         for name in ['make_assets','make_audio']:

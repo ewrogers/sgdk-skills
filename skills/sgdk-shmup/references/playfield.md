@@ -49,11 +49,15 @@ expands before the boss becomes vulnerable or starts firing. Its attack
 cycle moves through aimed fans, rings and a rotating spiral. Below half
 health the fan cadence tightens.
 
-Both shots and bombs use the same damage/defeat path. Defeat awards its bonus
-once, clears hostile bullets and triggers a banner, fanfare and effects.
+Normal shots can defeat the boss; the example bomb leaves at least one HP.
+Defeat awards its bonus once, clears hostile bullets, and starts two seconds
+of explosions and hull dissolution. The resulting star, banner and fanfare
+make the finish distinct from a stopped game.
 
 The end states stop gameplay while keeping display and restart input alive.
-A or Start begins a new run. Pause freezes actor movement, attack clocks and
+The first clear carries score/lives/upgrades into Stage 2 after six seconds
+(or A/Start once the destruction finishes). After the second clear, A/Start
+begins a new run. Game Over keeps display/input alive with a sad looping track. Pause freezes actor movement, attack clocks and
 background scroll; music pauses and active PCM effects are stopped.
 
 ## Scoring and recovery
@@ -64,7 +68,7 @@ it does not wrap into a small number. Extra points replace pickups that would
 exceed the weapon/bomb limit. These are example rules; another game might
 reward grazing, medals, survival time or accuracy instead.
 
-The player has three lives. A hit costs one, lowers weapon power by one and
+The player has three lives. A hit costs one, resets weapon power and removes Twins and
 clears enemy bullets. A surviving player returns to a safe position with two
 seconds of flashing invulnerability. This avoids repeatedly losing lives to
 the same overlapping threat. The lab does not offer SRAM persistence or Continue.

@@ -77,10 +77,10 @@ static void pickups_test(void)
     g.pickups[0]=(Pickup){.x=g.x,.y=g.y,.active=true}; frames(0,1,60); assert(g.power==3);
     g.pickups[0]=(Pickup){.x=g.x,.y=g.y,.active=true}; frames(0,1,60); assert(g.power==3 && g.score==250);
     g.pickups[0]=(Pickup){.x=g.x,.y=g.y,.kind=1,.active=true}; frames(0,1,60); assert(g.bombs==3);
-    frames(B,1,60); assert(g.bombs==2 && g.bomb_flash && g.invulnerable);
+    frames(B,1,60); assert(g.bombs==2 && g.payload.active && !g.bomb_flash);
     frames(B,30,60); assert(g.bombs==2); /* One bomb per press. */
-    frames(0,1,60); frames(B,1,60); assert(g.bombs==1);
-    g.power=3; g.invulnerable=0; game_hurt(&g); assert(g.power==2 && g.combo==0);
+    frames(0,60,60); frames(B,1,60); assert(g.bombs==1);
+    g.power=3; g.invulnerable=0; game_hurt(&g); assert(g.power==1 && g.combo==0);
 }
 static void waves(void)
 {
@@ -96,7 +96,7 @@ static void waves(void)
     assert(g.state==CLEAR && !g.boss.active && g.score>=5000);
     for (u16 i=0;i<BULLET_COUNT;i++) assert(!g.bullets[i].active);
     u32 time=g.ticks; frames(0,120,60); assert(g.ticks==time && g.phase_time>0);
-    frames(START,1,60); assert(g.state==PLAY && g.score==0 && g.lives==3);
+    frames(START,1,60); assert(g.state==PLAY && g.stage==2 && g.score>=5000 && g.lives==3);
 }
 static void boss_test(void)
 {
@@ -110,6 +110,13 @@ static void boss_test(void)
         for (u16 j=0;j<BULLET_COUNT;j++) assert(!g.bullets[j].active);
     }
     Game saved=g; g.paused=true; frames(0,100,60); assert(g.boss.age==saved.boss.age); g.paused=false;
+    g.boss.hp=45; g.boss.age=BOSS_READY_TICKS+119; game_enemies(&g);
+    s16 dive_x=g.boss.x,dive_y=g.boss.y; assert(dive_y==104*UNIT);
+    g.boss.age=BOSS_READY_TICKS+119+720; game_enemies(&g);
+    assert(g.boss.x==dive_x && g.boss.y==dive_y);
+    g.boss.hp=90; g.boss.age=BOSS_READY_TICKS+119; game_enemies(&g);
+    assert(g.boss.y==44*UNIT && g.boss.x!=dive_x);
+    for (u16 i=0;i<BULLET_COUNT;i++) g.bullets[i].active=false;
     g.boss.age=BOSS_READY_TICKS+10; game_boss_damage(&g,44); assert(g.boss.hp==46);
     game_boss_damage(&g,1); assert(g.boss.hp==45);
     g.boss.age=BOSS_READY_TICKS+299; game_enemies(&g);
@@ -126,8 +133,82 @@ static void boss_test(void)
     game_boss_damage(&g,100); assert(g.state==CLEAR && g.score==5000 && g.boss.hp==0);
     game_boss_damage(&g,100); assert(g.score==5000); /* No double award. */
     fresh(); g.state=BOSS; g.boss=(Boss){.age=BOSS_READY_TICKS+10,.hp=10,.active=true};
-    frames(B,1,60); assert(g.state==CLEAR && g.score==5000); /* A bomb can finish too. */
+    game_bomb_launch(&g);
+    for (u16 i=0;i<90;i++) game_bomb_step(&g);
+    assert(g.state==BOSS && g.boss.hp==1 && g.score==0); /* Fire must finish. */
 }
+static void weapons_test(void)
+{
+    fresh(); g.power=3; g.shield=true; g.shield_time=SHIELD_TICKS;
+    game_hurt(&g); assert(g.lives==3 && g.power==3 && !g.shield && g.invulnerable==60);
+    game_hurt(&g); assert(g.lives==3);
+    g.invulnerable=0; game_hurt(&g); assert(g.lives==2 && g.power==1);
+    fresh(); g.pickups[0]=(Pickup){.x=g.x,.y=g.y,.kind=2,.active=true};
+    frames(0,1,60); assert(g.shield && g.shield_time==SHIELD_TICKS && g.pickup_kind==2);
+    g.invulnerable=30000; frames(0,SHIELD_TICKS-1,60); assert(g.shield);
+    frames(0,1,60); assert(!g.shield && !g.shield_time);
+
+    fresh(); g.bombs=0; frames(B,1,60); assert((g.events&EVENT_BOMB_EMPTY) && !g.payload.active);
+    frames(B,1,60); assert(!(g.events&EVENT_BOMB_EMPTY));
+    fresh(); game_bomb_launch(&g); assert(g.payload.active && g.bombs==1);
+    game_bomb_launch(&g); assert(g.bombs==1); /* No overlapping payloads. */
+    g.bullets[0]=(Bullet){.x=g.x,.y=g.y-12*UNIT,.active=true};
+    g.bullets[1]=(Bullet){.x=g.x,.y=0,.active=true};
+    for (u16 i=0;i<BOMB_ARM_TICKS-1;i++) game_bomb_step(&g);
+    assert(g.bullets[0].active && g.bullets[1].active && !g.payload.radius);
+    game_bomb_step(&g); assert(g.payload.radius==10 && g.bullets[0].active && (g.events&EVENT_BLAST));
+    game_bomb_step(&g); assert(!g.bullets[0].active && g.bullets[1].active);
+    Game saved=g; g.paused=true; frames(0,100,60);
+    assert(!memcmp(&saved.payload,&g.payload,sizeof g.payload)); g.paused=false;
+    while (g.payload.active) game_bomb_step(&g);
+    assert(!g.bullets[1].active);
+    fresh(); g.state=BOSS; g.boss=(Boss){.x=g.x,.y=g.y,.age=BOSS_READY_TICKS,.hp=90,.active=true};
+    game_bomb_launch(&g);
+    for (u16 i=0;i<100;i++) game_bomb_step(&g);
+    assert(g.boss.hp==70 && g.payload.boss_hit); /* One bounded hit per blast. */
+}
+
+static void stage2_test(void)
+{
+    fresh(); g.score=5000; g.lives=2; g.power=3; g.twins=2;
+    g.state=CLEAR; g.phase_time=BOSS_DEATH_TICKS;
+    frames(START,1,60);
+    assert(g.stage==2 && g.state==PLAY && g.score==5000 && g.lives==2 && g.power==3 && g.twins==2);
+    fresh(); g.state=CLEAR; g.phase_time=359; frames(0,1,60);
+    assert(g.stage==2 && g.state==PLAY);
+    g.state=CLEAR; g.phase_time=BOSS_DEATH_TICKS; frames(A,1,60);
+    assert(g.stage==1 && g.score==0 && g.twins==0);
+
+    fresh(); g.stage=2; g.state=BOSS;
+    g.boss=(Boss){.x=120*UNIT,.y=40*UNIT,.age=BOSS_READY_TICKS,.hp=90,.active=true};
+    assert(game_boss_guarded(&g)); game_boss_damage(&g,10); assert(g.boss.hp==90);
+    game_shot(&g,g.boss.x,g.boss.y,0,0); game_projectiles(&g);
+    assert(!g.shots[0].active && g.boss.hp==90);
+    g.boss.age=BOSS_READY_TICKS+45; assert(!game_boss_guarded(&g));
+    game_boss_damage(&g,10); assert(g.boss.hp==80);
+    g.boss.hp=45; g.boss.age=BOSS_READY_TICKS+60; assert(game_boss_guarded(&g));
+    g.stage=1; assert(!game_boss_guarded(&g));
+
+    fresh(); g.stage=2; g.twins=2;
+    for (u16 tick=0;tick<256;tick++)
+    {
+        g.ticks=tick; s16 x0,y0,x1,y1; game_twin_point(&g,0,&x0,&y0); game_twin_point(&g,1,&x1,&y1);
+        assert(x0+x1==2*g.x && y0+y1==2*g.y);
+        s32 dx=x0-g.x,dy=y0-g.y;
+        assert(dx*dx+dy*dy>=18*18*UNIT*UNIT && dx*dx+dy*dy<=21*21*UNIT*UNIT);
+        g.x+=UNIT; game_twin_point(&g,0,&x1,&y1); assert(x1==x0+UNIT && y1==y0); g.x-=UNIT;
+    }
+    g.ticks=0; frames(A,1,60);
+    u16 count=0; for (u16 i=0;i<SHOT_COUNT;i++) if (g.shots[i].active) { count++; assert(g.shots[i].vy==-6*UNIT); }
+    assert(count==3);
+    fresh(); g.stage=2; g.ticks=239; g.invulnerable=30000; frames(0,1,60);
+    assert(g.pickups[0].active && g.pickups[0].kind==3);
+    for (u16 i=0;i<3;i++)
+    { g.pickups[0]=(Pickup){.x=g.x,.y=g.y,.kind=3,.active=true}; frames(0,1,60); }
+    assert(g.twins==2 && g.score==250);
+    g.invulnerable=0; g.power=3; game_hurt(&g); assert(g.twins==0 && g.power==1);
+}
+
 static void clock_test(void)
 {
     fresh(); g.invulnerable=10000; frames(A|C,600,60); Game ntsc=g;
@@ -157,10 +238,20 @@ static void pressure(void)
             if (route%4==1) g.x=40*UNIT;
             else if (route%4==2) g.x=200*UNIT;
             else if (route%4==3) g.x=(20+tick%200)*UNIT;
-            frames(route>=4?A:0,1,60);
+            g.shield=true; g.shield_time=SHIELD_TICKS; g.twins=2;
+            if (tick%360==0) g.bombs=3;
+            frames((route>=4?A:0)|(tick%360==0?B:0),1,60);
             if (g.state==BOSS && g.boss.age>300) g.boss.hp=45;
             u16 counts[224]={0},pixels[224]={0};
             count_sprite(counts,pixels,g.x,g.y,16,true);
+            count_sprite(counts,pixels,g.x,g.y,32,g.shield);
+            count_sprite(counts,pixels,g.boss.x,g.boss.y,32,game_boss_guarded(&g));
+            for (u16 i=0;i<g.twins;i++)
+            { s16 x,y; game_twin_point(&g,i,&x,&y); count_sprite(counts,pixels,x,y,16,true); }
+            count_sprite(counts,pixels,g.payload.x,g.payload.y,32,g.payload.active && g.payload.age<BOMB_ARM_TICKS);
+            if (g.payload.active && g.payload.radius>=20)
+                for (u16 i=0;i<8;i++)
+                { s16 x,y; game_blast_point(&g,i,&x,&y); count_sprite(counts,pixels,x,y,16,true); }
             count_sprite(counts,pixels,g.boss.x,g.boss.y,32,g.boss.active);
             for (u16 i=0;i<BULLET_COUNT;i++) count_sprite(counts,pixels,g.bullets[i].x,g.bullets[i].y,8,g.bullets[i].active);
             for (u16 i=0;i<ENEMY_COUNT;i++) count_sprite(counts,pixels,g.enemies[i].x,g.enemies[i].y,16,g.enemies[i].active);
@@ -172,7 +263,7 @@ static void pressure(void)
         }
     }
     fprintf(stderr,"Authored scanline peak: %u sprites / %u pixels\n",peak,pixel_peak);
-    assert(peak<=16 && pixel_peak<=256); /* Keep space for player shots/effects. */
+    assert(peak<=18 && pixel_peak<=288); /* Keep space for player shots/effects. */
 }
 static void soak(void)
 {
@@ -204,6 +295,7 @@ static void equivalence(void)
     for (u16 trial=0;trial<12000;trial++)
     {
         fresh(); g.x=next_random(240*UNIT); g.y=next_random(224*UNIT);
+        g.shield=next_random(2); g.shield_time=g.shield?SHIELD_TICKS:0;
         g.invulnerable=next_random(2)?0:120; g.kills=next_random(12); g.power=next_random(3)+1;
         for (u16 i=0;i<ENEMY_COUNT;i++)
             g.enemies[i]=(Enemy){.x=next_random(240*UNIT),.y=next_random(224*UNIT),
@@ -232,6 +324,8 @@ int main(int argc,char **argv)
     else if (!strcmp(argv[1],"pickups")) pickups_test();
     else if (!strcmp(argv[1],"waves")) waves();
     else if (!strcmp(argv[1],"boss")) boss_test();
+    else if (!strcmp(argv[1],"weapons")) weapons_test();
+    else if (!strcmp(argv[1],"stage2")) stage2_test();
     else if (!strcmp(argv[1],"clock")) clock_test();
     else if (!strcmp(argv[1],"pressure")) pressure();
     else if (!strcmp(argv[1],"soak")) soak();

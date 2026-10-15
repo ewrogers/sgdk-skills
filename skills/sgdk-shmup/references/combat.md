@@ -37,7 +37,7 @@ player is next to an emitter. Delay or telegraph shots when the game needs it.
 
 ## Pools and exhaustion
 
-The example reserves 32 hostile bullets, 12 player shots, six enemies, three
+The example reserves 32 hostile bullets, 16 player shots, six enemies, three
 pickups and six effects. Records are reused in stable index order. A ring or
 fan requires enough free hostile slots for the entire volley; otherwise the
 whole volley is skipped and a diagnostic counter increments. A single aimed
@@ -80,15 +80,27 @@ proof that collision should continue unchanged.
 
 ## Upgrades and bombs
 
+Stage 2 adds purple T pickups for up to two orbiting satellites. Their upward
+fire shares the player-shot pool at half the main firing cadence. A third T
+becomes points. Losing a life removes all Twins and resets weapon power.
+
 The P pickup upgrades from one shot to a pair, then a three-way weapon. The B
 pickup replenishes bombs, capped at three. Guaranteed upgrades supplement drops
 in the lab so the example remains approachable after misses. Another game can
 use a different drop rule or no weapon progression.
 
-A bomb is a press-edge action. It clears hostile bullets, defeats ordinary
-enemies, damages a vulnerable boss and gives temporary invulnerability. It can
-finish the boss through the same defeat path as normal fire. At zero stock it
-does nothing; holding B does not repeatedly spend bombs.
+A bomb is a press-edge action. This lab drops one payload at the ship's current
+position, arms it for 45 nominal ticks, then expands a circular blast for 40
+ticks. Bullets and enemies retire when reached, rather than disappearing all
+at once. A vulnerable boss takes up to 20 damage once; this example deliberately
+leaves at least one HP for normal fire. At zero stock, or with a payload already
+active, the request does nothing. Holding B does not repeatedly spend bombs.
+The arming delay does not grant invulnerability: keep dodging.
+
+The green S pickup enables a one-hit shield for 600 nominal ticks. A hit breaks
+it and grants one second of recovery without reducing lives or power. Expiry
+removes an unused shield; another S refreshes it. These are game rules, not
+hardware or SGDK restrictions.
 
 Keep power state, the active attack and one-frame presentation events separate.
 The PAL second step must not replay a bomb or turn an old firing event into
