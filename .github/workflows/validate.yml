@@ -79,6 +79,7 @@ jobs:
             build/integration/**/report.json
             build/integration/**/*.log
             build/cartridge-integration/bank-report.json
+            build/scenes-integration/scenes-report.json
 
   compare:
     name: Compare generated ROMs
@@ -108,4 +109,10 @@ jobs:
           banks = {arch: json.loads(paths[0].read_text()) for arch, paths in bank_reports.items()}
           assert all(report["passed"] for report in banks.values())
           assert banks["amd64"]["hashes"] == banks["arm64"]["hashes"], banks
-          print("Standard and banked release/debug ROMs match across native ARM64 and AMD64.")
+          scene_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("scenes-report.json"))
+                           for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in scene_reports.values()), scene_reports
+          scenes = {arch: json.loads(paths[0].read_text()) for arch, paths in scene_reports.items()}
+          assert all(report["passed"] for report in scenes.values())
+          assert scenes["amd64"]["hashes"] == scenes["arm64"]["hashes"], scenes
+          print("Standard, banked and transition release/debug ROMs match across native ARM64 and AMD64.")
