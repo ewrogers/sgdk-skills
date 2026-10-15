@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Create original PSG music and PCM effects for Sound Lab, without replacing files."""
 import argparse
-import io
 from pathlib import Path
 import struct
-import wave
 
 
 def music():
@@ -37,11 +35,13 @@ def effect(period, length):
         phase = i % period
         triangle = (4 * min(phase, period - phase) * 80 // period) - 80
         samples.append(128 + triangle * (length - i) // length)
-    out = io.BytesIO()
-    with wave.open(out, "wb") as wav:
-        wav.setparams((1, 1, 13300, length, "NONE", "not compressed"))
-        wav.writeframes(samples)
-    return out.getvalue()
+    # RIFF chunks have even-byte padding, excluded from their declared size.
+    # Older Python wave writers omit this for odd lengths; write our one fixed
+    # PCM format explicitly so regeneration is identical on supported versions.
+    fmt = struct.pack("<HHIIHH", 1, 1, 13300, 13300, 1, 8)
+    body = (b"WAVEfmt " + struct.pack("<I", len(fmt)) + fmt
+            + b"data" + struct.pack("<I", length) + samples + bytes(length % 2))
+    return b"RIFF" + struct.pack("<I", len(body)) + body
 
 
 def assets():

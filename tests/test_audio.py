@@ -72,6 +72,8 @@ class AudioAssetTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual(data, (LAB / "res" / name).read_bytes())
                 if name.endswith(".wav"):
+                    self.assertEqual(struct.unpack_from("<I", data, 4)[0] + 8, len(data))
+                    self.assertEqual(len(data) % 2, 0)
                     with wave.open(io.BytesIO(data)) as wav:
                         self.assertEqual((wav.getnchannels(), wav.getsampwidth(), wav.getframerate()), (1, 1, 13300))
                         frames = wav.readframes(wav.getnframes())
