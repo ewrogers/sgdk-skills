@@ -58,7 +58,10 @@ class CartridgeBehaviorTests(unittest.TestCase):
 class CartridgeAssetTests(unittest.TestCase):
     def test_generator_reproduces_stage_art_palettes_and_original_fm(self):
         assets = module('bank_assets', 'make_assets.py').assets()
-        for name, data in assets.items(): self.assertEqual(data, (LAB / 'res' / name).read_bytes(), name)
+        for name, data in assets.items():
+            source = LAB / 'res' / name
+            checked_in = source.read_text().encode() if source.suffix == '.inc' else source.read_bytes()
+            self.assertEqual(data, checked_in, name)
         self.assertNotEqual(assets['music_a.vgm'], assets['music_b.vgm'])
         for name in ['a', 'b']:
             music = assets[f'music_{name}.vgm']

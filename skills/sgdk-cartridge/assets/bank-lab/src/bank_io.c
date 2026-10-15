@@ -2,7 +2,7 @@
 
 bool bank_copy(void *destination, u16 capacity, const void *physical, u16 count)
 {
-    u32 address = (u32)(unsigned long)physical;
+    u32 address = (u32)(BankAddress)physical;
     if (!destination || !physical || !count || count > capacity ||
         address >= BANK_ROM_BYTES || count > BANK_ROM_BYTES - address) return FALSE;
     /* No other FAR producer runs between mapping and this immediate copy.
@@ -15,7 +15,7 @@ bool bank_copy(void *destination, u16 capacity, const void *physical, u16 count)
 
 bool bank_audio_select(const u8 *physical, u32 length, bool play)
 {
-    u32 address = (u32)(unsigned long)physical;
+    u32 address = (u32)(BankAddress)physical;
     u32 offset = address & (BANK_SIZE - 1);
     if (!physical || !length || (address & 255) || address >= BANK_ROM_BYTES ||
         length > BANK_SIZE - offset || length > BANK_ROM_BYTES - address) return FALSE;
@@ -23,7 +23,7 @@ bool bank_audio_select(const u8 *physical, u32 length, bool play)
        driver and quiesces all old music/PCM readers before the mapper write. */
     Z80_unloadDriver();
     SYS_setBank(BANK_AUDIO_WINDOW, address / BANK_SIZE);
-    const u8 *mapped = (const u8 *)(unsigned long)(BANK_AUDIO_WINDOW * BANK_SIZE + offset);
+    const u8 *mapped = (const u8 *)(BankAddress)(BANK_AUDIO_WINDOW * BANK_SIZE + offset);
     XGM2_load(mapped);
     XGM2_setLoopNumber(-1);
     if (play) XGM2_playTrack(0);

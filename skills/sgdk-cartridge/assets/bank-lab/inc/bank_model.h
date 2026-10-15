@@ -2,6 +2,7 @@
 #define BANK_LAB_MODEL_H
 #ifdef __m68k__
 #include <types.h>
+typedef u32 BankAddress;
 #else
 #include <stdbool.h>
 #include <stdint.h>
@@ -9,6 +10,7 @@ typedef uint8_t u8;
 typedef uint16_t u16;
 typedef int16_t s16;
 typedef uint32_t u32;
+typedef uintptr_t BankAddress;
 #endif
 
 enum { BANK_SAVE_BYTES = 16, BANK_STAGE_COUNT = 2,

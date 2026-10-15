@@ -12,7 +12,7 @@ static bool fail_write;
 static const u8 *loaded;
 void *SYS_getFarDataSafe(void *p, u32 size)
 {
-    u32 addr = (u32)(unsigned long)p;
+    u32 addr = (u32)(BankAddress)p;
     assert(size && addr + size <= BANK_ROM_BYTES);
     u32 bank = addr / BANK_SIZE, offset = addr % BANK_SIZE;
     banks[6] = bank; banks[7] = bank + 1; ++mappings;
@@ -95,10 +95,10 @@ static void audio(void)
 {
     assert(bank_audio_select((void *)0x480100UL, 768, true));
     assert(unload_order < map_order && map_order < load_order && load_order < play_order);
-    assert(banks[3] == 9 && (unsigned long)loaded == 0x180100UL);
+    assert(banks[3] == 9 && (BankAddress)loaded == 0x180100UL);
     unsigned played = plays;
     assert(bank_audio_select((void *)0x580000UL, 768, false)); assert(plays == played);
-    assert(banks[3] == 11 && (unsigned long)loaded == 0x180000UL);
+    assert(banks[3] == 11 && (BankAddress)loaded == 0x180000UL);
     u8 copy[32]; assert(bank_copy(copy, 32, (void *)0x47FFF0UL, 32)); assert(banks[3] == 11);
     unsigned before = calls;
     assert(!bank_audio_select((void *)0x480001UL, 256, true));
