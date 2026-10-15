@@ -11,6 +11,7 @@ on your computer, and use an agent to help with setup, assets and debugging.
 | [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
 | [sgdk-graphics](skills/sgdk-graphics/SKILL.md) | Display sprites, play animations, scroll backgrounds and add palette effects. |
+| [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
 | [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
 
@@ -43,6 +44,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-planning to plan a small platformer and identify what to prove first."
 - "Use sgdk-assets to import this spritesheet and check its palette budget."
 - "Use sgdk-graphics to animate a character over a scrolling background with a fixed HUD."
+- "Use sgdk-audio to add music, prioritized effects and a pause-menu transition."
 - "Use sgdk-input to add 3/6-button pad and mouse controls, with Team Player support."
 - "Use sgdk-debug to investigate this fault using the matching ELF file."
 

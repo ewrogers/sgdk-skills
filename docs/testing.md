@@ -11,7 +11,7 @@ Run the Python tests from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-Python checks use the standard library. Input and graphics behavior tests also need a C17
+Python checks use the standard library. Input, graphics and audio behavior tests also need a C17
 compiler (`clang`, `cc` or `gcc`) to execute the actual example modules with a
 fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
 host checks on macOS, Linux and Windows without requiring Docker. Docker tests
@@ -73,6 +73,16 @@ to read the compiled sprite's dimensions, animation counts and per-frame holds.
 The scrolling lab uses wrapping planes; the large-map and line/column guidance
 has API compatibility checks, not an executed map-streaming test. Follow the
 lab's visual checklist to check the screen and frame timing separately.
+
+Audio tests execute Sound Lab's command edges, pending playback status,
+pause/resume, completion, effect acceptance/rejection and fade ownership against
+a recording SDK fixture. They do not simulate the Z80 mixer or test its priority
+algorithm. Asset checks validate the original VGM's timing/loop commands, WAV
+format and reproducibility, and overwrite protection. Docker checks API contracts,
+builds release/debug ROMs, and verifies linked audio addresses, padded lengths
+and zero-filled sample tails. The lab's music is a PSG fixture; FM instruments,
+music percussion, audible transitions, PAL playback and graphics-DMA contention
+still require listening checks with representative content.
 
 ## Architectures and image versions
 
