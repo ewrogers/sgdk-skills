@@ -63,7 +63,7 @@ void sound_frame(const Game *game)
         const u8 *voice=NULL; u32 length=0;
         if (game->state==OVER && game->phase_time>=45 && !over_announced) { voice=voice_over; length=sizeof voice_over; over_announced=true; }
         else if (game->events&EVENT_BOSS) { voice=voice_boss; length=sizeof voice_boss; }
-        else if (!announcing)
+        else if ((game->events&EVENT_PICKUP) || !announcing)
         {
             if (game->events&EVENT_PICKUP)
             {
@@ -74,7 +74,7 @@ void sound_frame(const Game *game)
             }
             else if (game->events&EVENT_BOMB) { voice=voice_bomb; length=sizeof voice_bomb; }
         }
-        if (voice) { announcing=XGM2_playPCM(voice,length,SOUND_PCM_CH3); }
+        if (voice) { XGM2_stopPCM(SOUND_PCM_CH3); announcing=XGM2_playPCM(voice,length,SOUND_PCM_CH3); }
         else if (!announcing)
         {
             if (game->events&(EVENT_HURT|EVENT_SHIELD_BREAK)) XGM2_playPCM(hit_sound,sizeof hit_sound,SOUND_PCM_CH3);

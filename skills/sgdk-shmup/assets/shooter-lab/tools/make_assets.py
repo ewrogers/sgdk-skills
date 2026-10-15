@@ -106,7 +106,22 @@ def assets():
                 reach=13 if frame==5 else 10
                 if dx+dy<(8 if frame==5 else 6) or (min(dx,dy)<2 and max(dx,dy)<reach):
                     boss.dot(frame,x,y,6 if dx+dy<4 else 11)
-    bullets=Sheet(8,8,5)
+    # Aegis has a recognisable H hull, separate from the Warden silhouette.
+    reaver=Sheet(32,32,7)
+    for f in range(3):
+        for x in (2,23):
+            reaver.box(f,x,3,7,26,1)
+            reaver.box(f,x+1,4,5,24,13 if f==2 else 3)
+            reaver.box(f,x+2,6,2,18,14 if f==2 else 10)
+        reaver.box(f,8,12,16,8,2)
+        reaver.box(f,12,10,8,12,4)
+        reaver.box(f,14,12,4,8,15 if f==2 else 11)
+    for f in range(3,7):
+        for y in range(32):
+            for x in range(32):
+                c=boss.data[y*32*7+f*32+x] if f>=5 else reaver.data[y*32*7+x]
+                if f>=5 or (x//3+y//3)%4>=f-2: reaver.dot(f,x,y,c)
+    bullets=Sheet(8,8,8)
     for f in range(3):
         for y in range(8):
             for x in range(8):
@@ -114,6 +129,12 @@ def assets():
                 if f==1 and (2*x-7)**2+(2*y-7)**2<=32: bullets.dot(f,x,y,2 if x+y>8 else 4)
                 if f==2 and abs(x-3)+abs(y-3)<=3: bullets.dot(f,x,y,10 if abs(x-3)+abs(y-3)>1 else 15)
     bullets.dot(3,3,3,10); bullets.dot(4,3,3,13)
+    for y in range(8):
+        for x in range(8):
+            dx,dy=abs(2*x-7),abs(2*y-7)
+            if dx+dy<=8: bullets.dot(5,x,y,15 if dx+dy<4 else 10)
+            if 12<=dx*dx+dy*dy<=45: bullets.dot(6,x,y,14)
+            if dx<=1 or dy<=1: bullets.dot(7,x,y,15 if dx+dy<4 else 3)
     pickups=Sheet(16,16,4)
     for f in range(4):
         pickups.box(f,2,2,12,12,8 if f==2 else 12 if f==3 else 8 if not f else 12); pickups.box(f,3,3,10,10,9 if f==2 else 13 if f==3 else 10 if not f else 13)
@@ -132,7 +153,7 @@ def assets():
         for y in range(16):
             for x in range(16):
                 d=(x-7)**2+(y-7)**2
-                if d<38: twins.dot(f,x,y,13 if d>22 else 6)
+                if d<38: twins.dot(f,x,y,12 if d>22 else 4)
         twins.box(f,6,4,3,5,15); twins.box(f,6,12,3,2,11 if f else 10)
     utility=Sheet(32,32,4)
     for phase in range(2):
@@ -157,9 +178,9 @@ def assets():
         stars[y*256+x]=3+i%4
         if i%17==0 and x<255: stars[y*256+x+1]=3
     return {'ship.png':ship.image(PALETTES[1]),'enemies.png':enemies.image(PALETTES[2]),
-            'boss.png':boss.image(PALETTES[2]),'bullets.png':bullets.image(PALETTES[3]),
+            'boss.png':boss.image(PALETTES[2]),'reaver.png':reaver.image(PALETTES[2]),'bullets.png':bullets.image(PALETTES[3]),
             'pickups.png':pickups.image(PALETTES[3]),'effects.png':effects.image(PALETTES[3]),
-            'font.png':png(768,8,font_pixels(),PALETTES[3]),'twins.png':twins.image(PALETTES[2]),'utility.png':utility.image(PALETTES[3]),'stars.png':png(256,256,stars,PALETTES[0])}
+            'font.png':png(768,8,font_pixels(),PALETTES[3]),'twins.png':twins.image(PALETTES[1]),'utility.png':utility.image(PALETTES[3]),'stars.png':png(256,256,stars,PALETTES[0])}
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('output',type=Path)
@@ -167,6 +188,6 @@ def main():
     if any((args.output/name).exists() for name in files): parser.error('Choose a new output folder; source art exists')
     args.output.mkdir(parents=True,exist_ok=True)
     for name,data in files.items(): (args.output/name).write_bytes(data)
-    print('Created ten original native-resolution indexed sheets')
+    print(f'Created {len(files)} original native-resolution indexed sheets')
 
 if __name__=='__main__': main()

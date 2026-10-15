@@ -1,15 +1,18 @@
 #include <genesis.h>
 #include "resources.h"
 #include "view.h"
+#include "sprite_list.h"
 
 #define CACHE_TILES FRAME_CACHE_TILES
-static Sprite *ship,*boss,*enemies[ENEMY_COUNT],*shots[SHOT_COUNT],*bullets[BULLET_COUNT];
-static Sprite *pickups[PICKUP_COUNT],*effects[EFFECT_COUNT];
-static Sprite *barrier,*boss_guard,*payload,*blast[8],*twins[2];
+static Actor actors[78];
+static u16 actor_count;
+static Actor *ship,*boss,*enemies[ENEMY_COUNT],*shots[SHOT_COUNT],*bullets[BULLET_COUNT];
+static Actor *pickups[PICKUP_COUNT],*effects[EFFECT_COUNT];
+static Actor *barrier,*boss_guard,*payload,*blast[8],*twins[2];
 static u16 twin_tiles[2];
 static u16 old_guard=65535;
-static u16 ship_tiles[4],enemy_tiles[6],boss_tiles[7],bullet_tiles[5],pickup_tiles[4],effect_tiles[4],utility_tiles[4];
-static u16 clip_width=FIELD_W;
+static u16 ship_tiles[4],enemy_tiles[6],boss_tiles[7],bullet_tiles[8],reaver_tiles[7],pickup_tiles[4],effect_tiles[4],utility_tiles[4];
+
 static bool clear_banner;
 static u16 title_tile,hud_gold,hud_blue;
 static const char hud_glyphs[]=" 0123456789POWERBMSCHAIN";
@@ -28,16 +31,21 @@ static bool cache(const SpriteDefinition *definition,u16 *indices,u16 length,u16
     u16 count;
     u16 **frames=SPR_loadAllFrames(definition,*tile,&count);
     if (!frames) return false;
-    for (u16 i=0;i<length;i++) indices[i]=frames[0][i];
+    for (u16 i=0;i<length;i++)
+    {
+        if ((definition->animations[0]->frames[i]->numSprite&0x7F)!=1)
+        { MEM_free(frames); return false; }
+        indices[i]=frames[0][i];
+    }
     MEM_free(frames); *tile+=count;
     return *tile<=TILE_FONT_INDEX;
 }
-static Sprite *make_sprite(const SpriteDefinition *definition,u16 palette,u16 tile,u16 depth)
+static Actor *make_actor(const SpriteDefinition *definition,u16 palette)
 {
-    Sprite *sprite=SPR_addSpriteEx(definition,0,0,TILE_ATTR_FULL(palette,FALSE,FALSE,FALSE,tile),0);
-    if (sprite)
-    { SPR_setAutoAnimation(sprite,FALSE); SPR_setVisibility(sprite,HIDDEN); SPR_setDepth(sprite,depth); }
-    return sprite;
+    if (actor_count>=78) return NULL;
+    Actor *actor=&actors[actor_count++];
+    *actor=(Actor){definition,palette};
+    return actor;
 }
 
 bool view_start(void)
@@ -93,43 +101,32 @@ bool view_start(void)
     VDP_setBackgroundColor(1);
     u16 tile=TILE_FONT_INDEX-CACHE_TILES;
     if (!cache(&ship_image,ship_tiles,4,&tile) || !cache(&enemy_image,enemy_tiles,6,&tile) ||
-        !cache(&boss_image,boss_tiles,7,&tile) || !cache(&bullet_image,bullet_tiles,5,&tile) ||
+        !cache(&boss_image,boss_tiles,7,&tile) || !cache(&reaver_image,reaver_tiles,7,&tile) || !cache(&bullet_image,bullet_tiles,8,&tile) ||
         !cache(&pickup_image,pickup_tiles,4,&tile) || !cache(&effect_image,effect_tiles,4,&tile) || !cache(&utility_image,utility_tiles,4,&tile) || !cache(&twin_image,twin_tiles,2,&tile)) FAIL("FRAME CACHE RESERVATION");
-    ship=make_sprite(&ship_image,PAL1,ship_tiles[0],0);
-    boss=make_sprite(&boss_image,PAL2,boss_tiles[0],2);
+    ship=make_actor(&ship_image,PAL1);
+    boss=make_actor(&boss_image,PAL2);
     if (!ship || !boss) FAIL("PLAYER/BOSS SPRITE ALLOCATION");
     for (u16 i=0;i<BULLET_COUNT;i++)
-    { bullets[i]=make_sprite(&bullet_image,PAL3,bullet_tiles[1],1); if (!bullets[i]) FAIL("HOSTILE SPRITE ALLOCATION"); }
+    { bullets[i]=make_actor(&bullet_image,PAL3); if (!bullets[i]) FAIL("HOSTILE SPRITE ALLOCATION"); }
     for (u16 i=0;i<SHOT_COUNT;i++)
-    { shots[i]=make_sprite(&bullet_image,PAL3,bullet_tiles[0],3); if (!shots[i]) FAIL("PLAYER SHOT ALLOCATION"); }
+    { shots[i]=make_actor(&bullet_image,PAL3); if (!shots[i]) FAIL("PLAYER SHOT ALLOCATION"); }
     for (u16 i=0;i<ENEMY_COUNT;i++)
-    { enemies[i]=make_sprite(&enemy_image,PAL2,enemy_tiles[0],2); if (!enemies[i]) FAIL("ENEMY SPRITE ALLOCATION"); }
+    { enemies[i]=make_actor(&enemy_image,PAL2); if (!enemies[i]) FAIL("ENEMY SPRITE ALLOCATION"); }
     for (u16 i=0;i<PICKUP_COUNT;i++)
-    { pickups[i]=make_sprite(&pickup_image,PAL3,pickup_tiles[0],3); if (!pickups[i]) FAIL("PICKUP SPRITE ALLOCATION"); }
+    { pickups[i]=make_actor(&pickup_image,PAL3); if (!pickups[i]) FAIL("PICKUP SPRITE ALLOCATION"); }
     for (u16 i=0;i<EFFECT_COUNT;i++)
-    { effects[i]=make_sprite(&effect_image,PAL3,effect_tiles[0],4); if (!effects[i]) FAIL("EFFECT SPRITE ALLOCATION"); }
+    { effects[i]=make_actor(&effect_image,PAL3); if (!effects[i]) FAIL("EFFECT SPRITE ALLOCATION"); }
     for (u16 i=0;i<2;i++)
-    { twins[i]=make_sprite(&twin_image,PAL2,twin_tiles[0],0); if (!twins[i]) FAIL("TWIN SPRITE ALLOCATION"); }
-    boss_guard=make_sprite(&utility_image,PAL3,utility_tiles[0],0);
-    barrier=make_sprite(&utility_image,PAL3,utility_tiles[0],0);
-    payload=make_sprite(&utility_image,PAL3,utility_tiles[2],1);
+    { twins[i]=make_actor(&twin_image,PAL1); if (!twins[i]) FAIL("TWIN SPRITE ALLOCATION"); }
+    boss_guard=make_actor(&utility_image,PAL3);
+    barrier=make_actor(&utility_image,PAL3);
+    payload=make_actor(&utility_image,PAL3);
     if (!boss_guard || !barrier || !payload) FAIL("UTILITY SPRITE ALLOCATION");
     for (u16 i=0;i<8;i++)
-    { blast[i]=make_sprite(&effect_image,PAL3,effect_tiles[1],1); if (!blast[i]) FAIL("BLAST SPRITE ALLOCATION"); }
+    { blast[i]=make_actor(&effect_image,PAL3); if (!blast[i]) FAIL("BLAST SPRITE ALLOCATION"); }
     return true;
 }
 
-static void place(Sprite *sprite,s16 x,s16 y,u16 size,bool active,u16 frame,const u16 *tiles)
-{
-    x=x/UNIT-size/2; y=y/UNIT-size/2;
-    /* Window's opaque, high-priority panel masks the visible part outside the
-     * playfield. The simulation never admits player motion behind that panel. */
-    active=active && x+size>0 && x<clip_width && y+size>0 && y<FIELD_H;
-    if (SPR_getVisibility(sprite)!=(active?VISIBLE:HIDDEN)) SPR_setVisibility(sprite,active?VISIBLE:HIDDEN);
-    if (!active) return;
-    SPR_setPosition(sprite,x,y); if (sprite->frameInd!=frame) SPR_setFrame(sprite,frame);
-    if ((sprite->attribut&0x7FF)!=tiles[frame]) SPR_setVRAMTileIndex(sprite,tiles[frame]);
-}
 static void text_ink(const char *value,u16 row,u16 base,u16 palette)
 {
     char line[10]; u16 i=0;
@@ -226,12 +223,14 @@ static void boss_bar(const Game *game)
 
 void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
 {
+    sprite_list_begin(game->state==TITLE?320:FIELD_W);
+    boss->definition=game->stage==2?&reaver_image:&boss_image;
+    const u16 *current_boss_tiles=game->stage==2?reaver_tiles:boss_tiles;
     bool changed=!drawn || game->state!=old_state;
-    clip_width=game->state==TITLE?320:FIELD_W;
     if (changed)
     {
         clear_banner=false;
-        for (u16 i=0;i<BULLET_COUNT;i++) SPR_setPalette(bullets[i],game->state==TITLE?PAL1:PAL3);
+        for (u16 i=0;i<BULLET_COUNT;i++) bullets[i]->palette=game->state==TITLE?PAL1:PAL3;
         /* BG_A is a stationary message layer; stars scroll on BG_B. */
         VDP_setTextPlane(BG_A); VDP_clearTextArea(0,0,40,28);
         VDP_setWindowHPos(game->state!=TITLE,game->state==TITLE?0:15);
@@ -261,51 +260,52 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
     VDP_setVerticalScroll(BG_B,-(s16)((game->state==TITLE?frame/3:game->ticks/2)&255));
     bool running=game->state==PLAY || game->state==BOSS;
     u16 phase=(game->ticks/5)&1;
-    place(ship,game->x,game->y,16,running && (!game->invulnerable || !(game->ticks&4)),phase+((held&C)?2:0),ship_tiles);
+    sprite_list_place(ship,game->x,game->y,16,running && (!game->invulnerable || !(game->ticks&4)),phase+((held&C)?2:0),ship_tiles);
+    /* Player first, then damaging bullets, before decorative blast effects. */
+    for (u16 i=0;i<BULLET_COUNT;i++)
+        if (game->state==TITLE)
+        {
+            s16 x=(s16)((i*73+frame/(1+i%3))%336)-8;
+            s16 y=(s16)((i*47+frame/(1+i%2))%240)-8;
+            sprite_list_place(bullets[i],x*UNIT,y*UNIT,8,true,3+(i&1),bullet_tiles);
+        }
+        else sprite_list_place(bullets[i],game->bullets[i].x,game->bullets[i].y,8,running && game->bullets[i].active,game->bullets[i].kind?4+game->bullets[i].kind:1,bullet_tiles);
     if (game->state==CLEAR)
     {
         u16 time=game->phase_time;
         u16 dying=time<30?(time/6)&1:time<60?3:time<90?4:5+((time/12)&1);
-        place(boss,game->boss.x,game->boss.y+(time>=90?((s16)((time/8)%8)<4?(s16)((time/8)%8):(s16)(7-(time/8)%8))*UNIT:0),32,time>=30 || (time&3)!=0,dying,boss_tiles);
+        sprite_list_place(boss,game->boss.x,game->boss.y+(time>=90?((s16)((time/8)%8)<4?(s16)((time/8)%8):(s16)(7-(time/8)%8))*UNIT:0),32,time>=30 || (time&3)!=0,dying,current_boss_tiles);
     }
-    else place(boss,game->boss.x,game->boss.y,32,running && game->boss.active && game->boss.age>=BOSS_WARNING_TICKS,
-          game->boss.hp<=BOSS_HEALTH/2?2:(game->ticks/12)&1,boss_tiles);
-    place(boss_guard,game->boss.x,game->boss.y,32,running && game_boss_guarded(game),phase,utility_tiles);
+    else sprite_list_place(boss,game->boss.x,game->boss.y,32,running && game->boss.active && game->boss.age>=BOSS_WARNING_TICKS,
+          game->boss.hp<=BOSS_HEALTH/2?2:(game->ticks/12)&1,current_boss_tiles);
+    sprite_list_place(boss_guard,game->boss.x,game->boss.y,32,running && game_boss_guarded(game),phase,utility_tiles);
     for (u16 i=0;i<2;i++)
     {
         s16 x=0,y=0;
         if (i<game->twins) game_twin_point(game,i,&x,&y);
-        place(twins[i],x,y,16,running && i<game->twins,phase,twin_tiles);
+        sprite_list_place(twins[i],x,y,16,running && i<game->twins,phase,twin_tiles);
     }
-    place(barrier,game->x,game->y,32,running && game->shield &&
+    sprite_list_place(barrier,game->x,game->y,32,running && game->shield &&
         (game->shield_time>120 || !(game->ticks&8)),phase,utility_tiles);
-    place(payload,game->payload.x,game->payload.y,32,running && game->payload.active &&
+    sprite_list_place(payload,game->payload.x,game->payload.y,32,running && game->payload.active &&
         game->payload.age<BOMB_ARM_TICKS,2+((game->payload.age/5)&1),utility_tiles);
     for (u16 i=0;i<8;i++)
     {
         bool expanding=running && game->payload.active && game->payload.radius>=20;
         s16 x=0,y=0;
         if (expanding) game_blast_point(game,i,&x,&y);
-        place(blast[i],x,y,16,expanding,1+((game->payload.age/3)&1),effect_tiles);
+        sprite_list_place(blast[i],x,y,16,expanding,1+((game->payload.age/3)&1),effect_tiles);
     }
     for (u16 i=0;i<ENEMY_COUNT;i++)
     {
         const Enemy *enemy=&game->enemies[i];
-        place(enemies[i],enemy->x,enemy->y,16,running && enemy->active,enemy->kind*2+phase,enemy_tiles);
+        sprite_list_place(enemies[i],enemy->x,enemy->y,16,running && enemy->active,enemy->kind*2+phase,enemy_tiles);
     }
-    for (u16 i=0;i<SHOT_COUNT;i++) place(shots[i],game->shots[i].x,game->shots[i].y,8,running && game->shots[i].active,0,bullet_tiles);
-    for (u16 i=0;i<BULLET_COUNT;i++)
-        if (game->state==TITLE)
-        {
-            s16 x=(s16)((i*73+frame/(1+i%3))%336)-8;
-            s16 y=(s16)((i*47+frame/(1+i%2))%240)-8;
-            place(bullets[i],x*UNIT,y*UNIT,8,true,3+(i&1),bullet_tiles);
-        }
-        else place(bullets[i],game->bullets[i].x,game->bullets[i].y,8,running && game->bullets[i].active,1,bullet_tiles);
+    for (u16 i=0;i<SHOT_COUNT;i++) sprite_list_place(shots[i],game->shots[i].x,game->shots[i].y,8,running && game->shots[i].active,0,bullet_tiles);
     for (u16 i=0;i<PICKUP_COUNT;i++)
     {
-        SPR_setPalette(pickups[i],game->pickups[i].kind==3?PAL2:PAL3);
-        place(pickups[i],game->pickups[i].x,game->pickups[i].y,16,running && game->pickups[i].active,game->pickups[i].kind,pickup_tiles);
+        pickups[i]->palette=game->pickups[i].kind==3?PAL2:PAL3;
+        sprite_list_place(pickups[i],game->pickups[i].x,game->pickups[i].y,16,running && game->pickups[i].active,game->pickups[i].kind,pickup_tiles);
     }
     for (u16 i=0;i<EFFECT_COUNT;i++)
     {
@@ -315,14 +315,14 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
             if (game->phase_time<BOSS_DEATH_TICKS)
             {
                 u16 t=(game->phase_time+i*11)%24;
-                place(effects[i],game->boss.x+((s16)(i%3)-1)*12*UNIT,
+                sprite_list_place(effects[i],game->boss.x+((s16)(i%3)-1)*12*UNIT,
                     game->boss.y+((s16)(i/3)*2-1)*10*UNIT,16,true,t/6,effect_tiles);
                 continue;
             }
             u16 t=(game->phase_time+i*13)%90;
-            place(effects[i],(120+((s16)i-3)*(s16)t/2)*UNIT,(180-3*(s16)t+t*t/30)*UNIT,16,t<75,t/24,effect_tiles);
+            sprite_list_place(effects[i],(120+((s16)i-3)*(s16)t/2)*UNIT,(180-3*(s16)t+t*t/30)*UNIT,16,t<75,t/24,effect_tiles);
         }
-        else place(effects[i],effect->x,effect->y,16,running && effect->life,(24-effect->life)/6,effect_tiles);
+        else sprite_list_place(effects[i],effect->x,effect->y,16,running && effect->life,(24-effect->life)/6,effect_tiles);
     }
     /* Bounded flash changes one background color through queued palette work. */
     if (!drawn || changed || (frame&3)==0)
@@ -332,6 +332,7 @@ void view_frame(const Game *game,u16 held,u16 hz,u16 fps)
     }
     if (game->state!=TITLE && (!(frame%10) || changed || game->paused!=old_pause)) hud(game,hz,fps);
     frame++;
-    SPR_update(); old_state=game->state; old_pause=game->paused; drawn=true;
+    sprite_list_end();
+    old_state=game->state; old_pause=game->paused; drawn=true;
     VDP_setEnable(TRUE);
 }

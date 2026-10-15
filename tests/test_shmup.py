@@ -49,6 +49,8 @@ class ShooterBehaviorTests(unittest.TestCase):
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertEqual(result.stdout.strip(),name)
 
+    def test_parallel_lasers_pickup_caps_refresh_and_deferred_enrage(self): self.check('upgrades')
+
     def test_h40_window_alignment_plane_ranges_and_overlap(self): self.check('layout')
     def test_pool_exhaustion_retirement_and_reuse(self): self.check('pools')
     def test_aim_ring_symmetry_fan_and_atomic_volley(self): self.check('patterns')
@@ -72,11 +74,19 @@ class ShooterBehaviorTests(unittest.TestCase):
         result = subprocess.run([str(binary)],capture_output=True,text=True)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
+    def test_sprite_list_offsets_culling_links_empty_and_capacity(self):
+        binary = Path(self.scratch.name)/'sprites'
+        result = subprocess.run([self.compiler,'-std=c17','-Wall','-Wextra','-Werror','-I',str(FIXTURE),
+            '-I',str(LAB/'inc'),str(LAB/'src/sprite_list.c'),str(FIXTURE/'sprite_test.c'),'-o',str(binary)],capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        result = subprocess.run([str(binary)],capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
 
 class ShooterAssetsTests(unittest.TestCase):
     def test_native_indexed_art_sizes_palettes_checksums_and_reproduction(self):
-        sizes={'ship.png':(64,16),'enemies.png':(96,16),'boss.png':(224,32),
-               'bullets.png':(40,8),'pickups.png':(64,16),'effects.png':(64,16),'utility.png':(128,32),'twins.png':(32,16),'font.png':(768,8),'stars.png':(256,256)}
+        sizes={'ship.png':(64,16),'enemies.png':(96,16),'boss.png':(224,32),'reaver.png':(224,32),
+               'bullets.png':(64,8),'pickups.png':(64,16),'effects.png':(64,16),'utility.png':(128,32),'twins.png':(32,16),'font.png':(768,8),'stars.png':(256,256)}
         for name,data in load_generator('make_assets').assets().items():
             self.assertEqual(data,(LAB/'res'/name).read_bytes())
             offset,compressed=8,bytearray()

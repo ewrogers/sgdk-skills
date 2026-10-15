@@ -8,6 +8,7 @@ SPRITE ship_image "ship.png" 2 2 NONE 0
 SPRITE enemy_image "enemies.png" 2 2 NONE 0
 // Keep the sparse dissolve frames in one 32x32 hardware piece.
 SPRITE boss_image "boss.png" 4 4 NONE 0 NONE NONE
+SPRITE reaver_image "reaver.png" 4 4 NONE 0 NONE NONE
 SPRITE bullet_image "bullets.png" 1 1 NONE 0
 SPRITE pickup_image "pickups.png" 2 2 NONE 0
 SPRITE effect_image "effects.png" 2 2 NONE 0

@@ -18,7 +18,7 @@ u16 game_aim(s16 dx,s16 dy)
     return result;
 }
 
-bool game_bullet(Game *game,s16 x,s16 y,u16 angle,s16 speed)
+static bool emit(Game *game,s16 x,s16 y,u16 angle,s16 speed,u8 kind)
 {
     if (speed<0 || speed>4*UNIT || angle>=16) return false;
     for (u16 i=0;i<BULLET_COUNT;i++)
@@ -26,12 +26,15 @@ bool game_bullet(Game *game,s16 x,s16 y,u16 angle,s16 speed)
         {
             game->bullets[i]=(Bullet){.x=x,.y=y,
                 .vx=(s16)((s32)direction_x[angle]*speed/256),
-                .vy=(s16)((s32)direction_y[angle]*speed/256),.active=true};
+                .vy=(s16)((s32)direction_y[angle]*speed/256),.active=true,.kind=kind};
             return true;
         }
     game->denied++;
     return false;
 }
+
+bool game_bullet(Game *game,s16 x,s16 y,u16 angle,s16 speed)
+{ return emit(game,x,y,angle,speed,0); }
 
 bool game_shot(Game *game,s16 x,s16 y,s16 vx,s16 vy)
 {
@@ -55,7 +58,8 @@ u16 game_pattern(Game *game,Pattern pattern,s16 x,s16 y,s16 target_x,s16 target_
     for (u16 i=0;i<needed;i++)
     {
         u16 direction=pattern==RING?(phase+i*2)%16:pattern==FAN?(angle+15+i)%16:phase%16;
-        count+=game_bullet(game,x,y,direction,pattern==RING?3*UNIT/2:2*UNIT);
+        count+=emit(game,x,y,direction,pattern==RING?3*UNIT/2:2*UNIT,
+            game->state==BOSS?(pattern==FAN?1:pattern==RING?2:3):0);
     }
     return count;
 }

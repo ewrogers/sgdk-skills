@@ -37,19 +37,20 @@ illustration. Starting a run switches to a more driving, hopeful space track.
 The review machine maps arrows/WASD to movement, J/K/L to A/B/C and Enter to
 Start. Other ares installations should use their own mappings.
 
-P pickups increase the weapon to two, then three shots. B pickups replenish
+P pickups increase the weapon to two, then three parallel lasers. B pickups replenish
 bombs up to three. B drops a pulsing payload. After 0.75 seconds its blast expands outward,
 clearing bullets and small enemies as it reaches them. It damages the boss
 once, but leaves at least one HP for normal fire to finish. Three hits end the run; surviving hits remove weapon upgrades and Twins, clear bullets and
 give flashing recovery time. Kills build a capped score chain; missed enemies
-or damage break it. Surplus pickups become points.
+or damage break it. Surplus pickups already on screen become points. New S/T drops are skipped
+while their upgrades are capped. A new pickup announcement replaces the current voice.
 
 After roughly 33 seconds, BOSS INCOMING warns you while you keep flying.
 The atmospheric stage track fades out and the boss track fades in. The boss
 flies down, then its overhead health bar expands before it can attack or take
 damage. Its three repeating phrases are aimed fans, rotating rings and a
 spiral stream, each with a wind-up and a recovery gap. Below half health, the
-fan cadence tightens and the boss follows wider sweeps with a repeating
+fan cadence tightens and, at its next movement decision, the boss follows wider sweeps with a repeating
 downward lunge. Its bar changes from red to purple. Pause freezes the entrance, music fade and attacks.
 The green S pickup gives a ten-second bubble that absorbs one hit. Its rim
 flashes near expiry. A fresh S refreshes it rather than stacking extra hits.
@@ -64,7 +65,7 @@ run, with the final star still pulsing and bobbing. The lab is a demonstration, 
 
 - Start with A/Start, move normally and while holding C, and check the HUD stays
   outside movement. Focus should expose the core without changing its hitbox.
-- Hold A and collect P. Watch the paired and three-way weapon. Collect B,
+- Hold A and collect P. Watch the parallel paired and triple laser weapon. Collect B,
   then tap/hold B to verify one payload at a time. Move away while it arms.
 - Collect S and take a hit. Check the bubble breaks without losing a life or
   weapon power, then verify an unused bubble eventually expires.
@@ -118,7 +119,18 @@ its shield without damaging it. Plan a bomb so its expanding wave reaches an
 exposed boss, then finish with fire. The enraged defensive window lasts longer.
 
 Purple T pickups grant up to two Twin satellites. They orbit on opposite sides
-of the ship, move with it and fire straight upward while A is held. Extra Twins
+of the ship, use its blue/white palette and fire straight upward while A is held.
+At Power 3 each satellite fires two parallel lasers. Extra Twins
 become points. Losing a life removes both Twins and resets weapon power. A shield
 absorption does not count as losing a life. A heavier hit sound marks damage;
 Game Over has its own sad looping track and delayed robot announcement.
+
+## Dense-projectile rendering
+
+The lab now builds one compact hardware sprite list, using SGDK's compiled
+frame geometry and VBlank SAT transfer. It avoids general Sprite-engine object
+updates for its single-piece art. The 48 projectile slots are split into 20
+player lasers and 28 hostile shots; the full scene still reserves 78 pieces.
+Each boss attack has its own projectile shape. Aegis Reaver has a separate
+H-shaped hull. Test the crowded case with both Twins and maximum Power; a
+successful build alone does not prove 60 FPS.

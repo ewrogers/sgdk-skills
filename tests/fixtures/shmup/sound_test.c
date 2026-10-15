@@ -28,11 +28,11 @@ int main(void)
     game.events=EVENT_FIRE|EVENT_KILL; sound_frame(&game); assert(channel2==fire_sound && channel3==kill_sound);
     game.events=EVENT_PICKUP; sound_frame(&game); assert(channel3==voice_power);
     game.events=EVENT_KILL; sound_frame(&game); assert(channel3==voice_power); /* Don't cut off speech. */
-    busy=false; game.pickup_kind=2; game.events=EVENT_PICKUP; sound_frame(&game); assert(channel3==voice_shield);
-    busy=false; game.pickup_kind=1; sound_frame(&game); assert(channel3==voice_bomb);
+    game.pickup_kind=2; game.events=EVENT_PICKUP; sound_frame(&game); assert(channel3==voice_shield);
+    game.pickup_kind=1; sound_frame(&game); assert(channel3==voice_bomb);
     game.state=BOSS; game.events=EVENT_BOSS|EVENT_HURT; sound_frame(&game); assert(channel3==voice_boss);
-    game.events=0; game.paused=true; sound_frame(&game); assert(pauses==1 && stops==2);
-    sound_frame(&game); assert(pauses==1 && stops==2);
+    game.events=0; game.paused=true; sound_frame(&game); assert(pauses==1 && stops==6);
+    sound_frame(&game); assert(pauses==1 && stops==6);
     game.paused=false; sound_frame(&game); assert(resumes==1);
     game.boss.age=45; sound_frame(&game); assert(fm==50 && psg==50);
     game.paused=true; game.boss.age=90; sound_frame(&game); assert(fm==50 && music==stage_music);

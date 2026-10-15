@@ -15,8 +15,8 @@ typedef int32_t s32;
 #define UNIT 16
 #define FIELD_W 240
 #define FIELD_H 224
-#define SHOT_COUNT 16
-#define BULLET_COUNT 32
+#define SHOT_COUNT 20
+#define BULLET_COUNT 28
 #define ENEMY_COUNT 6
 #define PICKUP_COUNT 3
 #define EFFECT_COUNT 6
@@ -37,7 +37,7 @@ enum { EVENT_FIRE=1,EVENT_KILL=2,EVENT_HURT=4,EVENT_PICKUP=8,EVENT_BOMB=16,
 typedef enum { TITLE,PLAY,BOSS,CLEAR,OVER } State;
 typedef enum { SCOUT,SWEEPER,TURRET } EnemyKind;
 typedef enum { AIMED,FAN,RING,SPIRAL } Pattern;
-typedef struct { s16 x,y,vx,vy; bool active; } Bullet;
+typedef struct { s16 x,y,vx,vy; bool active; u8 kind; } Bullet;
 typedef struct {
     s16 x,y,home;
     u16 age;
@@ -52,7 +52,7 @@ typedef struct {
     s16 x,y;
     u16 age;
     u8 hp,flash;
-    bool active;
+    bool active,enraged;
 } Boss;
 typedef struct {
     Bullet shots[SHOT_COUNT],bullets[BULLET_COUNT];

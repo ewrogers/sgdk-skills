@@ -78,7 +78,9 @@ void game_enemies(Game *game)
     u16 phase=time%240;
     u16 motion=(time+60)%240;
     s16 travel=motion<120?motion:239-motion;
-    if (boss->hp<=BOSS_HEALTH/2)
+    if (phase==0 && boss->hp<=BOSS_HEALTH/2) boss->enraged=true;
+    s16 previous_x=boss->x,previous_y=boss->y;
+    if (boss->enraged)
     {
         boss->x=(30+travel*3/2)*UNIT;
         s16 dive=phase>=90 && phase<150?(phase<120?phase-90:150-phase):0;
@@ -93,6 +95,11 @@ void game_enemies(Game *game)
         boss->x=(24+sweep*8/5)*UNIT;
         boss->y=(40+(s16)(vertical<90?vertical:179-vertical)/2)*UNIT;
     }
+    s16 step=3*UNIT;
+    if (boss->x>previous_x+step) boss->x=previous_x+step;
+    if (boss->x<previous_x-step) boss->x=previous_x-step;
+    if (boss->y>previous_y+step) boss->y=previous_y+step;
+    if (boss->y<previous_y-step) boss->y=previous_y-step;
     /* Three readable four-second phrases. Each has a quiet wind-up and
      * recovery; the second half tightens the firing cadence, not the pool. */
     u16 cadence=boss->hp>BOSS_HEALTH/2?40:30;

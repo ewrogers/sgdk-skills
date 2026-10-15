@@ -38,9 +38,9 @@ static void patterns(void)
     fresh(); assert(game_pattern(&g,FAN,100*UNIT,40*UNIT,100*UNIT,180*UNIT,0)==3);
     assert(g.bullets[0].vx==-g.bullets[2].vx && g.bullets[0].vx!=0 && g.bullets[1].vx==0);
     assert(g.bullets[0].vy==g.bullets[2].vy);
-    fresh(); for (u16 i=0;i<30;i++) assert(game_bullet(&g,0,0,8,UNIT));
+    fresh(); for (u16 i=0;i<BULLET_COUNT-2;i++) assert(game_bullet(&g,0,0,8,UNIT));
     assert(game_pattern(&g,FAN,0,0,0,100,0)==0);
-    assert(!g.bullets[30].active && !g.bullets[31].active); /* Atomic volley. */
+    assert(!g.bullets[BULLET_COUNT-2].active && !g.bullets[BULLET_COUNT-1].active); /* Atomic volley. */
     fresh();
     for (u16 i=0;i<ENEMY_COUNT;i++) g.enemies[i]=(Enemy){.active=true};
     g.ticks=100; game_stage(&g); assert(g.spawn_index==0);
@@ -110,12 +110,13 @@ static void boss_test(void)
         for (u16 j=0;j<BULLET_COUNT;j++) assert(!g.bullets[j].active);
     }
     Game saved=g; g.paused=true; frames(0,100,60); assert(g.boss.age==saved.boss.age); g.paused=false;
-    g.boss.hp=45; g.boss.age=BOSS_READY_TICKS+119; game_enemies(&g);
-    s16 dive_x=g.boss.x,dive_y=g.boss.y; assert(dive_y==104*UNIT);
-    g.boss.age=BOSS_READY_TICKS+119+720; game_enemies(&g);
-    assert(g.boss.x==dive_x && g.boss.y==dive_y);
-    g.boss.hp=90; g.boss.age=BOSS_READY_TICKS+119; game_enemies(&g);
-    assert(g.boss.y==44*UNIT && g.boss.x!=dive_x);
+    g.boss.hp=45; g.boss.age=BOSS_READY_TICKS+119;
+    s16 previous_x=g.boss.x,previous_y=g.boss.y;
+    game_enemies(&g); assert(!g.boss.enraged);
+    assert(g.boss.x-previous_x<=3*UNIT && previous_x-g.boss.x<=3*UNIT);
+    assert(g.boss.y-previous_y<=3*UNIT && previous_y-g.boss.y<=3*UNIT);
+    g.boss.age=BOSS_READY_TICKS+239; game_enemies(&g); assert(g.boss.enraged);
+    g.boss.hp=90;
     for (u16 i=0;i<BULLET_COUNT;i++) g.bullets[i].active=false;
     g.boss.age=BOSS_READY_TICKS+10; game_boss_damage(&g,44); assert(g.boss.hp==46);
     game_boss_damage(&g,1); assert(g.boss.hp==45);
@@ -312,10 +313,56 @@ static void equivalence(void)
         assert(!memcmp(&g,&expected,sizeof g));
     }
 }
+static void upgrades_test(void)
+{
+    fresh(); g.power=2; game_step(&g,A,0);
+    u16 n=0;
+    for (u16 i=0;i<SHOT_COUNT;i++) if (g.shots[i].active)
+    { assert(g.shots[i].vx==0 && g.shots[i].vy==-6*UNIT); n++; }
+    assert(n==2);
+    fresh(); g.power=3; g.twins=2; g.ticks=19; game_step(&g,A,0);
+    n=0;
+    for (u16 i=0;i<SHOT_COUNT;i++) if (g.shots[i].active)
+    { assert(g.shots[i].vx==0); n++; }
+    assert(n==7); /* Three main lasers, two from each satellite. */
+    fresh(); g.shield=true; g.shield_time=1;
+    g.pickups[0]=(Pickup){.x=g.x,.y=g.y,.kind=2,.active=true};
+    game_step(&g,0,0); assert(g.shield && g.shield_time==SHIELD_TICKS);
+    for (u16 kind=2;kind<=3;kind++)
+    {
+        fresh(); g.stage=2; g.shield=true; g.shield_time=SHIELD_TICKS; g.twins=2;
+        g.kills=(kind+1)*3-1;
+        g.enemies[0]=(Enemy){.x=120*UNIT,.y=60*UNIT,.active=true};
+        game_enemy_kill(&g,0);
+        for (u16 i=0;i<PICKUP_COUNT;i++) assert(!g.pickups[i].active);
+    }
+    fresh(); g.stage=2; g.twins=2; g.ticks=239; game_step(&g,0,0);
+    for (u16 i=0;i<PICKUP_COUNT;i++) assert(!g.pickups[i].active);
+    fresh(); g.shield=true; g.shield_time=SHIELD_TICKS; g.ticks=719; game_step(&g,0,0);
+    for (u16 i=0;i<PICKUP_COUNT;i++) assert(!g.pickups[i].active);
+    for (u16 pattern=FAN;pattern<=SPIRAL;pattern++)
+    {
+        fresh(); g.state=BOSS;
+        u16 total=game_pattern(&g,(Pattern)pattern,120*UNIT,40*UNIT,g.x,g.y,0);
+        assert(total>0);
+        for (u16 i=0;i<total;i++) assert(g.bullets[i].kind==pattern);
+        game_projectiles(&g);
+        for (u16 i=0;i<total;i++) assert(g.bullets[i].kind==pattern);
+    }
+    /* Damage changes art now, but trajectory only at the next phrase boundary. */
+    fresh(); g.state=BOSS; g.boss=(Boss){.x=120*UNIT,.y=44*UNIT,.age=BOSS_READY_TICKS+60,.hp=90,.active=true};
+    Game healthy=g; g.boss.hp=45;
+    for (u16 i=0;i<100;i++)
+    {
+        game_enemies(&g); game_enemies(&healthy);
+        assert(g.boss.x==healthy.boss.x && g.boss.y==healthy.boss.y && !g.boss.enraged);
+    }
+}
 int main(int argc,char **argv)
 {
     assert(argc==2);
-    if (!strcmp(argv[1],"equivalence")) equivalence();
+    if (!strcmp(argv[1],"upgrades")) upgrades_test();
+    else if (!strcmp(argv[1],"equivalence")) equivalence();
     else if (!strcmp(argv[1],"layout")) layout_test();
     else if (!strcmp(argv[1],"pools")) pools();
     else if (!strcmp(argv[1],"patterns")) patterns();

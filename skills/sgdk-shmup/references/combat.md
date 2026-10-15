@@ -37,7 +37,7 @@ player is next to an emitter. Delay or telegraph shots when the game needs it.
 
 ## Pools and exhaustion
 
-The example reserves 32 hostile bullets, 16 player shots, six enemies, three
+The example reserves 28 hostile bullets, 20 player shots, six enemies, three
 pickups and six effects. Records are reused in stable index order. A ring or
 fan requires enough free hostile slots for the entire volley; otherwise the
 whole volley is skipped and a diagnostic counter increments. A single aimed
@@ -82,9 +82,11 @@ proof that collision should continue unchanged.
 
 Stage 2 adds purple T pickups for up to two orbiting satellites. Their upward
 fire shares the player-shot pool at half the main firing cadence. A third T
-becomes points. Losing a life removes all Twins and resets weapon power.
+already on screen becomes points. New T drops are suppressed at two Twins,
+and new S drops while a shield is active. At Power 3 each Twin fires a parallel
+pair. Losing a life removes all Twins and resets weapon power.
 
-The P pickup upgrades from one shot to a pair, then a three-way weapon. The B
+The P pickup upgrades from one shot to a parallel pair, then three parallel lasers. The B
 pickup replenishes bombs, capped at three. Guaranteed upgrades supplement drops
 in the lab so the example remains approachable after misses. Another game can
 use a different drop rule or no weapon progression.

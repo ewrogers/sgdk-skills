@@ -31,12 +31,14 @@ void game_enemy_kill(Game *game,u16 index)
     game_add_score(game,100+game->combo*10);
     game->kills++; game->events|=EVENT_KILL;
     game_effect(game,enemy->x,enemy->y);
-    if (game->kills%3==0)
+    if (game->kills%3) return;
+    u8 kind=(game->kills/3-1)%(game->stage==2?4:3);
+    if (!(kind==2 && game->shield) && !(kind==3 && game->twins==2))
         for (u16 i=0;i<PICKUP_COUNT;i++)
             if (!game->pickups[i].active)
             {
                 game->pickups[i]=(Pickup){.x=enemy->x,.y=enemy->y,
-                    .kind=(game->kills/3-1)%(game->stage==2?4:3),.active=true};
+                    .kind=kind,.active=true};
                 break;
             }
 }
@@ -71,7 +73,7 @@ void game_boss_damage(Game *game,u16 damage)
 
 static bool hit_shot(Game *game,s16 x,s16 y,u16 candidates)
 {
-    for (u16 i=0;i<ENEMY_COUNT;i++)
+    if (candidates) for (u16 i=0;i<ENEMY_COUNT;i++)
     {
         Enemy *enemy=&game->enemies[i];
         if ((candidates&(1U<<i)) && enemy->active && inside(x,y,enemy->x,enemy->y,10*UNIT,10*UNIT))

@@ -38,15 +38,20 @@ static void player(Game *game,u16 held,u16 pressed)
         if (game->power==1) fired=game_shot(game,game->x,game->y-8*UNIT,0,-6*UNIT);
         else
         {
-            fired=game_shot(game,game->x-4*UNIT,game->y-6*UNIT,-UNIT,-6*UNIT);
-            fired=game_shot(game,game->x+4*UNIT,game->y-6*UNIT,UNIT,-6*UNIT)||fired;
+            fired=game_shot(game,game->x-4*UNIT,game->y-6*UNIT,0,-6*UNIT);
+            fired=game_shot(game,game->x+4*UNIT,game->y-6*UNIT,0,-6*UNIT)||fired;
             if (game->power==3) fired=game_shot(game,game->x,game->y-8*UNIT,0,-6*UNIT)||fired;
         }
         if ((game->ticks/10)%2==0)
             for (u16 i=0;i<game->twins;i++)
             {
                 s16 x,y; game_twin_point(game,i,&x,&y);
-                fired=game_shot(game,x,y-6*UNIT,0,-6*UNIT)||fired;
+                if (game->power==3)
+                {
+                    fired=game_shot(game,x-3*UNIT,y-6*UNIT,0,-6*UNIT)||fired;
+                    fired=game_shot(game,x+3*UNIT,y-6*UNIT,0,-6*UNIT)||fired;
+                }
+                else fired=game_shot(game,x,y-6*UNIT,0,-6*UNIT)||fired;
             }
         if (fired) game->events|=EVENT_FIRE;
         game->fire_wait=10;
@@ -100,11 +105,12 @@ void game_step(Game *game,u16 held,u16 pressed)
         Effect *effect=&game->effects[i];
         if (effect->life) { effect->life--; effect->x+=effect->vx; effect->y+=effect->vy; }
     }
-    if (game->stage==2 && (game->ticks==240 || game->ticks==600))
+    if (game->stage==2 && game->twins<2 && (game->ticks==240 || game->ticks==600))
         for (u16 i=0;i<PICKUP_COUNT;i++) if (!game->pickups[i].active)
         { game->pickups[i]=(Pickup){.x=120*UNIT,.y=16*UNIT,.kind=3,.active=true}; break; }
     /* Guaranteed upgrades keep the sample approachable even after misses. */
-    if (game->ticks==360 || game->ticks==720 || game->ticks==1080 || game->ticks==1440)
+    if ((game->ticks==360 || game->ticks==720 || game->ticks==1080 || game->ticks==1440) &&
+        (game->ticks%720!=0 || !game->shield))
         for (u16 i=0;i<PICKUP_COUNT;i++) if (!game->pickups[i].active)
         { game->pickups[i]=(Pickup){.x=120*UNIT,.y=16*UNIT,.kind=game->ticks%720==0?2:0,.active=true}; break; }
 }

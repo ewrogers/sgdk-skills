@@ -12,8 +12,8 @@ The lab's game rules and pattern functions are ordinary C, not SGDK APIs.
 | Background | `VDP_drawImageEx()`, `VDP_setVerticalScroll()` |
 | Side HUD | `VDP_setWindowHPos(TRUE, 15)`, `VDP_setWindowVPos(FALSE, 0)` |
 | Text | `VDP_drawTextEx(..., DMA_QUEUE)` |
-| Shared sprite frames | `SPR_initEx()`, `SPR_loadAllFrames()`, `SPR_addSpriteEx()` |
-| Presentation | `SPR_setPosition()`, `SPR_setFrame()`, `SPR_setVRAMTileIndex()`, `SPR_setVisibility()` |
+| Shared sprite frames | `SPR_initEx()`, `SPR_loadAllFrames()` |
+| Presentation | `VDP_setSpriteFull()`, `VDP_setSpriteLink()`, `VDP_updateSprites()` |
 | Small palette effect | `PAL_setColors(..., DMA_QUEUE_COPY)` |
 | Audio | `XGM2_load()`, `XGM2_playTrack()`, `XGM2_playPCM()`, pause/resume |
 
@@ -22,6 +22,7 @@ Sources: [joy.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/joy.h),
 [vdp.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp.h),
 [vdp_bg.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_bg.h),
 [sprite_eng.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/sprite_eng.h),
+[vdp_spr.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_spr.h),
 [pal.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/pal.h),
 [snd/xgm2.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/snd/xgm2.h), and
 [ResComp manual](https://github.com/Stephane-D/SGDK/blob/v2.11/bin/rescomp.txt).
@@ -56,22 +57,25 @@ PAL3 for bullets/pickups/effects/font. Every sheet stays within sixteen entries,
 with index zero transparent for sprites. These colors and the space theme are
 specific to Shooter Lab; the skill does not prescribe an aesthetic.
 
-A 384-tile sprite reservation is 12,288 VRAM bytes. The lab preloads every
+A 512-tile sprite reservation is 16,384 VRAM bytes. The lab preloads every
 frame and shares the resulting indices. Its native frame canvases need at most
-361 tiles before ResComp cropping and duplicate sharing. A target probe sums
+476 tiles before ResComp cropping and duplicate sharing. A target probe sums
 actual compiled frame tile counts and checks them against the reservation.
 Background/title/HUD patterns must end below that reservation; the normal font
 and VDP tables consume additional VRAM.
 
-`SPR_addSpriteEx(..., flags=0)` leaves tile ownership with the manual cache.
-Set frame geometry before selecting its resident tile index. Do not add
-an automatic per-instance tile allocator into that same reserved region.
 The temporary `SPR_loadAllFrames()` table is copied then freed during setup.
+The lab uses SGDK's low-level sprite list because every frame fits one hardware
+piece. `sprite_list.c` applies ResComp's frame offsets, culls outside the view,
+links visible entries and queues their SAT transfer for VBlank. An empty list
+clears the previous frame. This list owns the SAT exclusively; do not mix it
+with `SPR_update()`. Larger, multi-piece characters need a different renderer
+or SGDK's general Sprite engine. Startup rejects unsupported frame geometry.
 
 ## Frame and scanline limits
 
 The fixed records reserve at most 78 one-piece hardware sprites: player, boss,
-six enemies, sixteen player shots, 32 hostile shots, three pickups, six effects,
+six enemies, twenty player shots, 28 hostile shots, three pickups, six effects,
 two Twins, player/boss shields, a payload and eight blast-front effects.
 Some states do not show all those categories at once. Total H40 capacity is
 80 sprites, but each scanline has its own limit of 20 sprites and 320 sprite
@@ -117,18 +121,17 @@ uses SGDK's `XGM2_setFMVolume()` and `XGM2_setPSGVolume()` (0–100) to hand off
 between stage and boss tracks once. Pause stops that handoff too.
 
 The red overhead bar and life icons use resident plane tiles, so they consume no
-extra hardware sprites. Unchanged HUD strings, sprite frames and tile indices
-are left alone. Ring/spiral emitters do not calculate an unused aimed vector.
+extra hardware sprites. Unchanged HUD strings are left alone; the compact visible SAT is rebuilt each frame. Ring/spiral emitters do not calculate an unused aimed vector.
 
 The container regression runs the old and optimized projectile workload on
-base-M68000 emulation. A measured full-pool, mostly-no-hit case used 8,184
-instructions before and 5,170 afterward, including identical setup. This is an
+base-M68000 emulation. The report records counts
+for the current pool configuration, including identical setup. This is an
 instruction-count proxy, not a cycle count or an FPS guarantee. Actual frame
 load still needs a release-ROM check with rendering, audio and effects active.
 
 ## Bounded presentation effects
 
-The title replaces isolated painted specks with 32 moving one-pixel sprites,
+The title replaces isolated painted specks with 28 moving one-pixel sprites,
 reusing hostile-bullet objects while the game is inactive. Gameplay adds two
 utility sprites (shield and payload) and eight blast-front effects, plus two Twins and a boss guard, for 78
 reserved hardware pieces at maximum. A configured cache holds all frames;
@@ -142,7 +145,7 @@ at boss defeat; its star/banner/fanfare wait for the two-second sequence.
 
 The example's six short robot announcements share PCM channel 3. Ordinary
 kill/hit cues do not interrupt a voice already playing; boss/game-over messages
-can preempt it. Firing stays on channel 2. Music keeps FM/PSG, so these choices
+and new pickup announcements can preempt it. Firing stays on channel 2. Music keeps FM/PSG, so these choices
 avoid taking a music PCM channel. Choose different priorities or no speech for
 a different game. WAV sources are committed and portable; optional regeneration
 uses the open-source eSpeak NG synthesizer with a light offline robot effect. The original bitmap font occupies the
@@ -157,7 +160,8 @@ The HUD's colored counters use two compact copies of only their required
 letters/digits (48 tiles total), rather than three extra complete fonts or
 changing palette entries used by the sprites. The enraged boss uses a wider,
 faster deterministic sweep and a repeated dive. The bar changes color at the
-same health threshold. The final star uses two native frames plus a small bob;
+same health threshold. Motion changes latch at the next four-second phrase
+boundary, and position changes are capped to prevent a threshold teleport. The final star uses two native frames plus a small bob;
 it remains animated after the fanfare.
 
 Stage 2 carries score, lives and remaining upgrades from the first clear. Its
@@ -165,6 +169,8 @@ boss guard is a model-side timed rule, not just a drawn aura. Tests check that
 protected hits consume shots without reducing health, and that exposed windows
 accept damage. Twin offsets interpolate the existing direction table, remain
 relative to the ship and stay opposite for two satellites. Their firing is
-staggered in time to stay inside the sixteen-shot pool. A life loss resets power
+at half the main cadence and shares a twenty-shot pool. At Power 3, each Twin
+fires two parallel lasers. The total projectile reserve remains 48 pieces;
+28 slots belong to hostiles. A life loss resets power
 and removes Twins; shield absorption preserves both. The second backdrop and
 music are lab presentation choices, not required shooter conventions.
