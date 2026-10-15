@@ -40,6 +40,7 @@ With Docker running in Linux-container mode, enable the resource and debugging
 checks, then test the project helper:
 
 ```sh
+python3 -m pip install -r tests/requirements-math.txt
 SGDK_SKILLS_INTEGRATION=1 python3 -m unittest discover -s tests -v
 python3 tests/integration.py
 ```
@@ -325,3 +326,25 @@ makefile's aliasing compatibility flag, and build release/debug ROMs. CI compare
 their hashes on native ARM64 and AMD64. Host timing checks cover nominal PAL/NTSC
 model clocks; PAL visuals, search latency under real workloads, measured CPU
 cost and physical hardware remain separate checks.
+
+## Fixed-point math
+
+Math Lab tests compare projection with an independent rational oracle, verify
+all three formations over full cycles, and exercise interpolation endpoints,
+full-range squared distances, input edges, pause, nominal 50/60 Hz cadence and
+a 100,000-update bounded run. Generated indexed art must reproduce exactly and
+refuse overwrites. Host C17 checks run on macOS, Windows and Linux.
+
+Docker integration builds the standalone ROM in release/debug, then executes
+actual SGDK math on Unicorn 2.1.4 configured for the base 68000. The test checks
+negative conversion/rounding, fixed-point multiply/divide, angle wrapping and
+the entire degree-based sine cycle against a higher-precision oracle. It also
+checks the SDK's intentional low-bit loss in `F32_mul`. No host replacement is
+used to establish these SDK behaviors. Install `tests/requirements-math.txt`
+in a virtual environment before running integration locally; ordinary host
+tests do not need Unicorn.
+
+CI compares Math Lab release/debug ROM hashes on native ARM64 and AMD64.
+Executed CPU math is not VDP emulation, a frame-time measurement or a guarantee
+outside the documented operand ranges. Follow the lab's emulator checklist for
+visual motion, pause, diagnostics and sprite scanline pressure.

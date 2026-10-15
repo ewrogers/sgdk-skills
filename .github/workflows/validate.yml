@@ -69,6 +69,7 @@ jobs:
         with:
           python-version: "3.13"
       - run: docker pull --platform "$SGDK_PLATFORM" "$SGDK_IMAGE"
+      - run: python -m pip install -r tests/requirements-math.txt
       - run: python -m unittest discover -s tests -v
       - run: python tests/integration.py
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -81,6 +82,7 @@ jobs:
             build/cartridge-integration/bank-report.json
             build/scenes-integration/scenes-report.json
             build/ai-integration/ai-report.json
+            build/math-integration/math-report.json
 
   compare:
     name: Compare generated ROMs
@@ -122,4 +124,10 @@ jobs:
           enemies = {arch: json.loads(paths[0].read_text()) for arch, paths in ai_reports.items()}
           assert all(report["passed"] for report in enemies.values())
           assert enemies["amd64"]["hashes"] == enemies["arm64"]["hashes"], enemies
-          print("Standard, banked, transition and enemy release/debug ROMs match across native ARM64 and AMD64.")
+          math_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("math-report.json"))
+                          for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in math_reports.values()), math_reports
+          maths = {arch: json.loads(paths[0].read_text()) for arch, paths in math_reports.items()}
+          assert all(report["passed"] for report in maths.values())
+          assert maths["amd64"]["hashes"] == maths["arm64"]["hashes"], maths
+          print("Standard, banked, transition, enemy and math release/debug ROMs match across native ARM64 and AMD64.")
