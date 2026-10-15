@@ -117,7 +117,7 @@ class MenuContainerTests(unittest.TestCase):
 _Static_assert(FONT_LEN == 96, "ASCII font slots");
 _Static_assert(TILE_USER_INDEX == 16, "SDK system tiles");
 _Static_assert(TILE_ATTR(PAL1, TRUE, FALSE, FALSE) == 0xA000, "text attributes");
-_Static_assert(RGB24_TO_VDPCOLOR(0xCCDDEE) == 0x0EEE, "foreground quantization");
+_Static_assert(RGB24_TO_VDPCOLOR(0xCCDDEE) == 0x0EEC, "foreground quantization");
 _Static_assert(RGB24_TO_VDPCOLOR(0x88BBFF) == 0x0EC8, "accent quantization");
 void (*draw)(VDPPlane, const char *, u16, u16, u16, TransferMethod) = VDP_drawTextEx;
 void (*clear)(VDPPlane, u16, u16, u16) = VDP_clearTextBG;
