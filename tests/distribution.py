@@ -9,7 +9,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ["sgdk-planning", "sgdk-project", "sgdk-assets", "sgdk-input", "sgdk-debug"]
+SKILLS = ["sgdk-planning", "sgdk-project", "sgdk-assets", "sgdk-graphics", "sgdk-input", "sgdk-debug"]
 
 
 def main():
