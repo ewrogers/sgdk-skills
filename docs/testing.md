@@ -11,7 +11,7 @@ Run the Python tests from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-Python checks use the standard library. Input, graphics, audio and gameplay behavior tests also need a C17
+Python checks use the standard library. Input, graphics, audio, gameplay and save behavior tests also need a C17
 compiler (`clang`, `cc` or `gcc`) to execute the actual example modules with a
 fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
 host checks on macOS, Linux and Windows without requiring Docker. Docker tests
@@ -90,6 +90,16 @@ clamping. Timing tests compare nominal simulation ticks across 50/60 Hz display
 cadences and check pause behavior. Docker checks compile the SDK adapter in both
 build modes. These are game-model and API checks, not emulated physics, VDP or
 measured frame-rate guarantees. Follow Gameplay Lab's playtest checklist too.
+
+Save tests execute the original lab's byte codec and storage transaction with a
+bounded memory fixture. They cover CRC vectors, every single-bit slot error,
+each interrupted-write step, schema/range rejection, unknown-version protection,
+sequence wrap/conflicts, I/O failures and password roundtrips/typos. A recording
+SRAM fixture checks logical offsets and unlock/lock pairing, including errors.
+It is not an electrical SRAM simulation. Docker checks the real SDK signatures,
+builds both modes, inspects the linked odd-address SRAM header and ensures this
+lab stays below the 2 MiB overlap boundary. Emulator persistence, battery
+retention and real power-loss behavior require separate runtime checks.
 
 ## Architectures and image versions
 
