@@ -73,7 +73,7 @@ int main(bool hard_reset)
     VDP_setEnable(TRUE);
     DMA_setMaxTransferSize(8192);Z80_setForceDelayDMA(TRUE);
     u16 page=0,previous=0,hz=SYS_isPAL() ? 50 : 60,refresh=0,mode=0;
-    u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE,capture=FALSE;
+    u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE,capture=FALSE,pcm=FALSE;
     HlClock clock;hl_clock_init(&clock,vtimer);
     while(TRUE) {
         SYS_doVBlankProcess();
@@ -81,7 +81,7 @@ int main(bool hard_reset)
         u16 held=JOY_readJoypad(JOY_1),pressed=held&~previous;previous=held;
         if(!(page==4 && capture) && (pressed&(BUTTON_LEFT|BUTTON_RIGHT))) {
             page=(page+((pressed&BUTTON_LEFT) ? 5 : 1))%6;dirty=TRUE;
-            XGM2_pause();XGM2_stopPCM(SOUND_PCM_CH2);music=FALSE;
+            XGM2_pause();XGM2_stopPCM(SOUND_PCM_CH3);music=FALSE;pcm=FALSE;
             if(page==5)valid=read_record(&sequence);
         }
         if(pressed&BUTTON_C){hl_clock_init(&clock,vtimer);logic=0;rejected=0;refresh=9;}
@@ -93,8 +93,12 @@ int main(bool hard_reset)
         else if(page==3) {
             if(pressed&BUTTON_A) {music=!music;if(music)XGM2_play(reference_music);else XGM2_pause();dirty=TRUE;}
             if(pressed&BUTTON_B){mode=(mode+1)%3;dirty=TRUE;}
-            if((held&BUTTON_START) && !XGM2_isPlayingPCM(SOUND_PCM_CH2_MSK))
-                XGM2_playPCMEx(reference_pcm,sizeof(reference_pcm),SOUND_PCM_CH2,5,FALSE,FALSE);
+            if(pressed&BUTTON_START) {
+                pcm=!pcm;
+                if(pcm)pcm=XGM2_playPCMEx(reference_pcm,sizeof(reference_pcm),SOUND_PCM_CH3,5,FALSE,TRUE);
+                else XGM2_stopPCM(SOUND_PCM_CH3);
+                field("",pcm ? "START: CONTINUOUS PCM TONE ON" : "START: CONTINUOUS PCM TONE OFF",10);
+            }
         } else if(page==4 && (pressed&BUTTON_A)) {
             capture=!capture;refresh=9;
             field("",capture ? "PAGE LOCKED: TEST DPAD / BUTTONS" : "A: LOCK PAGE TO TEST LEFT / RIGHT",22);
@@ -131,7 +135,7 @@ int main(bool hard_reset)
             } else if(page==3) {
                 text(music ? "A: MUSIC ON" : "A: MUSIC OFF",6);
                 number("B: EXTRA DMA BYTES: ",mode*1024,8);
-                text("HOLD START: REPEAT PCM TONE",10);
+                text(pcm ? "START: CONTINUOUS PCM TONE ON" : "START: CONTINUOUS PCM TONE OFF",10);
                 text("COMPARE MUSIC ALONE, THEN PCM",12);
                 text("LISTEN FOR CRACKLE / DROPOUTS",13);
                 text("SAME RETAINED BUFFER EACH FRAME",16);

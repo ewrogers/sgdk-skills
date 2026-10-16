@@ -24,7 +24,8 @@ do not replace unknowns with a successful build result.
    limit both rows fit; above it trailing content should drop. Record any
    emulator sprite-limit override; use normal limits for the comparison.
 4. On DMA/Audio, play music with A. Compare B's 0/1024/2048-byte modes without
-   holding Start. Then hold Start for the repeating one-second PCM reference.
+   enabling the tone. Then press Start for the continuous PCM reference; press
+   Start again to stop it.
    Listen separately and record audible changes, loop gaps and queue rejections.
 5. Try both pads. On Controllers, A locks the page so Left/Right can be tested
    without navigating; A unlocks it again. Check held-bit release as well as

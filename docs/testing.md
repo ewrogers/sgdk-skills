@@ -759,7 +759,9 @@ limits, VRAM upload boundaries, record round trips and every single-bit record
 corruption. Padded field replacements cover shrinking numbers, stable labels,
 exact width, null inputs and rejection without a partial write. An independent
 Python CRC oracle checks the serialized bytes.
-Standalone preparation is exercised through a second copied project.
+Standalone preparation is exercised through a second copied project. The PCM
+reference is a native 256-sample, zero-DC waveform with bounded adjacent sample
+steps, including its loop boundary.
 
 With `SGDK_SKILLS_INTEGRATION=1`, both container architectures build release/debug
 Hardware Lab and helper probes, plus PAL/NTSC header variants. Tests inspect the

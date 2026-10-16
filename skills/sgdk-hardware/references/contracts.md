@@ -62,7 +62,10 @@ visible art, the SAT, scroll tables or the font with the test upload.
 XGM2 owns its Z80 driver. The Lab uses normal queued VBlank transfers and enables
 [`Z80_setForceDelayDMA(TRUE)`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/z80_ctrl.h).
 That delays queued DMA by about three scanlines, costing some bandwidth. It
-does not promise perfect PCM under every workload. Do not sprinkle raw Z80 bus
+does not promise perfect PCM under every workload. The continuous reference
+uses XGM2 channel 3 (preferred by the SDK automatic selector for lower CPU cost).
+It starts once with looping enabled; there is no per-frame PCM-status bus request
+or one-second replay gap to confuse the comparison. Do not sprinkle raw Z80 bus
 requests or FM register writes around an active driver. See
 [hardware issues](https://plutiedev.com/hardware-issues),
 [DMA transfers](https://plutiedev.com/dma-transfer) and

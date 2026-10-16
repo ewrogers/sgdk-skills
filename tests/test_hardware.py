@@ -41,7 +41,7 @@ class HardwareTests(unittest.TestCase):
                 r=subprocess.run([str(binary)],capture_output=True,text=True,timeout=30);self.assertEqual(r.returncode,0,r.stderr)
                 self.assertEqual(subprocess.check_output([str(binary),'record'],text=True).strip(),expected)
 
-    def test_standalone_copy_native_font_finite_pcm_and_no_overwrite(self):
+    def test_standalone_copy_native_font_seamless_pcm_and_no_overwrite(self):
         prepare=load_prepare()
         self.assertEqual(len(prepare.font_words()),768)
         self.assertTrue(all((word>>shift)&15 in (1,15) for word in prepare.font_words() for shift in range(0,32,4)))
@@ -54,7 +54,14 @@ class HardwareTests(unittest.TestCase):
                 self.assertEqual((project/name).read_bytes(),(Path(scratch)/'second copy'/name).read_bytes())
             import wave
             with wave.open(str(project/'res/reference.wav')) as wav:
-                self.assertEqual((wav.getnchannels(),wav.getsampwidth(),wav.getframerate(),wav.getnframes()),(1,2,13300,13300))
+                self.assertEqual((wav.getnchannels(),wav.getsampwidth(),wav.getframerate(),wav.getnframes()),(1,2,13300,256))
+                import struct
+                samples=struct.unpack('<256h',wav.readframes(256))
+                self.assertEqual(sum(samples),0);self.assertEqual(samples[0],0)
+                self.assertGreater(max(samples),7000)
+                interior=max(abs(b-a) for a,b in zip(samples,samples[1:]))
+                self.assertLessEqual(abs(samples[0]-samples[-1]),interior)
+                self.assertLess(interior,1200)
         with self.assertRaises(ValueError):prepare.prepare(LAB/'new output')
 
 @unittest.skipUnless(os.environ.get('SGDK_SKILLS_INTEGRATION')=='1','Docker integration is opt-in')
@@ -88,7 +95,7 @@ class HardwareContainerTests(unittest.TestCase):
                     hashes[kind+'-'+mode]=hashlib.sha256(rom).hexdigest()
                     if kind=='probe':
                         code,values=execute(rom,run('m68k-elf-nm','--defined-only','out/rom.out'));self.assertEqual(code,0,f'Target contract failed at {code}')
-                        geometry=values[:3];self.assertEqual(geometry[0],16);self.assertGreater(geometry[1],256);self.assertGreater(geometry[2],12000)
+                        geometry=values[:3];self.assertEqual(geometry[0],16);self.assertGreater(geometry[1],256);self.assertEqual(geometry[2],256)
                         body=b'HWL\x01\x12\x34\x56\x78\x55\xaa';record=body+binascii.crc_hqx(body,0xffff).to_bytes(2,'big')
                         self.assertEqual(values[3:15],list(record))
                         self.assertEqual(values[15:],[half for word in prepare.font_words() for half in (word>>16,word&65535)])

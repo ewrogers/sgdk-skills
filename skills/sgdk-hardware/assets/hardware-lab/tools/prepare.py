@@ -28,10 +28,10 @@ def prepare(output):
     for name in ('Makefile','README.md'):shutil.copyfile(ROOT/name,output/name)
     (output/'res').mkdir()
     for name,data in music().items():(output/'res'/name).write_bytes(data)
-    # Finite, quiet one-second PCM reference with a short fade at both ends.
+    # Seamless 256-sample reference: six complete cycles, no restart gap.
     with wave.open(str(output/'res/reference.wav'),'wb') as wav:
         wav.setparams((1,2,13300,0,'NONE','not compressed'))
-        wav.writeframes(b''.join(struct.pack('<h',int(7500*min(1,i/150,(13299-i)/400)*math.sin(2*math.pi*330*i/13300)))for i in range(13300)))
+        wav.writeframes(b''.join(struct.pack('<h',int(7500*math.sin(2*math.pi*6*i/256)))for i in range(256)))
     (output/'inc/font.h').write_text('/* Original 5x7 opaque font. */\nstatic const u32 font_tiles[768]={\n'+',\n'.join(f'0x{v:08x}'for v in font_words())+'\n};\n')
     (output/'res/resources.res').write_text('XGM2 reference_music "garden.vgm"\nWAV reference_pcm "reference.wav" XGM2\n')
     return output

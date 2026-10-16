@@ -2,7 +2,7 @@
 
 A small original diagnostic ROM for observing SGDK startup, video, sprite
 scanlines, DMA/audio, controllers and an opt-in SRAM record. No external art or
-music is needed. The quiet FM theme and finite PCM tone are reference sounds.
+music is needed. The quiet FM theme and seamless PCM tone are reference sounds.
 
 ## Build
 
@@ -29,7 +29,7 @@ J/K in ares); configure your own keyboard/controller mapping as needed.
 | Boot / Region | A software reset; B forced init | Entry classification and retained globals; nominal PAL/NTSC cadence, VInt gaps |
 | Video Patterns | None | Color ramps, fine stripes, edge cropping and display artifacts |
 | Sprite Scanlines | A toggles overload | At-limit rows versus expected trailing dropout above the piece/pixel limits |
-| DMA / Audio | A music; B 0/1/2 KiB extra upload; hold Start PCM | Compare music alone first, then PCM; listen for changes and check missed service / rejected queues |
+| DMA / Audio | A music; B 0/1/2 KiB extra upload; Start toggles PCM | Compare music alone first, then continuous PCM; listen for changes and check missed service / rejected queues |
 | Controllers | A locks/unlocks page; press/release either pad | Raw port/device type and held bitfields; physical pads still need testing |
 | SRAM Record | A read; **hold B then press A write** | CRC-valid sequence survives read/reset; boot never writes |
 
@@ -48,6 +48,10 @@ They are not erased and rewritten during active display.
 
 Queued upload data stays allocated and unchanged. Its private VRAM range is
 `$8000..$87FF`; the workload is **additional** to text and sprite-table transfers.
+The tone loops a 256-sample waveform on XGM2 channel 3; it has no one-second
+restart gap and does not poll/stop the Z80 every frame. Turn it off with Start
+before leaving the page if desired; changing page also stops it.
+
 An 8192-byte software allowance and forced three-line DMA delay are test
 policies, not console bandwidth guarantees. VInt counters cannot detect time
 lost while interrupts are masked, independently measure Hz or certify sound.
