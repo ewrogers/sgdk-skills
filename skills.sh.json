@@ -16,6 +16,7 @@
       "description": "Bring your game's art, controls, menus, gameplay, audio and saves together.",
       "skills": [
         "sgdk-assets",
+        "sgdk-pixellab",
         "sgdk-graphics",
         "sgdk-raster",
         "sgdk-input",

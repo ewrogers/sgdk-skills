@@ -16,6 +16,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
 | [sgdk-best-practices](skills/sgdk-best-practices/SKILL.md) | Write or review C contracts, module boundaries and safe SGDK resource lifetimes. |
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
+| [sgdk-pixellab](skills/sgdk-pixellab/SKILL.md) | Generate and refine native-resolution art with cohesive palettes, prompt trials and SGDK validation. |
 | [sgdk-graphics](skills/sgdk-graphics/SKILL.md) | Display sprites, play animations, scroll backgrounds and add palette effects. |
 | [sgdk-raster](skills/sgdk-raster/SKILL.md) | Add per-line waves, waterline palette effects and split-screen cameras with explicit timing budgets. |
 | [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
@@ -64,6 +65,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-planning to plan a small platformer and identify what to prove first."
 - "Use sgdk-best-practices to review this module’s arithmetic, ownership and failure handling."
 - "Use sgdk-assets to import this spritesheet and check its palette budget."
+- "Use sgdk-pixellab to generate palette-cohesive native sprites and validate their exports."
 - "Use sgdk-graphics to animate a character over a scrolling background with a fixed HUD."
 - "Use sgdk-raster to add underwater ripples and a palette switch below a moving waterline."
 - "Use sgdk-audio to add music, prioritized effects and a pause-menu transition."

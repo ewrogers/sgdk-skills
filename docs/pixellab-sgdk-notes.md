@@ -1,9 +1,11 @@
 # PixelLab and SGDK: production notes
 
 Working observations from Shooter Lab and Carpet of the Crescent, recorded on
-2026-10-15. These are inputs for a future PixelLab/SGDK skill, not a finished
-skill or a claim that every PixelLab model behaves the same way. Recheck tool
-schemas when implementing that skill.
+2026-10-15. These historical observations informed
+[sgdk-pixellab](../skills/sgdk-pixellab/SKILL.md). Its
+[prompt study](../skills/sgdk-pixellab/assets/prompt-study/README.md) adds measured
+trials, original images and prepared exports. Neither is a claim that every
+PixelLab model behaves the same way. Recheck live schemas when using the skill.
 
 ## What has worked
 
@@ -156,7 +158,7 @@ The distinction matters: the service is already producing attractive pixel art.
 The missing convenience is a reliable path from that artwork to a constrained
 console asset, with explicit checks rather than additional prompt prose.
 
-## Starting point for the future skill
+## Original design notes
 
 Compose it with `sgdk-assets`, `sgdk-graphics` and `sgdk-performance` where
 available. Keep the PixelLab-specific generation workflow separate from the
