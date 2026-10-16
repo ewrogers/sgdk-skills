@@ -700,3 +700,17 @@ ARM64/AMD64 hashes, geometry and budgets in
 automatic bidirectional walking at the slow budget, with readiness-wait and
 missed-frame counters. PAL presentation and physical hardware remain separate
 from nominal-clock and CPU/resource checks.
+
+
+## Gameplay animation checks
+
+`tests/test_animation.py` executes Animation Lab's actual clock/action model at
+`-O0`/`-O3` with Unix undefined-behavior checks. It covers exact holds, first/last
+active ticks, one hit per attack, mirrored contacts, restart, interruption,
+buffered recovery cancels, completion once, pause/slow input and nominal PAL/NTSC
+progress. A 100,000-frame mixed run checks state and event-batch bounds.
+Container checks build release/debug, execute base-M68000 contracts, compare a
+2,000-frame host/target trace and reconstruct every linked pose's pixels and
+palette from the target resource data. Reports are in `build/animation-integration`.
+Native ARM64/AMD64 CI compares hashes, geometry and budgets. These are model and
+resource checks; visible alignment, audio and actual frame timing need playtests.

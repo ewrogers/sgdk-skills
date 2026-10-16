@@ -18,6 +18,7 @@
         "sgdk-assets",
         "sgdk-pixellab",
         "sgdk-graphics",
+        "sgdk-animation",
         "sgdk-effects",
         "sgdk-raster",
         "sgdk-input",
