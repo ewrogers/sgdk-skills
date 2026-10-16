@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "name": "courier-v1",
+  "seed": 44257,
+  "tick_hz": 60,
+  "runs": [
+    {"ticks": 32, "held": 8},
+    {"ticks": 1, "held": 64},
+    {"ticks": 27, "held": 8},
+    {"ticks": 20, "held": 1},
+    {"ticks": 1, "held": 64},
+    {"ticks": 38, "held": 8},
+    {"ticks": 1, "held": 128},
+    {"ticks": 59, "held": 0},
+    {"ticks": 1, "held": 128},
+    {"ticks": 60, "held": 2},
+    {"ticks": 1, "held": 64},
+    {"ticks": 99, "held": 4},
+    {"ticks": 1, "held": 64},
+    {"ticks": 59, "held": 1},
+    {"ticks": 1, "held": 64},
+    {"ticks": 99, "held": 8},
+    {"ticks": 1, "held": 64},
+    {"ticks": 79, "held": 2},
+    {"ticks": 1, "held": 64},
+    {"ticks": 99, "held": 4},
+    {"ticks": 40, "held": 0}
+  ]
+}

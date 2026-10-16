@@ -34,6 +34,29 @@ Installation tests keep telemetry disabled so repeated CI runs do not affect
 directory install counts. The repository's `skills.sh.json` groups the public
 directory page; a host check keeps those groups in sync with the shipped skills.
 
+## Deterministic testing and Test Lab
+
+The installed `sgdk-testing` skill provides a standalone Test Lab and portable
+QA commands. `tests/test_testing.py` executes its real C model, checking input
+edges, pause, wall bounds, pool exhaustion/reuse and recording limits. A
+100,000-tick run checks repeatability and bounded state. The same logical tape
+must match its reviewed checkpoints under nominal 50/60 Hz render schedules.
+An injected movement bug must fail at tick 60; malformed, missing, reordered
+or foreign reports must not pass. Existing outputs cannot be overwritten.
+
+Docker tests build the ordinary ROM and a dedicated CPU probe in release/debug.
+Unicorn 2.1.4 executes the probe as base M68000 and compares every checkpoint
+with the host baseline, including actual loop counts for both schedules.
+Native ARM64/AMD64 CI compares the four ROM hashes and reports. Probe execution
+bypasses startup and does not emulate VDP, interrupts, input hardware or audio.
+The ordinary ROM has built-in playback for separate ares checks; its deliberate
+bug toggle demonstrates a visible regression. Live RAM takes can be replayed
+but are not exported to host files in this slice.
+
+These checks support automated logic QA. They do not prove equal PAL/NTSC
+physical input latency, real-time performance, visual correctness or hardware
+compatibility. The Lab README lists separate emulator acceptance checks.
+
 ## Build real ROMs
 
 With Docker running in Linux-container mode, enable the resource and debugging
