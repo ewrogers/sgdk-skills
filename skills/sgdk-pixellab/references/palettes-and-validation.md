@@ -153,3 +153,37 @@ tilemap palette attribute through real ResComp in release/debug builds.
 See the [color study](../assets/color-study/README.md) for one-line/two-line
 comparisons and four-line scene plans. More lines can improve an image, but the
 best allocation depends on the actors, UI and other art visible at the same time.
+
+## Optional shadow/highlight artwork
+
+Mega Drive shadow/highlight supplies shadow, normal and highlight brightness
+treatments of palette colors. It can extend material ramps without allocating
+another CRAM line, but is not an unrestricted extra set of hues or per-pixel
+brightness stored in an ordinary tile. Plan the art and layer priorities for it;
+do not enable it automatically during palette conversion.
+
+The hardware rules are described in [Plutiedev’s guide](https://plutiedev.com/shadow-highlight).
+SGDK exposes `VDP_setHilightShadow(bool value)` in the verified
+[VDP header](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/inc/vdp.h).
+Low-priority composition can become shadowed; high-priority layers can prevent
+that shadow, including transparent plane pixels. Sprite color 14 has special
+normal-brightness behavior. On sprite palette line 3, indices 14 and 15 become
+highlight/shadow operators on the underlying image rather than ordinary colors.
+They are not general colored translucency.
+
+Consequently a blind toggle breaks existing art. In our normal showcase,
+PAL3 sprite panels use index 15 as white; that entry would become a shadow
+operator. Remap the UI and test priorities, transparency and overlap first.
+Authored operator-mask sprites can provide localized lighting, but cost sprite
+pieces, scanline pixels and tile storage. Broad background priority choices may
+avoid masks, while giving less fine-grained control. The mode itself does not
+require HBlank palette writes or their CRAM-dot tradeoffs.
+
+Use it when the desired extra colors are related light/dark shades and the
+composition supports it. It cannot recover missing unrelated hues from an
+aggressive palette reduction. For a varied city background, first review which
+ramps each 8×8 tile needs and how the four scene lines are shared. Compare a
+purpose-built shadow/highlight prototype against that baseline before claiming
+it improves the art. The current showcase and exporters do not implement or
+validate shadow/highlight encoding; do not describe their normal PNG previews
+as a hardware-accurate preview of this mode.
