@@ -99,6 +99,8 @@ jobs:
             build/asterfall-integration/*.log
             build/rpg-integration/rpg-report.json
             build/rpg-integration/*.log
+            build/memory-integration/memory-report.json
+            build/memory-integration/*.log
             build/streaming-integration/streaming-report.json
             build/streaming-integration/*.log
             build/effects-integration/effects-report.json
@@ -233,6 +235,12 @@ jobs:
           assert all(report["passed"] for report in effects.values())
           for field in ["hashes", "geometry", "trace_digest", "selection_instructions", "budgets"]:
               assert effects["amd64"][field] == effects["arm64"][field], (field, effects)
+          memory_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("memory-report.json"))
+                            for arch in ("arm64", "amd64")}
+          assert all(len(paths) == 1 for paths in memory_reports.values()), memory_reports
+          memories = {arch: json.loads(paths[0].read_text()) for arch, paths in memory_reports.items()}
+          assert all(report["passed"] for report in memories.values())
+          assert memories["arm64"] == memories["amd64"], memories
           streaming_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("streaming-report.json"))
                                for arch in ["amd64", "arm64"]}
           assert all(len(paths) == 1 for paths in streaming_reports.values()), streaming_reports

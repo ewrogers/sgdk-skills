@@ -10,17 +10,25 @@ on your computer, and use an agent to help with setup, assets and debugging.
 For Sega CD development, see [Megadev Docker](https://github.com/ewrogers/megadev-docker)
 and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development).
 
+## Skills
+
+### Get started
+
 | Skill | What to ask it for |
 | --- | --- |
-| [sgdk-planning](skills/sgdk-planning/SKILL.md) | Turn a game idea into a first playable milestone, hardware budgets and practical tests. |
 | [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
+| [sgdk-planning](skills/sgdk-planning/SKILL.md) | Turn a game idea into a first playable milestone, hardware budgets and practical tests. |
 | [sgdk-best-practices](skills/sgdk-best-practices/SKILL.md) | Write or review C contracts, module boundaries and safe SGDK resource lifetimes. |
+
+### Build your game
+
+| Skill | What to ask it for |
+| --- | --- |
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
 | [sgdk-pixellab](skills/sgdk-pixellab/SKILL.md) | Generate native art with cohesive palettes, prompt trials and SGDK validation; includes a playable JRPG art catalog. |
 | [sgdk-graphics](skills/sgdk-graphics/SKILL.md) | Display sprites, play animations, scroll backgrounds and add palette effects. |
 | [sgdk-effects](skills/sgdk-effects/SKILL.md) | Add particles, explosions, trails, weather and screen shake with bounded rendering. Includes Effects Lab. |
 | [sgdk-raster](skills/sgdk-raster/SKILL.md) | Add per-line waves, waterline palette effects and split-screen cameras with explicit timing budgets. |
-| [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
 | [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
 | [sgdk-localization](skills/sgdk-localization/SKILL.md) | Add translated text, accents, bounded substitutions and font/layout budgets. Includes Language Lab. |
@@ -28,17 +36,34 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-levels](skills/sgdk-levels/SKILL.md) | Import Tiled levels, stream large maps, and keep collision and cameras aligned. |
 | [sgdk-streaming](skills/sgdk-streaming/SKILL.md) | Stream area art through tile caches, keep shared art resident and budget uploads. Includes Streaming Lab. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
-| [sgdk-shmup](skills/sgdk-shmup/SKILL.md) | Build vertical or horizontal shooters. Includes [Shooter Lab](skills/sgdk-shmup/assets/shooter-lab/README.md) and [Carpet Lab](skills/sgdk-shmup/assets/carpet-lab/README.md). |
-| [sgdk-platformer](skills/sgdk-platformer/SKILL.md) | Tune jumps, slopes, moving platforms, enemy stomps, powers and hidden passages. |
-| [sgdk-rpg](skills/sgdk-rpg/SKILL.md) | Build party stats, equipment, inventory, abilities, turn-based encounters and checkpoint recovery. Includes Adventure Lab. |
 | [sgdk-math](skills/sgdk-math/SKILL.md) | Use fixed-point numbers, angles, aiming, interpolation and perspective effects without guessing at precision or range. |
 | [sgdk-ai](skills/sgdk-ai/SKILL.md) | Build enemy states, sight/detection, target selection and bounded navigation with predictable search work. |
 | [sgdk-scenes](skills/sgdk-scenes/SKILL.md) | Build game flow, character selection, pause, Continue and safe resource handoffs between screens. |
-| [sgdk-cartridge](skills/sgdk-cartridge/SKILL.md) | Bank large ROMs, keep shared content and audio reachable, and save without disturbing mappings. |
+| [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-save](skills/sgdk-save/SKILL.md) | Save progress to SRAM, recover damaged saves and add controller-friendly passwords. |
-| [sgdk-performance](skills/sgdk-performance/SKILL.md) | Measure frame-rate headroom, compare optimizations and separate CPU, DMA and scanline limits. |
-| [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
+| [sgdk-cartridge](skills/sgdk-cartridge/SKILL.md) | Bank large ROMs, keep shared content and audio reachable, and save without disturbing mappings. |
+
+### Game genres
+
+| Skill | What to ask it for |
+| --- | --- |
+| [sgdk-platformer](skills/sgdk-platformer/SKILL.md) | Tune jumps, slopes, moving platforms, enemy stomps, powers and hidden passages. |
+| [sgdk-shmup](skills/sgdk-shmup/SKILL.md) | Build vertical or horizontal shooters. Includes [Shooter Lab](skills/sgdk-shmup/assets/shooter-lab/README.md) and [Carpet Lab](skills/sgdk-shmup/assets/carpet-lab/README.md). |
+| [sgdk-rpg](skills/sgdk-rpg/SKILL.md) | Build party stats, equipment, inventory, abilities, turn-based encounters and checkpoint recovery. Includes Adventure Lab. |
+
+### Test, debug and optimize
+
+| Skill | What to ask it for |
+| --- | --- |
 | [sgdk-testing](skills/sgdk-testing/SKILL.md) | Build deterministic replays, PAL/NTSC logic checks and regression reports for automated QA. Includes Test Lab. |
+| [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
+| [sgdk-performance](skills/sgdk-performance/SKILL.md) | Measure frame-rate headroom, compare optimizations and separate CPU, DMA and scanline limits. |
+| [sgdk-memory](skills/sgdk-memory/SKILL.md) | Account for RAM, manage allocation lifetimes and diagnose fragmentation. Includes Memory Lab. |
+
+### Ship your game
+
+| Skill | What to ask it for |
+| --- | --- |
 | [sgdk-release](skills/sgdk-release/SKILL.md) | Check an SGDK ROM and package the exact tested build with documents, hashes and build records. |
 
 ## Install
@@ -88,6 +113,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-math to build a fixed-point starfield and orbiting formations."
 - "Use sgdk-cartridge to load stage graphics and music from separate ROM banks while keeping shared assets pinned."
 - "Use sgdk-save to add checkpoint saves, a backup slot and password entry."
+- "Use sgdk-memory to track RAM, diagnose a failed allocation and prove room cleanup restores the baseline."
 - "Use sgdk-performance to measure a busy scene and optimize it without changing gameplay."
 - "Use sgdk-debug to investigate this fault using the matching ELF file."
 - "Use sgdk-testing to replay this route and catch regressions in both PAL and NTSC schedules."
