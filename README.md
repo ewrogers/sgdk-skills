@@ -35,6 +35,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-localization](skills/sgdk-localization/SKILL.md) | Add translated text, accents, bounded substitutions and font/layout budgets. Includes Language Lab. |
 | [sgdk-dialogue](skills/sgdk-dialogue/SKILL.md) | Add text boxes, animated portraits, gradual styled text, choices and branching. |
 | [sgdk-levels](skills/sgdk-levels/SKILL.md) | Import Tiled levels, stream large maps, and keep collision and cameras aligned. |
+| [sgdk-isometric](skills/sgdk-isometric/SKILL.md) | Project diamond maps, sort elevated scenery and handle bridges, stairs and occlusion. Includes Isometric Lab. |
 | [sgdk-streaming](skills/sgdk-streaming/SKILL.md) | Stream area art through tile caches, keep shared art resident and budget uploads. Includes Streaming Lab. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
 | [sgdk-collision](skills/sgdk-collision/SKILL.md) | Add swept boxes, finite rays and bounded wall sliding, with explicit contact rules. Includes Collision Lab. |
@@ -108,6 +109,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-localization to add French and Spanish menus with accented glyphs and translated layout checks."
 - "Use sgdk-dialogue to add a portrait conversation with gradual text and branching choices."
 - "Use sgdk-levels to import a Tiled level with scrolling, walls and camera limits."
+- "Use sgdk-isometric to build an elevated courtyard with correct above/below bridge ordering."
 - "Use sgdk-streaming to preload area art with a bounded tile cache while keeping the hero and HUD resident."
 - "Use sgdk-gameplay to add a scrolling player, wall collision and reusable bullets."
 - "Use sgdk-shmup to build a scrolling shooter with readable bullet patterns, upgrades and a boss."

@@ -26,6 +26,7 @@
         "sgdk-localization",
         "sgdk-dialogue",
         "sgdk-levels",
+        "sgdk-isometric",
         "sgdk-streaming",
         "sgdk-gameplay",
         "sgdk-collision",
