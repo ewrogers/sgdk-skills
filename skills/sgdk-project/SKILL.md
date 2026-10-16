@@ -67,3 +67,6 @@ are separate questions; do not assume linking or a helper name makes them safe.
   checks actually ran. Run emulators on the host, separately from Docker.
 - If Docker or host file sharing is unavailable, explain that prerequisite.
   Do not silently install a native toolchain or change host security settings.
+
+For implementation-level C contracts, module boundaries and resource lifetimes,
+`sgdk-best-practices` can help when installed. Project setup does not depend on it.

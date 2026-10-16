@@ -437,3 +437,35 @@ and resource budgets. Example installation remains self-contained, and the
 skills installer test continues to disable telemetry. The PixelLab production
 notes in `docs/pixellab-sgdk-notes.md` are observations for a future skill,
 not a requirement to use generated art in every shooter.
+
+
+## Best-practices examples
+
+`tests/test_best_practices.py` copies the examples into an independent folder
+and builds the same C modules at `-O0` and `-O3` with strict aliasing enabled.
+Host tests cover all 65,536 input values for the widened square, saturation
+against a wider oracle, wrapped elapsed counters, invalid shift indices,
+4,000 byte-format round trips, malformed records and unchanged outputs on
+failure. Header-first/double inclusion is exercised by the adapter builds.
+
+The SDK test doubles inject sprite failure on either acquisition, reject
+reentry, repeat cleanup and verify release order. DMA adapter checks cover
+copied source contents, queue rejection/retry and balanced nested foreground
+critical sections. Unix host jobs additionally run these corrected examples
+with undefined-behavior sanitization; Windows runs the ordinary strict builds.
+Undefined examples discussed in the reference are not executed as benchmarks.
+
+With `SGDK_SKILLS_INTEGRATION=1`, the standalone SGDK project compiles all
+adapters in release/debug. A separate direct-entry M68000 probe executes the
+actual SDK's DMA copy/queue and interrupt-mask routines, checks copied words
+after source mutation, fills the queue and temporary storage independently,
+and verifies rejection, retry and previous-mask restoration. It explicitly
+initializes the SDK allocator/queue because the harness bypasses startup.
+The test's internal buffer inspection is not an application-facing SDK API.
+
+Native ARM64/AMD64 CI requires matching release/debug hashes for the ordinary
+example and SDK probe, reported in
+`build/best-practices-integration/best-practices-report.json`. This validates
+code and queue contracts, not live sprite allocation, interrupt scheduling,
+VRAM/CRAM transfer timing or emulator/console presentation. The examples are
+small build/execution probes rather than a playable Lab ROM.
