@@ -116,3 +116,36 @@ rework a mismatch rather than claiming palette conversion fixed it.
 `create_tiles_pro` produced independent 32×32 hex terrain variations. Do not
 confuse that with the adjacency-aware connected top-down tileset tool. Keep the
 actual returned metadata and validate material boundaries in a reconstructed map.
+
+## Characters and fonts in a complete catalog
+
+The [Asterfall mockup](../assets/asterfall/README.md) used 55 generations for a
+cohesive native art set and recorded the complete requests and finishing steps.
+Standard 32-pixel characters arrived on 48×48 canvases, including animation
+margin. Preserve that actual canvas and align all directions/frames; do not
+assume the requested body size is the output PNG size. A four-direction template
+walk cost four generations in this run. Style-character references were rejected
+in standard mode; the live response required pro mode. Keep such failures in
+the ledger and do not pay for redundant retries.
+
+The 8-pixel font returned a 64×80 atlas, despite the schema documenting an
+80×64 atlas. Its 80-character order remained as documented. Inspect the actual
+dimensions and full alphabet, rather than slicing blindly from the schema.
+The source glyphs were black with transparency, so an all-black preview did not
+mean an empty font. Initial alpha remapping preserved its irregular letterforms,
+but playtesting found them hard to read. Asterfall therefore uses an authored
+5×7 production font, lowercase names and an integer 2× title variant; the
+generated original remains visible in the catalog. Native dimensions and a
+correct palette are necessary, but do not prove legibility. These repairs are
+finishing, not additional generations.
+
+Its title illustration also demonstrates selective shadow/highlight fitting: a
+256×64 operator mask adds tones between the lettering and menu. It uses no
+HBlank CRAM writes and is disabled in field scenes. See the catalog README for
+the VRAM and sprite cost; do not enable it globally or recolor arbitrary actor
+sprites without planning priority and PAL3 operator indices.
+
+The intro sky contained invented lettering despite a no-text prompt. Its native
+empty-sky strip repair is recorded and the original remains available. A good
+prompt reduces avoidable work, but output inspection and honest edits remain
+necessary even when dimensions, palettes and reported suspect counts pass.

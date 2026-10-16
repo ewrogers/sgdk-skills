@@ -97,6 +97,12 @@ gallery’s confusing design comparisons and tests four themed scene palettes.
 It includes same-asset exports, source-derived palette proposals, per-tile
 background lines and a buildable four-page showcase ROM.
 
+The [Asterfall catalog](assets/asterfall/README.md) brings generated artwork
+into a navigable JRPG mockup: intro/title, naming, mock saves, travel, four
+locations, NPC dialogue and character menus. Its style and mock game rules are
+illustrative. Reuse the preparation and palette-ownership patterns, not an
+assumption that another game should share its look, music or framework.
+
 Use `ewrogers/sgdk:latest`, pulled before validation, and verify resource syntax
 in the selected image's `bin/rescomp.txt`. Budget actual frame tiles, palettes,
 VRAM, transfers and hardware sprite pieces separately. Read

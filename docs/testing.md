@@ -536,3 +536,10 @@ and decodes samples from every linked lighting-mask sprite in real M68000 code.
 CI builds both the normal comparison ROM and the executable probe in release/debug
 on ARM64 and AMD64 and compares their hashes. Emulator review is separate from
 these resource checks; the ares preview model is not an analog hardware guarantee.
+
+Asterfall, the PixelLab JRPG catalog, adds host/M68000 tests for naming bounds,
+mock saves, menu navigation, travel, dialogue and foot-box collision. Its native
+preparation checks retain original glyph silhouettes and dimensions. Linked
+resource checks cover palette ownership, every direction/frame and conservative
+room/dialogue VRAM reservations. CI compares release/debug catalog and logic-probe
+ROM hashes across ARM64/AMD64; visual/audio approval remains a separate playtest.
