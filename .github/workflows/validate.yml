@@ -85,6 +85,8 @@ jobs:
             build/math-integration/math-report.json
             build/platformer-integration/platformer-report.json
             build/shmup-integration/shmup-report.json
+            build/carpet-integration/carpet-report.json
+            build/carpet-integration/*.log
 
   compare:
     name: Compare generated ROMs
@@ -144,4 +146,11 @@ jobs:
           shooters = {arch: json.loads(paths[0].read_text()) for arch, paths in shooter_reports.items()}
           assert all(report["passed"] for report in shooters.values())
           assert shooters["amd64"]["hashes"] == shooters["arm64"]["hashes"], shooters
+          carpet_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("carpet-report.json"))
+                            for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in carpet_reports.values()), carpet_reports
+          carpets = {arch: json.loads(paths[0].read_text()) for arch, paths in carpet_reports.items()}
+          assert all(report["passed"] for report in carpets.values())
+          assert carpets["amd64"]["hashes"] == carpets["arm64"]["hashes"], carpets
+          assert carpets["amd64"]["budgets"] == carpets["arm64"]["budgets"], carpets
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")

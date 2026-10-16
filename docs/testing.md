@@ -403,3 +403,37 @@ single absorption and expiry. Bomb tests cover arming delay, outward clearing,
 one-time nonlethal boss damage, empty-stock feedback and pause. The compiled
 font keeps 96 ASCII slots, and sprite-definition probes verify actual frame and
 hardware-piece counts for the sparse boss dissolve and utility sprites.
+
+## Carpet Lab
+
+`tests/test_carpet.py` compiles the horizontal game's portable C model from a
+standalone copy, with strict warnings. It covers three-stage/credits flow,
+PAL/NTSC input edges and pause, all combined weapon states, gem purchase caps,
+fixed boomerang trajectories, bounded chain targeting, Ribbon damage cadence,
+releasing/repressing fire, pool exhaustion, shield loss and sparse gem drops.
+A 12,000-case full-state comparison checks broad-phase projectile collision
+against a reference substep walk; separate golden cases check the shared weapon
+policies. A 100,000-step deterministic soak checks bounds and pool limits.
+
+Adapter regressions execute HUD placement/selection, disabled selection,
+credits panel bounds, multi-glyph banner packing and caching, shield mirroring,
+and beam PCM start/refresh/release/pause behavior. Asset tests validate native
+size, palette, PNG CRCs, connected gem outlines, reproducible UI/audio and VGM
+wait/loop/PCM formats. Synthetic linked resources reproduce the former later-stage
+VRAM overflow and reject oversized actor/banner and menu reservations. Header
+tests check the final padded extent, preserve the checksum and reject malformed
+input without changing the file.
+
+With `SGDK_SKILLS_INTEGRATION=1`, CI builds release and debug ROMs in a disposable
+path containing spaces, checks their headers and actual linked VRAM usage,
+then builds a direct-entry probe against that same SDK. Unicorn 2.1.4 executes
+the probe as M68000, checking resource geometry, mirrored sprite placement,
+clock behavior, combined upgrades, beam/boomerang/chain rules and direction
+vectors. This does not emulate startup, VDP timing or the audio hardware.
+
+The native AMD64/ARM64 jobs publish `build/carpet-integration/carpet-report.json`
+and build logs. The comparison job requires matching release/debug ROM hashes
+and resource budgets. Example installation remains self-contained, and the
+skills installer test continues to disable telemetry. The PixelLab production
+notes in `docs/pixellab-sgdk-notes.md` are observations for a future skill,
+not a requirement to use generated art in every shooter.

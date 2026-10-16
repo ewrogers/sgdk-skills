@@ -187,3 +187,42 @@ For phase profiling, the optional `SHOOTER_PROFILE` release flag measures the
 model, sound dispatch and drawing with SGDK's `getSubTick()`. Its counter is
 coarse in VBlank, so the HUD percentages are diagnostic estimates. Profiling
 is omitted from the normal release and is not part of the gameplay timing rule.
+
+
+## Horizontal companion: Carpet of the Crescent
+
+[Carpet Lab](../assets/carpet-lab/README.md) proves a different layout and mood:
+three horizontal stages with far/near parallax, a top status strip and a bottom
+upgrade track. This is another example, not a required shooter architecture.
+
+The bottom uses `VDP_setWindowOnBottom(2)`. Tile-row scrolling keeps the top two
+Plane A rows fixed while the foreground moves. The four palette lines belong
+to distant scenery, near scenery, actors and effects/UI respectively. Its
+32×32 rider and 64×64 guardians use ResComp's actual multi-piece frame offsets,
+including mirrored offsets; the renderer owns the SAT exclusively.
+
+A 560-tile reservation holds common actor/effect frames, the current guardian
+and two 24-character banner lines. The menu button sprites reuse the guardian
+region outside gameplay. Headers group four adjacent glyphs into a hardware
+sprite, so a 22-letter stage name does not exhaust the 20-entry scanline limit.
+Shield quarters mirror existing effect tiles instead of reserving new frames.
+These are example-specific budget choices, not SGDK requirements.
+
+Run the example's `tools/check_vram.py` after building. It reads the linked ROM,
+not estimates from PNG dimensions, and checks all stages plus title/credits.
+The runtime also checks every layout before starting. Resource ABI assertions
+keep the checker aligned with the selected SDK. A scenery failure freezes the
+game and clears scroll/sprite state before drawing a stable error screen.
+
+Ribbon uses repeated resident patterns and a bounded 192-pixel beam. Its visible
+animation is separate from its six-tick damage cadence; Twin crescents remain
+active alongside it. PCM grains supply a beam sound without touching FM/PSG
+music state. Tests cover release, pause/resume and the damage sound's separate
+channel. Tempest's two-hop chain is bounded game logic, not a built-in SGDK API.
+
+Fixed pools and scanline-aware text do not prove arbitrary encounters fit the
+VDP. Player/hazards are submitted before weapon effects, gems and explosions;
+cosmetic effects may be dropped at the SAT limit. Dense rows still need runtime
+checks for 20 entries/320 sprite pixels, and hardware testing remains separate.
+The user playtested the three-stage game in ares; PAL scheduling and 68000
+arithmetic are tested automatically, without claiming real-console timing.

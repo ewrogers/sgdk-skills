@@ -22,7 +22,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
 | [sgdk-levels](skills/sgdk-levels/SKILL.md) | Import Tiled levels, stream large maps, and keep collision and cameras aligned. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
-| [sgdk-shmup](skills/sgdk-shmup/SKILL.md) | Build vertical or horizontal shooters with bullet patterns, waves, power-ups, scoring and bosses. |
+| [sgdk-shmup](skills/sgdk-shmup/SKILL.md) | Build vertical or horizontal shooters. Includes [Shooter Lab](skills/sgdk-shmup/assets/shooter-lab/README.md) and [Carpet Lab](skills/sgdk-shmup/assets/carpet-lab/README.md). |
 | [sgdk-platformer](skills/sgdk-platformer/SKILL.md) | Tune jumps, slopes, moving platforms, enemy stomps, powers and hidden passages. |
 | [sgdk-math](skills/sgdk-math/SKILL.md) | Use fixed-point numbers, angles, aiming, interpolation and perspective effects without guessing at precision or range. |
 | [sgdk-ai](skills/sgdk-ai/SKILL.md) | Build enemy states, sight/detection, target selection and bounded navigation with predictable search work. |

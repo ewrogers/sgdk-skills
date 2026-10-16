@@ -1,0 +1,78 @@
+{
+  "job": {
+    "canvas": [
+      16,
+      16
+    ],
+    "frame_count": 1,
+    "views": [
+      {
+        "id": "moon",
+        "offset": [
+          0,
+          0
+        ]
+      }
+    ],
+    "source_bookends_exact": false,
+    "require_clear_border": true
+  },
+  "scene": {
+    "palette": {
+      "ink": "#244992",
+      "white": "#ffffff",
+      "cyan": "#92dbff"
+    },
+    "layers": [
+      {
+        "id": "spell",
+        "name": "Body - crescent"
+      }
+    ],
+    "views": {
+      "moon": {
+        "nodes": {
+          "crescent": {
+            "layer": "spell",
+            "at": [
+              0,
+              0
+            ],
+            "draw": [
+              {
+                "op": "grid",
+                "at": [
+                  0,
+                  0
+                ],
+                "legend": {
+                  "o": "ink",
+                  "w": "white",
+                  "c": "cyan"
+                },
+                "rows": [
+                  "................",
+                  ".....ooooo......",
+                  "...oowccoooo....",
+                  "..owwwco........",
+                  "..owwwo.........",
+                  ".owwwo..........",
+                  ".owwwo..........",
+                  ".owwwo..........",
+                  ".owwwo..........",
+                  ".owwwo..........",
+                  "..owwwo.........",
+                  "..owwwco........",
+                  "...oowccoooo....",
+                  ".....ooooo......",
+                  "................",
+                  "................"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

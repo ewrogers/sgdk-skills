@@ -9,6 +9,10 @@ Start with a short course that proves the movement feels right. A character
 that jumps well in an empty room can still feel awkward beside ledges, low
 ceilings, moving platforms and enemies.
 
+Use these patterns to solve platformer mechanics and hardware constraints.
+The lab’s art, music, mood and tuning illustrate one game; they do not prescribe
+another game’s style or feel. Follow the project’s creative direction.
+
 ## Choose a starting point
 
 - [Movement and collision](references/movement.md): units, jump tuning, coyote

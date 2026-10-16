@@ -8,7 +8,7 @@ description: Build SGDK shoot-em-ups with scrolling stages, aimed/spread/ring/sp
 Choose the scroll direction and playable rectangle first. Then prove one enemy,
 one readable attack and one satisfying weapon before adding a whole stage.
 The game's mood, artwork, music, difficulty and scoring rules belong to the
-developer; Shooter Lab's choices are examples, not genre requirements.
+developer; the labs' choices are examples, not genre requirements.
 
 ## Choose the reference
 
@@ -21,8 +21,11 @@ developer; Shooter Lab's choices are examples, not genre requirements.
 - [Shooter Lab](assets/shooter-lab/README.md): a playable vertical example with
   a side HUD, two stages, weapon upgrades, shields, Twins, delayed bombs and
   patterned bosses.
+- [Carpet of the Crescent](assets/carpet-lab/README.md): a playable horizontal
+  example with three loadouts/stages, parallax, a gem-driven upgrade track,
+  returning crescents, a sustained piercing beam and chaining magic.
 
-The lab uses ordinary C game logic and SGDK directly. SGDK provides rendering,
+The labs use ordinary C game logic and SGDK directly. SGDK provides rendering,
 input, sound and frame processing; wave scripting, bullet patterns, hitboxes,
 scoring and boss state are original game code. Use `ewrogers/sgdk:latest`, pull
 before building, and check unfamiliar APIs in the selected SDK. The reference
