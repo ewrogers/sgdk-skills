@@ -539,7 +539,42 @@ these resource checks; the ares preview model is not an analog hardware guarante
 
 Asterfall, the PixelLab JRPG catalog, adds host/M68000 tests for naming bounds,
 mock saves, menu navigation, travel, dialogue and foot-box collision. Its native
-preparation checks retain original glyph silhouettes and dimensions. Linked
+preparation checks preserve native dimensions and verify authored production glyphs;
+the generated font remains as a reference after readability testing. Linked
 resource checks cover palette ownership, every direction/frame and conservative
 room/dialogue VRAM reservations. CI compares release/debug catalog and logic-probe
 ROM hashes across ARM64/AMD64; visual/audio approval remains a separate playtest.
+
+
+## RPG rules and Adventure Lab
+
+`tests/test_rpg.py` executes the actual party, battle, checkpoint, clock, layout
+and controller modules as host C. It covers stat recomputation, capped healing,
+revival, rejected actions without MP/stock/RNG changes, seeded damage, ties,
+fallen-actor skipping, status/combo rules, three-encounter progression and
+exactly-once rewards. Controller checks cover live target cycling in the boss
+encounter, pause, manual action messages and automatic victory-to-spoils timing.
+Formation rectangles must remain separate and inside the battle/HUD boundary.
+Nominal 50/60 Hz clocks produce the same elapsed simulation units.
+
+The SRAM spy executes the actual adapter with interrupted writes at every byte
+boundary. It checks older-slot recovery, corruption, sequence wrap, invalid
+records and balanced read/write enable calls. Art checks reproduce the full
+standalone project offline, preserve source dimensions and sprite alpha, pad
+field frames without rescaling, and refuse existing output directories. Paid
+PixelLab calls never run in CI.
+
+Docker tests build normal release/debug ROMs, then execute an independent entry
+point as base M68000 instructions. It runs the same rule tests and checks linked
+palette ownership, actor/frame dimensions, conservative VRAM reservations and
+sprite/scanline peaks for all three actual formations. The report records
+campaign/battle/controller structure sizes and graphics bounds. Native
+ARM64/AMD64 CI compares normal/probe hashes and budgets in
+`build/rpg-integration/rpg-report.json`. This does not emulate VDP/audio services,
+measure frame-time headroom or prove power-off SRAM retention.
+
+Local ares playtesting confirmed harbor movement, music, menus and battles;
+feedback improved formations, overhead targeting, down-facing artwork and
+message readability. Regional display/audio and physical hardware remain
+separate checks. The original Lab's setting, art, music and combat tuning are
+illustrative rather than requirements of the installed genre skill.

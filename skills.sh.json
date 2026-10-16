@@ -37,7 +37,8 @@
       "description": "Mechanics and implementation patterns for specific game genres.",
       "skills": [
         "sgdk-platformer",
-        "sgdk-shmup"
+        "sgdk-shmup",
+        "sgdk-rpg"
       ]
     },
     {
