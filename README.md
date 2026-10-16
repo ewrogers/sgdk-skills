@@ -18,6 +18,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
 | [sgdk-pixellab](skills/sgdk-pixellab/SKILL.md) | Generate native art with cohesive palettes, prompt trials and SGDK validation; includes a playable JRPG art catalog. |
 | [sgdk-graphics](skills/sgdk-graphics/SKILL.md) | Display sprites, play animations, scroll backgrounds and add palette effects. |
+| [sgdk-effects](skills/sgdk-effects/SKILL.md) | Add particles, explosions, trails, weather and screen shake with bounded rendering. Includes Effects Lab. |
 | [sgdk-raster](skills/sgdk-raster/SKILL.md) | Add per-line waves, waterline palette effects and split-screen cameras with explicit timing budgets. |
 | [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
@@ -70,6 +71,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-assets to import this spritesheet and check its palette budget."
 - "Use sgdk-pixellab to generate palette-cohesive native sprites and validate their exports."
 - "Use sgdk-graphics to animate a character over a scrolling background with a fixed HUD."
+- "Use sgdk-effects to add explosions, weather and camera shake without crowding out gameplay sprites."
 - "Use sgdk-raster to add underwater ripples and a palette switch below a moving waterline."
 - "Use sgdk-audio to add music, prioritized effects and a pause-menu transition."
 - "Use sgdk-input to add 3/6-button pad and mouse controls, with Team Player support."
