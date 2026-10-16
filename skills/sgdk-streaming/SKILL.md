@@ -41,6 +41,11 @@ advancing progress. A configured DMA limit alone is not a completion protocol.
 When the working set cannot fit, retain the old picture or cover it and perform
 a staged redraw; do not silently evict something still visible.
 
+A palette fade can hide a covered warp: drain black before replacing the old
+picture, hold until loading finishes, then fade in. Give the transition one
+palette owner and include its queued palette bytes in the same frame allowance.
+Do not let destination palette loads briefly restore full brightness mid-fade.
+
 ## Prove the lead time
 
 Prefetch for both movement directions, including the first step after loading.

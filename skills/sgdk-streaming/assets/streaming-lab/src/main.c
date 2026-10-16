@@ -8,10 +8,12 @@ enum { SHARED_BASE=96, PANEL_TILE=104, WORLD_WIDTH=1280, VIEW_WIDTH=320, ROWS=24
 static StreamCache cache;
 static ScIO io;
 static u16 columns[4][ROWS],colors[2][16];
+static u16 fade_colors[64],fade_destination;
+static SwFade fade;
 static u16 palette_owner[2]={0xFFFF,0xFFFF};
 static const char *names[]={"MOSS GARDEN","AMBER WORKS","TIDAL QUAY","MOONLIT RUINS"};
 static u16 camera,player=160,held_before,ticks,phase,build_column,load_camera;
-static bool loading=true,paused,slow,face_left;
+static bool loading=true,paused,slow,face_left,warp_covered;
 static u16 walk_waits;
 #ifdef SC_AUTOPLAY
 static u16 late;static u32 last_vblank;
@@ -84,7 +86,8 @@ static bool palettes(u16 x)
         u16 bank=room&1;
         if(palette_owner[bank]==room)continue;
         for(u16 i=0;i<16;i++)colors[bank][i]=area_colors[room][i];
-        if(!sc_queue_words(&io,DMA_CRAM,colors[bank],(PAL1+bank)*32,16,2))return false;
+        if(fade.state==SW_FADE_IDLE &&
+           !sc_queue_words(&io,DMA_CRAM,colors[bank],(PAL1+bank)*32,16,2))return false;
         palette_owner[bank]=room;
     }
     return true;
@@ -103,14 +106,22 @@ static void frame(u16 held,u16 hz)
     u16 pressed=held & (u16)~held_before;held_before=held;
     if(pressed&BUTTON_START)paused=!paused;
     if(pressed&BUTTON_B)slow=!slow;
-    if(pressed&BUTTON_A) {
-        u16 room=((loading ? load_camera : camera)/320+1)%4;
-        player=room*320+160;cover(room*320);
+    if((pressed&BUTTON_A) && !loading && fade.state==SW_FADE_IDLE) {
+        fade_destination=((camera/320+1)%4)*320;
+        sw_fade_begin(&fade);warp_covered=false;
     }
-    if(pressed&BUTTON_C) { if(sc_reset(&cache))cover(loading ? load_camera : camera); }
+    if((pressed&BUTTON_C) && fade.state==SW_FADE_IDLE) {
+        if(sc_reset(&cache))cover(loading ? load_camera : camera);
+    }
+    if(fade.state==SW_FADE_LOAD && !warp_covered) {
+        /* The previous frame's black palette has drained before covering/redrawing. */
+        player=fade_destination+160;cover(fade_destination);warp_covered=true;
+    }
+    bool fading=fade.state!=SW_FADE_IDLE;
+    sw_fade_tick(&fade,hz,!loading);
     s16 next_player=(s16)player;
     phase+=60;u16 steps=0;while(phase>=hz){phase-=hz;steps++;}
-    if(!paused && !loading) {
+    if(!paused && !loading && !fading) {
         s16 direction=(held&BUTTON_RIGHT ? 1 : 0)-(held&BUTTON_LEFT ? 1 : 0);
         if(direction)face_left=direction<0;
         next_player+=direction*2*steps;
@@ -151,6 +162,17 @@ static void frame(u16 held,u16 hz)
         VDP_setSpriteFull(0,(s16)player-(s16)camera-8,188,SPRITE_SIZE(2,2),
             TILE_ATTR_FULL(PAL3,TRUE,FALSE,face_left,SHARED_BASE+animation*4),0);
         VDP_updateSprites(1,DMA_QUEUE);io.used+=8;
+    }
+    if(fading) {
+        /* Own every palette during the transition; never reveal the loading panel. */
+        for(u16 i=0;i<16;i++) {
+            u16 ui=i==0 || i==1 ? 0x0202 : i==15 ? 0x0EEE : 0;
+            fade_colors[i]=sw_fade_color(ui,fade.level);
+            fade_colors[16+i]=sw_fade_color(colors[0][i],fade.level);
+            fade_colors[32+i]=sw_fade_color(colors[1][i],fade.level);
+            fade_colors[48+i]=sw_fade_color(hero_colors[i],fade.level);
+        }
+        sc_queue_words(&io,DMA_CRAM,fade_colors,0,64,2);
     }
 }
 

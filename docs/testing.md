@@ -665,6 +665,9 @@ undefined-behavior checks. It tests bounded chunks, failed reads/queues, partial
 completion, pinned exhaustion, LRU reuse/wrap and 10,000 changing requests
 against retained VRAM bytes. Forward/reverse walks at PAL/NTSC rates must never
 wait for art under either budget. Every camera alignment checks visible pins.
+Transition checks exercise PAL/NTSC fade duration, holding black for delayed
+loads, and exact restoration/monotonic scaling of all 512 RGB3 colors. These
+check the transition model; emulator review checks for visible loading flashes.
 
 The recording adapter exercises actual FAR-copy/queue code: invalidate the
 mapped source before simulated VBlank, then verify owned RAM bytes, units,

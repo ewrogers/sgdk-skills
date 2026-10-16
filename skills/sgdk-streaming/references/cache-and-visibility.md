@@ -71,6 +71,19 @@ and redraws up to four columns per frame. Reveal it only after the last queued
 column has drained. The cover requires no large active-display fill or palette
 write. This is a loading policy, not a universal seamless-teleport promise.
 
+For a softer transition, Streaming Lab fades all four palettes to black over
+about a quarter second, holds black while the covered redraw finishes, then
+fades back in. It waits for the black palette to drain before changing the old
+picture, and for the final map uploads to drain before fading in. A reset still
+shows the loading panel so both approaches can be compared.
+
+This is RGB3 brightness scaling, not palette cycling or HBlank writes. Queue
+palette changes for VBlank and keep one owner during the fade; background palette
+loads must update the fade's source colors instead of fighting its output.
+Include the 128-byte full-palette transfer in the frame's shared DMA allowance.
+The Lab holds its RAM palette buffer until the queue drains. The fade improves
+presentation but does not reduce load time; a cold cache still needs a black hold.
+
 Window geometry and plane addresses come from the selected SDK:
 [VDP layout and Window API](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp.h).
 If integrating with another renderer, reconcile its plane, Window and tile

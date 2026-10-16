@@ -88,6 +88,39 @@ static int check_core(void)
 static int check_world(void)
 {
     u16 pages[SC_SLOTS],column;
+    for(u16 hz=50;hz<=60;hz+=10) {
+        SwFade fade={0};sw_fade_begin(&fade);
+        u16 frames=0;
+        while(fade.state==SW_FADE_OUT) {
+            u16 before=fade.level;sw_fade_tick(&fade,hz,true);frames++;
+            CHECK(fade.level<=before && frames<=15);
+        }
+        CHECK(frames==(hz+3)/4 && fade.state==SW_FADE_LOAD && !fade.level);
+        for(u16 i=0;i<1000;i++)sw_fade_tick(&fade,hz,false);
+        CHECK(fade.state==SW_FADE_LOAD && !fade.level); /* Never reveal unfinished art. */
+        sw_fade_tick(&fade,hz,true);
+        CHECK(fade.state==SW_FADE_IN && !fade.level);
+        frames=0;
+        while(fade.state==SW_FADE_IN) {
+            u16 before=fade.level;sw_fade_tick(&fade,hz,true);frames++;
+            CHECK(fade.level>=before && frames<=15);
+        }
+        CHECK(frames==(hz+3)/4 && fade.state==SW_FADE_IDLE && fade.level==8);
+        sw_fade_tick(&fade,hz,false);CHECK(fade.level==8);
+        sw_fade_begin(&fade);sw_fade_tick(&fade,0,true);
+        CHECK(fade.state==SW_FADE_OUT && fade.level==8 && !fade.phase);
+    }
+    for(u16 rgb=0;rgb<512;rgb++) {
+        u16 color=((rgb&7)<<1)|(((rgb>>3)&7)<<5)|(((rgb>>6)&7)<<9),before=0;
+        CHECK(!sw_fade_color(color,0) && sw_fade_color(color,8)==color);
+        CHECK(sw_fade_color(color,99)==color);
+        for(u16 level=0;level<=8;level++) {
+            u16 next=sw_fade_color(color,level);
+            CHECK(!(next & (u16)~0x0EEE));
+            for(u16 shift=1;shift<=9;shift+=4)CHECK(((next>>shift)&7)>=((before>>shift)&7));
+            before=next;
+        }
+    }
     for(u16 room=0;room<4;room++)CHECK(sw_camera(room*320+160)==room*320);
     CHECK(sw_camera(0)==0 && sw_camera(1280)==960);
     CHECK(sw_columns(0)==40 && sw_columns(1)==41 && sw_columns(960)==40 && !sw_columns(961));

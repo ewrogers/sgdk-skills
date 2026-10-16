@@ -1,5 +1,37 @@
 #include "stream_world.h"
 
+void sw_fade_begin(SwFade *fade)
+{
+    *fade=(SwFade){0,SW_FADE_OUT,8};
+}
+
+void sw_fade_tick(SwFade *fade,u16 hz,bool loaded)
+{
+    if(fade->state==SW_FADE_IDLE || !hz)return;
+    if(fade->state==SW_FADE_LOAD) {
+        if(loaded){fade->state=SW_FADE_IN;fade->phase=0;}
+        return;
+    }
+    fade->phase+=32; /* Eight RGB3 levels in a quarter second, at either video rate. */
+    while(fade->phase>=hz) {
+        fade->phase-=hz;
+        if(fade->state==SW_FADE_OUT) {
+            if(!--fade->level){fade->state=SW_FADE_LOAD;fade->phase=0;return;}
+        } else if(++fade->level==8) {
+            fade->state=SW_FADE_IDLE;fade->phase=0;return;
+        }
+    }
+}
+
+u16 sw_fade_color(u16 color,u16 level)
+{
+    if(level>8)level=8;
+    u16 r=(((color>>1)&7)*level)>>3;
+    u16 g=(((color>>5)&7)*level)>>3;
+    u16 b=(((color>>9)&7)*level)>>3;
+    return (b<<9)|(g<<5)|(r<<1);
+}
+
 u16 sw_camera(u16 player)
 {
     return player<160 ? 0 : player>1120 ? 960 : player-160;

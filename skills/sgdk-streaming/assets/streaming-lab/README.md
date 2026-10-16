@@ -36,7 +36,7 @@ from emulator and physical-console verification on every platform.
 | Control | Action |
 | --- | --- |
 | Left / Right | Walk; camera and prefetch follow. |
-| A | Warp to the next area with a covered redraw, retaining cached art. |
+| A | Fade to black, load the next area, then fade back in, retaining cached art. |
 | B | Switch pattern chunks between 256 and 64 bytes per displayed frame. |
 | C | Empty and reload the cache, resetting statistics. |
 | Start | Pause movement/animation; background loading may finish. |
@@ -48,8 +48,12 @@ area's 3,072 bytes take 48 frames, versus 12 at 256 bytes.
 
 Before revealing the world, loading warms a 128-pixel margin in both directions.
 Walking should not snag at boundaries in either budget mode. Warps and explicit
-reloads intentionally show a resident Window cover while art and tilemap columns
-are prepared. A warm warp can still need a redraw. Warps center the courier exactly so the
+reloads use a resident Window cover while art and tilemap columns are prepared.
+Warps hide that work behind a palette fade: about a quarter second out, a black
+hold until loading finishes, then a quarter second back in. A warm warp can still
+need a redraw. C shows the explicit loading panel instead. A warp does not accept
+another warp or cache reset until its fade finishes; B may still change the budget.
+Warps center the courier exactly so the
 destination fills the view; an adjacent area becomes visible when you walk.
 
 ## Repeatable walking test
@@ -76,10 +80,10 @@ probe is not a VDP or physical mapper emulator.
 | Replaceable arena | 18 pages = 288 tiles / 9,216 bytes, indices 128–415 |
 | Resident art | Courier: 8 tiles at 96–103; panel: 1 tile at 104 |
 | Pattern upload | At most 8 tiles / 256 bytes per displayed frame |
-| Other queued work | Up to four 48-byte columns during covered redraw, one while walking; palettes, HUD and one sprite |
+| Other queued work | Up to four 48-byte columns during covered redraw, one while walking; palettes, HUD and one sprite. Warp fades queue 128 palette bytes/frame. |
 | Explicit DMA allowance | 1,536 bytes shared by Lab producers |
 | Cache + staging | 492 bytes on tested m68k compiler, including 256-byte staging and 24-byte direct lookup |
-| Other persistent buffers | Columns: 192 bytes; palettes: 64 bytes |
+| Other persistent buffers | Columns: 192 bytes; area palettes: 64 bytes; fade palette: 128 bytes |
 | Palettes | PAL0 HUD, PAL1/PAL2 areas, PAL3 courier |
 
 These are Lab choices, not hardware maxima. The whole catalog could fit a larger
@@ -96,6 +100,12 @@ A circular 64-column plane handles walking. Teleports use a resident Window
 cover and incremental redraw. Two world palettes let neighboring areas appear
 together; a reused palette bank changes only when its previous area leaves the
 view. This is not HBlank palette switching.
+
+During a warp, one transition owner scales all four palette banks in RGB3 and
+queues them for VBlank. The old view stays intact until black has drained; only
+then can loading replace it. Fade-in starts after the destination columns drain.
+Palette buffers remain owned until DMA completes, and fade traffic shares the
+same 1,536-byte allowance. This masks the redraw rather than making uploads faster.
 
 ## Banks and compression
 
@@ -114,7 +124,8 @@ uploads do not make a whole-tileset decode cheap.
 Tests run actual cache/world C at `-O0`/`-O3`, with Unix undefined-behavior
 sanitization. They cover delayed completion, failed reads/queues, pinned
 exhaustion, LRU reuse/wrap, 10,000 mixed requests, every camera alignment and
-forward/reverse walking. A recording SDK remaps the temporary FAR view after
+forward/reverse walking, PAL/NTSC fade timing, indefinite black holds and all 512
+RGB3 colors at every fade level. A recording SDK remaps the temporary FAR view after
 queuing and verifies the retained RAM bytes.
 
 Container tests execute cache/world contracts as base M68000 instructions and
