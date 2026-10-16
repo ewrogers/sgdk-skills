@@ -53,6 +53,7 @@ class ReplayTests(unittest.TestCase):
     def test_player_slides_along_wall_collects_coins_and_respects_bounds(self): self.case('motion')
     def test_full_projectile_pool_declines_fire_and_expired_slots_are_reused(self): self.case('pools')
     def test_nominal_pal_ntsc_schedules_and_invalid_rates_preserve_phase(self): self.case('clock')
+    def test_live_frame_samples_record_and_replay_identically_in_either_region(self): self.case('recorded')
     def test_hundred_thousand_ticks_remain_bounded_repeatable_and_resettable(self): self.case('soak')
 
     @unittest.skipIf(os.name == 'nt', 'UBSan runtime checked on Unix hosts')
@@ -62,7 +63,7 @@ class ReplayTests(unittest.TestCase):
                         '-fno-sanitize-recover=all', '-I', str(self.project / 'inc'),
                         str(self.project / 'src/lab.c'), str(FIXTURE / 'contracts.c'), '-o', str(binary)],
                        check=True, capture_output=True, text=True, timeout=60)
-        for case in ['edges', 'tape', 'motion', 'pools', 'clock', 'soak']:
+        for case in ['edges', 'tape', 'motion', 'pools', 'clock', 'recorded', 'soak']:
             result = subprocess.run([str(binary), case], capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr)
 

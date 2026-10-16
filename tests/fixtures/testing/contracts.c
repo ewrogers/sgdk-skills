@@ -82,6 +82,41 @@ static void clock_test(void)
     }
 }
 
+static void recorded(void)
+{
+    /* Record frame-sampled live inputs, including a PAL two-update frame. */
+    for (u16 source_hz=50; source_hz<=60; source_hz+=10) {
+        LabTape tape={0};
+        LabState live;
+        LabClock clock={0};
+        lab_reset(&live,44257);
+        for (u16 frame=0;frame<source_hz*4;frame++) {
+            u16 held=frame%24<12 ? LAB_RIGHT : LAB_UP;
+            if (frame==4 || frame==30) held|=LAB_START;
+            if (frame%10==0) held|=LAB_A;
+            u16 count=lab_frame_ticks(&clock,source_hz);
+            while (count--) {
+                assert(lab_record(&tape,held));
+                lab_step(&live,held,false);
+            }
+        }
+        assert(tape.ticks==240 && live.active_ticks<live.tick && !live.paused);
+        for (u16 playback_hz=50;playback_hz<=60;playback_hz+=10) {
+            LabState replay;
+            lab_reset(&replay,44257); clock.phase=0;
+            while (replay.tick<tape.ticks) {
+                u16 count=lab_frame_ticks(&clock,playback_hz);
+                while (count-- && replay.tick<tape.ticks) {
+                    u16 held=0;
+                    assert(lab_input(tape.runs,tape.count,replay.tick,&held));
+                    lab_step(&replay,held,false);
+                }
+            }
+            assert(lab_digest(&live)==lab_digest(&replay));
+        }
+    }
+}
+
 static void soak(void)
 {
     LabState a,b;
@@ -106,6 +141,7 @@ int main(int argc,char **argv)
     else if (!strcmp(argv[1],"motion")) motion();
     else if (!strcmp(argv[1],"pools")) pools();
     else if (!strcmp(argv[1],"clock")) clock_test();
+    else if (!strcmp(argv[1],"recorded")) recorded();
     else if (!strcmp(argv[1],"soak")) soak();
     else return 2;
     puts(argv[1]); return 0;
