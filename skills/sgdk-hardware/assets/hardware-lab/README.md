@@ -30,7 +30,7 @@ J/K in ares); configure your own keyboard/controller mapping as needed.
 | Video Patterns | None | Color ramps, fine stripes, edge cropping and display artifacts |
 | Sprite Scanlines | A toggles overload | At-limit rows versus expected trailing dropout above the piece/pixel limits |
 | DMA / Audio | A music; B 0/1/2 KiB extra upload; hold Start PCM | Compare music alone first, then PCM; listen for changes and check missed service / rejected queues |
-| Controllers | Press/release either pad | Raw port/device type and held bitfields; physical pads still need testing |
+| Controllers | A locks/unlocks page; press/release either pad | Raw port/device type and held bitfields; physical pads still need testing |
 | SRAM Record | A read; **hold B then press A write** | CRC-valid sequence survives read/reset; boot never writes |
 
 The SRAM action overwrites **logical bytes 0–11 of this ROM's SRAM**. Use this

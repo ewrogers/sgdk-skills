@@ -69,13 +69,13 @@ int main(bool hard_reset)
     VDP_setEnable(TRUE);
     DMA_setMaxTransferSize(8192);Z80_setForceDelayDMA(TRUE);
     u16 page=0,previous=0,hz=SYS_isPAL() ? 50 : 60,refresh=0,mode=0;
-    u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE;
+    u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE,capture=FALSE;
     HlClock clock;hl_clock_init(&clock,vtimer);
     while(TRUE) {
         SYS_doVBlankProcess();
         logic+=hl_clock_sample(&clock,vtimer,hz);
         u16 held=JOY_readJoypad(JOY_1),pressed=held&~previous;previous=held;
-        if(pressed&(BUTTON_LEFT|BUTTON_RIGHT)) {
+        if(!(page==4 && capture) && (pressed&(BUTTON_LEFT|BUTTON_RIGHT))) {
             page=(page+((pressed&BUTTON_LEFT) ? 5 : 1))%6;dirty=TRUE;
             XGM2_pause();XGM2_stopPCM(SOUND_PCM_CH2);music=FALSE;
             if(page==5)valid=read_record(&sequence);
@@ -91,14 +91,15 @@ int main(bool hard_reset)
             if(pressed&BUTTON_B){mode=(mode+1)%3;dirty=TRUE;}
             if((held&BUTTON_START) && !XGM2_isPlayingPCM(SOUND_PCM_CH2_MSK))
                 XGM2_playPCMEx(reference_pcm,sizeof(reference_pcm),SOUND_PCM_CH2,5,FALSE,FALSE);
-        } else if(page==5 && (pressed&BUTTON_A)) {
+        } else if(page==4 && (pressed&BUTTON_A)) {capture=!capture;dirty=TRUE;}
+        else if(page==5 && (pressed&BUTTON_A)) {
             if(held&BUTTON_B)write_status=write_record(valid ? sequence+1 : 1) ? 1 : 2;
             valid=read_record(&sequence);dirty=TRUE;
         }
         if(dirty) {
             VDP_clearPlane(BG_A,TRUE);VDP_clearSprites();VDP_updateSprites(1,DMA_QUEUE);
             text("HARDWARE LAB",1);text(titles[page],3);
-            text("LEFT / RIGHT: PAGE    C: COUNTERS",25);
+            text(page==4 && capture ? "A: UNLOCK PAGE       C: COUNTERS" : "LEFT / RIGHT: PAGE    C: COUNTERS",25);
             text("CONSOLE CHECKS STILL NEED HARDWARE",26);
             if(page==0) {
                 text(hard_reset ? "SGDK ENTRY: HARD" : "SGDK ENTRY: RESET",6);
@@ -132,6 +133,7 @@ int main(bool hard_reset)
                 text("TEST REAL 3 / 6 BUTTON PADS TOO",17);
                 text("UNPLUG / RESET / TRY BOTH PORTS",18);
                 text("MOUSE / TAP: USE SGDK-INPUT LAB",20);
+                text(capture ? "PAGE LOCKED: TEST DPAD / BUTTONS" : "A: LOCK PAGE TO TEST LEFT / RIGHT",22);
             } else {
                 text("THIS ROM OWNS SRAM BYTES 0-11",6);
                 text("A: READ     HOLD B + A: WRITE",8);

@@ -26,7 +26,9 @@ do not replace unknowns with a successful build result.
 4. On DMA/Audio, play music with A. Compare B's 0/1024/2048-byte modes without
    holding Start. Then hold Start for the repeating one-second PCM reference.
    Listen separately and record audible changes, loop gaps and queue rejections.
-5. Try both pads. Check held-bit release as well as presses. Use a matching
+5. Try both pads. On Controllers, A locks the page so Left/Right can be tested
+   without navigating; A unlocks it again. Check held-bit release as well as
+   presses. Use a matching
    peripheral Lab for mouse/multitap setup rather than assuming pad tests cover it.
 6. On SRAM, A reads. **Holding B and pressing A writes this ROM's record.**
    Read again, reset, read again. Restart the emulator without a save state and
