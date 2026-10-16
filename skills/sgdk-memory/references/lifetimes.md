@@ -34,8 +34,8 @@ hold both. Choose and test the fallback explicitly.
 Check count/stride multiplication in a wider type before converting to the
 allocator's `u16` parameter. Do not allow a truncation, zero count or rounded
 size overflow to become an unexpectedly small allocation. The selected
-allocator adds a two-byte header and rounds to even bytes using `u16`
-arithmetic; sizes near the type's maximum need rejection before that arithmetic.
+allocator adds a two-byte header, rounds to even bytes and stores the adjusted
+size in `u16`; sizes near that type's maximum need rejection before adjustment.
 The Lab uses bounded small constants; it is not a general unchecked-size wrapper.
 
 Do not allocate or free through interrupt handlers while main code can mutate
