@@ -22,14 +22,20 @@
         "sgdk-ui",
         "sgdk-levels",
         "sgdk-gameplay",
-        "sgdk-platformer",
-        "sgdk-shmup",
         "sgdk-math",
         "sgdk-ai",
         "sgdk-scenes",
         "sgdk-audio",
         "sgdk-save",
         "sgdk-cartridge"
+      ]
+    },
+    {
+      "title": "Game genres",
+      "description": "Mechanics and implementation patterns for specific game genres.",
+      "skills": [
+        "sgdk-platformer",
+        "sgdk-shmup"
       ]
     },
     {
