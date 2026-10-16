@@ -68,6 +68,23 @@ Treat specifically requested colors as constraints; explain hardware rounding
 and any proposed change rather than silently replacing them. Never use an
 unrelated generic palette simply to make the asset pass validation.
 
+## Optional hardware lighting
+
+When palette reduction loses useful light/dark shades, consider shadow/highlight
+with the artist. It spans generation, export and rendering: plan the effect and
+sprite/VRAM budget before prompting; retain a base indexed image, lighting mask,
+palette ownership and modeled preview; then integrate the matching SGDK priority
+and sprite rules. A PNG alone cannot activate hardware lighting. Do not silently
+make it the default or prescribe it as an art style.
+
+The [tested background experiment](assets/color-study/SHADOW-HIGHLIGHT.md)
+includes an optional converter and a toggled ROM. Its full-background sprite
+mask is costly and deliberately narrow, not a general production importer.
+Use it as an executable reference or adapt selective masks within the game’s
+budget. Report both the visual result and its rendering cost. Consult
+`sgdk-graphics` for broader rendering integration when available; the experiment
+is self-contained and does not require another installed skill.
+
 ## Evidence and integration
 
 [The prompt study](assets/prompt-study/README.md) includes exact requests,

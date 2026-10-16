@@ -68,3 +68,11 @@ benchmark. Actual visual approval still requires emulator/hardware review.
 
 `rebuild.py` intentionally rewrites derived exports unless `--check` is used;
 source images and plans are never modified. It makes no paid or network calls.
+
+## Optional shadow/highlight comparison
+
+The [lighting study](SHADOW-HIGHLIGHT.md) and [comparison gallery](shadow-gallery.html)
+show how the same two background palettes can produce more shades through
+hardware S/H. The separate ROM toggles the effect and shows its actual mask
+sprite/tile costs. This is an optional art/export/rendering workflow, not a
+setting that improves every image for free.

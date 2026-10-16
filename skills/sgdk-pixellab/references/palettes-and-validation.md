@@ -184,6 +184,8 @@ composition supports it. It cannot recover missing unrelated hues from an
 aggressive palette reduction. For a varied city background, first review which
 ramps each 8×8 tile needs and how the four scene lines are shared. Compare a
 purpose-built shadow/highlight prototype against that baseline before claiming
-it improves the art. The current showcase and exporters do not implement or
-validate shadow/highlight encoding; do not describe their normal PNG previews
-as a hardware-accurate preview of this mode.
+it improves the art. The normal showcase and exporters do not apply this mode. The separate
+[background experiment](../assets/color-study/SHADOW-HIGHLIGHT.md) supplies
+base images, sprite masks, modeled previews, resource tests and the required
+renderer. Its preview follows ares’s lookup rather than claiming calibrated
+analog hardware color.

@@ -529,3 +529,10 @@ protected palette colors and per-8×8-tile line assignment, and checks real
 ResComp banked IMAGE palette words/tilemap attributes. Its four-page native
 showcase is compiled in both modes as part of the PixelLab integration check;
 paid generation calls are never made by tests or CI.
+
+The optional PixelLab shadow/highlight experiment tests per-pixel brightness
+selection against an independent oracle, reproduces committed modeled previews,
+and decodes samples from every linked lighting-mask sprite in real M68000 code.
+CI builds both the normal comparison ROM and the executable probe in release/debug
+on ARM64 and AMD64 and compares their hashes. Emulator review is separate from
+these resource checks; the ares preview model is not an analog hardware guarantee.
