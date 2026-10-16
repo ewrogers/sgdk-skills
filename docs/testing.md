@@ -756,7 +756,9 @@ separately in the Isometric Lab README.
 (with undefined-behavior checks on Unix). It checks PAL/NTSC nominal scheduling,
 unsigned VInt wrap, missed service and bounded catch-up, both H40/H32 scanline
 limits, VRAM upload boundaries, record round trips and every single-bit record
-corruption. An independent Python CRC oracle checks the serialized bytes.
+corruption. Padded field replacements cover shrinking numbers, stable labels,
+exact width, null inputs and rejection without a partial write. An independent
+Python CRC oracle checks the serialized bytes.
 Standalone preparation is exercised through a second copied project.
 
 With `SGDK_SKILLS_INTEGRATION=1`, both container architectures build release/debug

@@ -27,6 +27,16 @@ bool hl_upload_fits(u16 address,u16 words)
     return !(address&1) && words && address>=HL_UPLOAD_START &&
         (u32)address+(u32)words*2<=HL_UPLOAD_END;
 }
+bool hl_format_field(char *out,const char *label,const char *value)
+{
+    if(!out || !label || !value)return false;
+    u16 n=0,v=0;
+    while(n<=HL_FIELD_WIDTH && label[n])n++;
+    while(v<=HL_FIELD_WIDTH && value[v])v++;
+    if(n+v>HL_FIELD_WIDTH)return false;
+    for(u16 i=0;i<HL_FIELD_WIDTH;i++)out[i]=i<n ? label[i] : i<n+v ? value[i-n] : ' ';
+    out[HL_FIELD_WIDTH]=0;return true;
+}
 static u16 crc16(const u8 *data,u16 length)
 {
     u16 crc=0xffff;

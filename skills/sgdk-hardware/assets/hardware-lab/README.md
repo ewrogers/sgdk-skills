@@ -43,6 +43,9 @@ The two sprite rows are independent: 20 versus 21 eight-pixel pieces, then
 test stays below the total sprite limit. Low-level SAT writes deliberately avoid
 sprite-engine culling. There is no automatic visual pass/fail judgement.
 
+Changing numeric fields use one padded row copied into the VBlank DMA queue.
+They are not erased and rewritten during active display.
+
 Queued upload data stays allocated and unchanged. Its private VRAM range is
 `$8000..$87FF`; the workload is **additional** to text and sprite-table transfers.
 An 8192-byte software allowance and forced three-line DMA delay are test

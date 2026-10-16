@@ -1,5 +1,23 @@
 #include "hardware.h"
 #define CHECK(x) do {if(!(x))return __LINE__;} while(0)
+static int check_fields(void)
+{
+    char line[HL_FIELD_WIDTH+1];
+    CHECK(hl_format_field(line,"P1 HELD: ","0FFF"));
+    const char *expected="P1 HELD: 0FFF";
+    for(u16 i=0;i<13;i++)CHECK(line[i]==expected[i]);
+    for(u16 i=13;i<HL_FIELD_WIDTH;i++)CHECK(line[i]==' ');
+    CHECK(line[HL_FIELD_WIDTH]==0);
+    CHECK(hl_format_field(line,"SEQUENCE: ","4294967295"));
+    CHECK(hl_format_field(line,"SEQUENCE: ","1"));
+    CHECK(line[10]=='1');for(u16 i=11;i<HL_FIELD_WIDTH;i++)CHECK(line[i]==' ');
+    CHECK(hl_format_field(line,"012345678901234567890123456789012345",""));
+    for(u16 i=0;i<HL_FIELD_WIDTH+1;i++)line[i]='?';
+    CHECK(!hl_format_field(line,"012345678901234567890123456789012345","X"));
+    for(u16 i=0;i<HL_FIELD_WIDTH+1;i++)CHECK(line[i]=='?');
+    CHECK(!hl_format_field(0,"A","B") && !hl_format_field(line,0,"B") && !hl_format_field(line,"A",0));
+    return 0;
+}
 static int check_clock(void)
 {
     for(u16 hz=50;hz<=60;hz+=10) {

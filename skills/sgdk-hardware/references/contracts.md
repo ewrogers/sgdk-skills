@@ -74,6 +74,16 @@ not identify a specific disconnected device. The Lab exposes raw types and
 held bits for the default pad setup; it does not reconfigure a mouse or multitap.
 Use sgdk-input for those support modes and logical player routing.
 
+## Updating diagnostic text
+
+Hardware Lab replaces each changing field as one padded 36-character row through
+[`VDP_drawTextEx(..., DMA_QUEUE_COPY)`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_bg.h).
+The SDK converts text to tilemap data and keeps a queued copy, so a local string
+may go out of scope after the call. Padding clears old digits without a separate
+visible erase. Do not clear a live field and redraw it through CPU port writes
+during active scanout; the empty intermediate state can become visible.
+These text transfers count toward the total queue budget too.
+
 ## Cartridge memory
 
 The Lab declares odd-byte SRAM `$200001..$20FFFF`. SGDK

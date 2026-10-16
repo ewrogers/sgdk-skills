@@ -12,15 +12,19 @@ static const u16 palette[16]={0x000,0x222,0x00e,0x0e0,0xe00,0x0ee,0xee0,0xe0e,
     0x444,0x666,0x888,0xaaa,0xccc,0xeee,0x08e,0xeee};
 static const char *titles[]={"BOOT / REGION","VIDEO PATTERNS","SPRITE SCANLINES","DMA / AUDIO","CONTROLLERS","SRAM RECORD"};
 static void text(const char *s,u16 y){VDP_drawText(s,2,y);}
+static void field(const char *name,const char *value,u16 y)
+{
+    char line[HL_FIELD_WIDTH+1];
+    if(hl_format_field(line,name,value))
+        VDP_drawTextEx(BG_A,line,TILE_ATTR(PAL0,FALSE,FALSE,FALSE),2,y,DMA_QUEUE_COPY);
+}
 static void number(const char *name,u32 value,u16 y)
 {
-    char line[64],digits[32];uintToStr(value,digits,1);
-    strcpy(line,name);strcat(line,digits);VDP_clearText(2,y,36);text(line,y);
+    char digits[32];uintToStr(value,digits,1);field(name,digits,y);
 }
 static void hex(const char *name,u32 value,u16 y)
 {
-    char line[64],digits[32];intToHex(value,digits,4);
-    strcpy(line,name);strcat(line,digits);VDP_clearText(2,y,36);text(line,y);
+    char digits[32];intToHex(value,digits,4);field(name,digits,y);
 }
 static void sprites(bool overflow)
 {
@@ -80,7 +84,7 @@ int main(bool hard_reset)
             XGM2_pause();XGM2_stopPCM(SOUND_PCM_CH2);music=FALSE;
             if(page==5)valid=read_record(&sequence);
         }
-        if(pressed&BUTTON_C){hl_clock_init(&clock,vtimer);logic=0;rejected=0;dirty=TRUE;}
+        if(pressed&BUTTON_C){hl_clock_init(&clock,vtimer);logic=0;rejected=0;refresh=9;}
         if(!(held&(BUTTON_A|BUTTON_B)))reset_armed=TRUE;
         if(page==0) {
             if(reset_armed && (pressed&BUTTON_A))SYS_reset();
@@ -91,7 +95,11 @@ int main(bool hard_reset)
             if(pressed&BUTTON_B){mode=(mode+1)%3;dirty=TRUE;}
             if((held&BUTTON_START) && !XGM2_isPlayingPCM(SOUND_PCM_CH2_MSK))
                 XGM2_playPCMEx(reference_pcm,sizeof(reference_pcm),SOUND_PCM_CH2,5,FALSE,FALSE);
-        } else if(page==4 && (pressed&BUTTON_A)) {capture=!capture;dirty=TRUE;}
+        } else if(page==4 && (pressed&BUTTON_A)) {
+            capture=!capture;refresh=9;
+            field("",capture ? "PAGE LOCKED: TEST DPAD / BUTTONS" : "A: LOCK PAGE TO TEST LEFT / RIGHT",22);
+            field("",capture ? "A: UNLOCK PAGE       C: COUNTERS" : "LEFT / RIGHT: PAGE    C: COUNTERS",25);
+        }
         else if(page==5 && (pressed&BUTTON_A)) {
             if(held&BUTTON_B)write_status=write_record(valid ? sequence+1 : 1) ? 1 : 2;
             valid=read_record(&sequence);dirty=TRUE;
@@ -145,7 +153,7 @@ int main(bool hard_reset)
                 text("READBACK IS NOT POWER-LOSS PROOF",21);
                 if(write_status)text(write_status==1 ? "LAST WRITE: READBACK MATCHED" : "LAST WRITE: READBACK FAILED",23);
             }
-            dirty=FALSE;refresh=0;
+            dirty=FALSE;refresh=9;
         }
         /* Refresh only counters; no full-screen redraw on every input poll. */
         if(++refresh>=10) {

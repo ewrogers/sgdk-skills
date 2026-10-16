@@ -28,7 +28,7 @@ def compile_host(cc,path,mode):
     if r.returncode:raise RuntimeError(r.stdout+r.stderr)
 
 class HardwareTests(unittest.TestCase):
-    def test_clock_wrap_pal_ntsc_gaps_scanline_and_dma_boundaries_and_crc(self):
+    def test_clock_fields_scanline_upload_and_crc_contracts(self):
         cc=next((p for n in ['clang','cc','gcc'] if(p:=shutil.which(n))),None)
         if not cc:
             if os.environ.get('SGDK_REQUIRE_HOST_CC')=='1':self.fail('C17 compiler required')
