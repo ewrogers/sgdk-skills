@@ -99,6 +99,8 @@ jobs:
             build/asterfall-integration/*.log
             build/rpg-integration/rpg-report.json
             build/rpg-integration/*.log
+            build/effects-integration/effects-report.json
+            build/effects-integration/*.log
             build/localization-integration/localization-report.json
             build/localization-integration/*.log
             build/testing-integration/*.json
@@ -222,4 +224,11 @@ jobs:
           assert all(report["passed"] for report in locales.values())
           for field in ["hashes", "font", "geometry"]:
               assert locales["amd64"][field] == locales["arm64"][field], (field, locales)
+          effects_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("effects-report.json"))
+                             for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in effects_reports.values()), effects_reports
+          effects = {arch: json.loads(paths[0].read_text()) for arch, paths in effects_reports.items()}
+          assert all(report["passed"] for report in effects.values())
+          for field in ["hashes", "geometry", "trace_digest", "selection_instructions", "budgets"]:
+              assert effects["amd64"][field] == effects["arm64"][field], (field, effects)
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")

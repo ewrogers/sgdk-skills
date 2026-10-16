@@ -623,3 +623,36 @@ Local ares playtesting confirmed language switching, accents, dialogue paging,
 large quantities and eight-glyph names. The Japanese sample is a small katakana
 repertoire, not general Japanese support. Tests do not judge translation quality,
 emulate VDP/SRAM hardware or establish PAL/physical-console presentation.
+
+
+## Cosmetic effects
+
+`tests/test_effects.py` executes Effects Lab's actual C at `-O0`/`-O3` and runs
+Unix builds with undefined-behavior sanitization. It covers full pools,
+priority replacement, bounded/retriggerable burst ownership, separate weather allowance, cached counts, lifetime,
+world-space trails, pause/input edges, nominal PAL/NTSC clocks and camera limits.
+A 100,000-frame mixed run checks state bounds and exact scanline accounting;
+5,000 selections must match an independent byte-counter reference. Rendering
+quality/budget changes cannot mutate simulation or its cosmetic RNG.
+
+A recording SDK exercises every frame-upload failure, cached tile ownership,
+SAT chain termination/shortening, hidden-table cleanup and unchanged HUD rows.
+The adapter owns the low-level SAT rather than mixing it with `SPR_update()`.
+Native art reproduces offline and standalone preparation refuses overwrites.
+
+Container checks build release/debug and execute core contracts as real base
+M68000 instructions. A target trace must match the host trace. Every linked
+frame/palette is compared with its native PNG, and one identical full-pool
+selection workload reports optimized/reference instruction counts. A mixed
+maximum-snow/movement/burst workload checks maximum simulation and selection
+instruction work too, including spawn frames. The optional `--stress` release
+ROM automates the emulator workload and counts missed rendered frames. These are
+work estimates, not cycle-accurate timing. Native ARM64/AMD64 CI compares hashes,
+geometry, trace, budgets and instruction counts in
+`build/effects-integration/effects-report.json`.
+
+Local NTSC ares review covers controls, weather, bursts, trails and shake.
+Maximum snow exposed early frame-rate problems and is retained as a sustained
+playtest case. The measured weather allowance is separate from the 64-slot
+correctness stress case. PAL presentation, arbitrary effect mixes, full-game
+headroom and physical-console results require their own playtests.
