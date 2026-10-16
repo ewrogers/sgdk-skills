@@ -125,14 +125,14 @@ void fx_view_hud(const FxLab *s,const FxRender *render,u16 hz,u16 fps)
     if (s->paused) for (u16 i=0;i<5;i++)status[29+i]="PAUSE"[i];
     if (strcmp(rate,previous_fps)) {
         VDP_drawTextEx(BG_A,rate,TILE_ATTR(PAL0,TRUE,FALSE,FALSE),33,1,DMA_QUEUE);
-        strcpy(previous_fps,rate);
+        memcpy(previous_fps,rate,sizeof(rate));
     }
     if (strcmp(counts,previous_counts)) {
         VDP_drawTextEx(BG_A,counts,TILE_ATTR(PAL0,TRUE,FALSE,FALSE),2,2,DMA_QUEUE);
-        strcpy(previous_counts,counts);
+        memcpy(previous_counts,counts,sizeof(counts));
     }
     if (strcmp(status,previous_status)) {
         VDP_drawTextEx(BG_A,status,TILE_ATTR(PAL0,TRUE,FALSE,FALSE),2,3,DMA_QUEUE);
-        strcpy(previous_status,status);
+        memcpy(previous_status,status,sizeof(status));
     }
 }
