@@ -656,3 +656,28 @@ Maximum snow exposed early frame-rate problems and is retained as a sustained
 playtest case. The measured weather allowance is separate from the 64-slot
 correctness stress case. PAL presentation, arbitrary effect mixes, full-game
 headroom and physical-console results require their own playtests.
+
+
+## Pattern streaming
+
+`tests/test_streaming.py` runs actual cache/world C at `-O0`/`-O3` with Unix
+undefined-behavior checks. It tests bounded chunks, failed reads/queues, partial
+completion, pinned exhaustion, LRU reuse/wrap and 10,000 changing requests
+against retained VRAM bytes. Forward/reverse walks at PAL/NTSC rates must never
+wait for art under either budget. Every camera alignment checks visible pins.
+Transition checks exercise PAL/NTSC fade duration, holding black for delayed
+loads, and exact restoration/monotonic scaling of all 512 RGB3 colors. These
+check the transition model; emulator review checks for visible loading flashes.
+
+The recording adapter exercises actual FAR-copy/queue code: invalidate the
+mapped source before simulated VBlank, then verify owned RAM bytes, units,
+destination and frame/queue limits. This is not physical mapper emulation;
+Cartridge Lab separately covers actual banked builds.
+
+Container tests build release/debug, execute contracts as base M68000 code and
+compare all linked scenery/courier bytes with native art. CI compares native
+ARM64/AMD64 hashes, geometry and budgets in
+`build/streaming-integration/streaming-report.json`. It also builds `--demo`:
+automatic bidirectional walking at the slow budget, with readiness-wait and
+missed-frame counters. PAL presentation and physical hardware remain separate
+from nominal-clock and CPU/resource checks.
