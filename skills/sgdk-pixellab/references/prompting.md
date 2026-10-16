@@ -116,3 +116,27 @@ rework a mismatch rather than claiming palette conversion fixed it.
 `create_tiles_pro` produced independent 32×32 hex terrain variations. Do not
 confuse that with the adjacency-aware connected top-down tileset tool. Keep the
 actual returned metadata and validate material boundaries in a reconstructed map.
+
+## Characters and fonts in a complete catalog
+
+The [Asterfall mockup](../assets/asterfall/README.md) used 55 generations for a
+cohesive native art set and recorded the complete requests and finishing steps.
+Standard 32-pixel characters arrived on 48×48 canvases, including animation
+margin. Preserve that actual canvas and align all directions/frames; do not
+assume the requested body size is the output PNG size. A four-direction template
+walk cost four generations in this run. Style-character references were rejected
+in standard mode; the live response required pro mode. Keep such failures in
+the ledger and do not pay for redundant retries.
+
+The 8-pixel font returned a 64×80 atlas, despite the schema documenting an
+80×64 atlas. Its 80-character order remained as documented. Inspect the actual
+dimensions and full alphabet, rather than slicing blindly from the schema.
+The source glyphs were black with transparency, so an all-black preview did not
+mean an empty font. Asterfall preserves the alpha silhouettes, recolors/remaps
+them, explicitly authors missing arrow/bracket glyphs, and makes an integer 2×
+title variant. Those operations are finishing, not another generation.
+
+The intro sky contained invented lettering despite a no-text prompt. Its native
+empty-sky strip repair is recorded and the original remains available. A good
+prompt reduces avoidable work, but output inspection and honest edits remain
+necessary even when dimensions, palettes and reported suspect counts pass.

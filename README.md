@@ -16,7 +16,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
 | [sgdk-best-practices](skills/sgdk-best-practices/SKILL.md) | Write or review C contracts, module boundaries and safe SGDK resource lifetimes. |
 | [sgdk-assets](skills/sgdk-assets/SKILL.md) | Import art and audio, prepare palettes and spritesheets, or fix a ResComp error. |
-| [sgdk-pixellab](skills/sgdk-pixellab/SKILL.md) | Generate and refine native-resolution art with cohesive palettes, prompt trials and SGDK validation. |
+| [sgdk-pixellab](skills/sgdk-pixellab/SKILL.md) | Generate native art with cohesive palettes, prompt trials and SGDK validation; includes a playable JRPG art catalog. |
 | [sgdk-graphics](skills/sgdk-graphics/SKILL.md) | Display sprites, play animations, scroll backgrounds and add palette effects. |
 | [sgdk-raster](skills/sgdk-raster/SKILL.md) | Add per-line waves, waterline palette effects and split-screen cameras with explicit timing budgets. |
 | [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |

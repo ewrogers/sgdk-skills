@@ -95,6 +95,8 @@ jobs:
             build/pixellab-integration/*.log
             build/pixellab-shadow-integration/pixellab-shadow-report.json
             build/pixellab-shadow-integration/*.log
+            build/asterfall-integration/asterfall-report.json
+            build/asterfall-integration/*.log
 
   compare:
     name: Compare generated ROMs
@@ -187,4 +189,10 @@ jobs:
           shadows = {arch: json.loads(paths[0].read_text()) for arch, paths in shadow_reports.items()}
           assert all(report["passed"] for report in shadows.values())
           assert shadows["amd64"]["hashes"] == shadows["arm64"]["hashes"], shadows
+          catalog_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("asterfall-report.json"))
+                             for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in catalog_reports.values()), catalog_reports
+          catalogs = {arch: json.loads(paths[0].read_text()) for arch, paths in catalog_reports.items()}
+          assert all(report["passed"] for report in catalogs.values())
+          assert catalogs["amd64"]["hashes"] == catalogs["arm64"]["hashes"], catalogs
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")
