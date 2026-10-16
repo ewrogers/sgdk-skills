@@ -1,4 +1,5 @@
 #include "game.h"
+#include "ui_tiles.h"
 #ifdef SGDK_GCC
 #include <genesis.h>
 #include "resources.h"
@@ -9,6 +10,12 @@
 static void press(Game *g,uint16_t key){game_step(g,key,key,key&(UP|DOWN|LEFT|RIGHT));}
 static int checks(void)
 {
+    UITiles tiles={0};
+    ui_tiles_set(&tiles,4,12,123);CHECK(tiles.dirty[12]&&tiles.cells[484]==123);
+    tiles.dirty[12]=false;ui_tiles_set(&tiles,4,12,123);CHECK(!tiles.dirty[12]);
+    ui_tiles_set(&tiles,40,12,456);CHECK(tiles.cells[484]==123&&!tiles.dirty[12]);
+    ui_tiles_set(&tiles,0,28,456);CHECK(!tiles.dirty[12]);
+    ui_tiles_clear(&tiles);CHECK(tiles.dirty[12]&&tiles.cells[484]==0);
     Game g;game_init(&g);CHECK(g.screen==INTRO);
     press(&g,START);CHECK(g.screen==TITLE);
     press(&g,CONFIRM);CHECK(g.screen==NAMING);
@@ -33,11 +40,13 @@ static int checks(void)
         g.selection=2;press(&g,CONFIRM);CHECK(g.screen==INVENTORY);
         press(&g,DOWN);CHECK(g.selection==2);press(&g,RIGHT);CHECK(g.selection==3);
         press(&g,CONFIRM);CHECK(g.detail);press(&g,BACK);CHECK(!g.detail&&g.screen==INVENTORY);
-        press(&g,BACK);CHECK(g.screen==MENU);
+        press(&g,BACK);CHECK(g.screen==MENU&&g.selection==2);
+        g.selection=3;press(&g,CONFIRM);CHECK(g.screen==SPELLS);
+        press(&g,BACK);CHECK(g.screen==MENU&&g.selection==3);
         g.selection=6;press(&g,CONFIRM);CHECK(g.screen==OPTIONS);
         g.selection=1;g.music_volume=0;press(&g,LEFT);CHECK(g.music_volume==100);
         press(&g,RIGHT);CHECK(g.music_volume==0);
-        press(&g,BACK);CHECK(g.screen==MENU);press(&g,BACK);CHECK(g.screen==FIELD);
+        press(&g,BACK);CHECK(g.screen==MENU&&g.selection==6);press(&g,BACK);CHECK(g.screen==FIELD);
         g.hero.x=g.npc[0].x;g.hero.y=g.npc[0].y;
         press(&g,CONFIRM);CHECK(g.screen==DIALOGUE&&g.dialogue_page==0);
         press(&g,CONFIRM);CHECK(g.screen==DIALOGUE&&g.screen_age>=300);
@@ -61,6 +70,12 @@ static int resource_checks(void)
     const Image *zones[]={&art_town,&art_dungeon,&art_forest,&art_coast};
     const SpriteDefinition *actors[]={&art_hero_idle,&art_hero_walk,&art_guide_idle,&art_guide_walk,&art_sage_idle,&art_sage_walk};
     CHECK(art_font_ivory.numTile==96&&art_font_gold.numTile==96&&art_font_title.numTile==104);
+    const AnimationFrame *m0=art_title_mask0.animations[0]->frames[0];
+    const AnimationFrame *m1=art_title_mask1.animations[0]->frames[0];
+    CHECK((m0->numSprite&0x7F)<=8&&(m1->numSprite&0x7F)<=8);
+    CHECK(m0->tileset->numTile+m1->tileset->numTile<=256);
+    CHECK(16+96+104+16+art_panel.tileset->numTile+art_title.tileset->numTile+m0->tileset->numTile+m1->tileset->numTile<=1440);
+    CHECK(art_map_location.tilemap->w==2&&art_travel_pin.w==16);
     for(u16 i=0;i<4;i++)
     {
         CHECK(zones[i]->tilemap->w==40&&zones[i]->tilemap->h==24);

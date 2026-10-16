@@ -132,9 +132,18 @@ The 8-pixel font returned a 64×80 atlas, despite the schema documenting an
 80×64 atlas. Its 80-character order remained as documented. Inspect the actual
 dimensions and full alphabet, rather than slicing blindly from the schema.
 The source glyphs were black with transparency, so an all-black preview did not
-mean an empty font. Asterfall preserves the alpha silhouettes, recolors/remaps
-them, explicitly authors missing arrow/bracket glyphs, and makes an integer 2×
-title variant. Those operations are finishing, not another generation.
+mean an empty font. Initial alpha remapping preserved its irregular letterforms,
+but playtesting found them hard to read. Asterfall therefore uses an authored
+5×7 production font, lowercase names and an integer 2× title variant; the
+generated original remains visible in the catalog. Native dimensions and a
+correct palette are necessary, but do not prove legibility. These repairs are
+finishing, not additional generations.
+
+Its title illustration also demonstrates selective shadow/highlight fitting: a
+256×64 operator mask adds tones between the lettering and menu. It uses no
+HBlank CRAM writes and is disabled in field scenes. See the catalog README for
+the VRAM and sprite cost; do not enable it globally or recolor arbitrary actor
+sprites without planning priority and PAL3 operator indices.
 
 The intro sky contained invented lettering despite a no-text prompt. Its native
 empty-sky strip repair is recorded and the original remains available. A good

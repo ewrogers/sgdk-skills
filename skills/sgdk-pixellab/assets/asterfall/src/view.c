@@ -1,11 +1,25 @@
 #include "view.h"
 #include "resources.h"
+#include "ui_tiles.h"
 
 u16 image_base,panel_base,solid_base,gold_font_base,title_font_base,actor_base;
-static u16 cursor;
+static u16 cursor,pin_base,mask_base[2];
+static UITiles ui_tiles;
+static struct {const Image *image;u16 base;} images[32];
+static u16 image_count;
+static void ui_put(u16 tile,u16 x,u16 y){ui_tiles_set(&ui_tiles,x,y,tile);}
+static void ui_flush(TransferMethod method)
+{
+    for(u16 y=0;y<UI_HEIGHT;y++)if(ui_tiles.dirty[y])
+    {
+        VDP_setTileMapDataRow(BG_A,ui_tiles.cells+y*UI_WIDTH,y,0,UI_WIDTH,method);
+        ui_tiles.dirty[y]=false;
+    }
+}
+
 static Screen previous=255;
 static const Image *zone_art[]={&art_town,&art_dungeon,&art_forest,&art_coast};
-static bool fits=true;
+static bool fits=true,lighting=false;
 
 static u16 reserve(u16 tiles)
 {
@@ -16,8 +30,11 @@ static u16 reserve(u16 tiles)
 
 u16 art_load(const Image *image,u16 palette,bool load_palette)
 {
+    for(u16 i=0;i<image_count;i++)if(images[i].image==image)return images[i].base;
+    if(image_count>=32){fits=false;return 0;}
     u16 base=reserve(image->tileset->numTile);
     if(!fits)return 0;
+    images[image_count].image=image;images[image_count++].base=base;
     VDP_loadTileSet(image->tileset,base,DMA);
     if(load_palette)PAL_setPalette(palette,image->palette->data,DMA);
     return base;
@@ -26,7 +43,7 @@ u16 art_load(const Image *image,u16 palette,bool load_palette)
 static void draw_image(const Image *image,u16 palette,u16 x,u16 y)
 {
     image_base=art_load(image,palette,false);
-    VDP_setTileMapEx(BG_B,image->tilemap,TILE_ATTR_FULL(palette,FALSE,FALSE,FALSE,image_base),x,y,0,0,image->tilemap->w,image->tilemap->h,DMA);
+    VDP_setTileMapEx(BG_B,image->tilemap,TILE_ATTR_FULL(palette,lighting,FALSE,FALSE,image_base),x,y,0,0,image->tilemap->w,image->tilemap->h,DMA);
     PAL_setPalette(PAL0,image->palette->data,DMA);PAL_setPalette(PAL1,image->palette->data+16,DMA);
 }
 
@@ -34,7 +51,11 @@ void ui_image(const Image *image,u16 palette,u16 x,u16 y)
 {
     const u16 base=art_load(image,palette,false);
     if(!fits)return;
-    VDP_setTileMapEx(BG_A,image->tilemap,TILE_ATTR_FULL(palette,TRUE,FALSE,FALSE,base),x,y,0,0,image->tilemap->w,image->tilemap->h,DMA);
+    for(u16 dy=0;dy<image->tilemap->h;dy++)for(u16 dx=0;dx<image->tilemap->w;dx++)
+    {
+        u16 source=image->tilemap->tilemap[dy*image->tilemap->w+dx];
+        ui_put((source&0xF800)|((source&0x07FF)+base)|TILE_ATTR(palette,TRUE,FALSE,FALSE),x+dx,y+dy);
+    }
 }
 
 void ui_text(const char *text,u16 x,u16 y,bool gold)
@@ -43,7 +64,7 @@ void ui_text(const char *text,u16 x,u16 y,bool gold)
     for(u16 i=0;text[i]&&x+i<40;i++)
     {
         unsigned char c=(unsigned char)text[i];
-        VDP_setTileMapXY(BG_A,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,base+((c>=32&&c<128)?c-32:0)),x+i,y);
+        ui_put(TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,base+((c>=32&&c<128)?c-32:0)),x+i,y);
     }
 }
 void ui_number(u16 number,u16 x,u16 y,bool gold)
@@ -54,7 +75,8 @@ void ui_number(u16 number,u16 x,u16 y,bool gold)
 }
 void ui_fill(u16 x,u16 y,u16 w,u16 h,u16 color)
 {
-    VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,solid_base+color),x,y,w,h);
+    for(u16 dy=0;dy<h;dy++)for(u16 dx=0;dx<w;dx++)
+        ui_put(TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,solid_base+color),x+dx,y+dy);
 }
 void ui_panel(u16 x,u16 y,u16 w,u16 h)
 {
@@ -67,7 +89,7 @@ void ui_panel(u16 x,u16 y,u16 w,u16 h)
         u16 sy=dy<2?dy:dy>=h-2?8-(h-dy):2+(dy-2)%4;
         u16 source=art_panel.tilemap->tilemap[sy*8+sx];
         u16 attr=(source&0xF800)|((source&0x07FF)+panel_base)|TILE_ATTR(PAL3,TRUE,FALSE,FALSE);
-        VDP_setTileMapXY(BG_A,attr,x+dx,y+dy);
+        ui_put(attr,x+dx,y+dy);
     }
 }
 void ui_bar(u16 x,u16 y,u16 w,u16 value,u16 maximum,u16 color)
@@ -82,7 +104,7 @@ void ui_large(const char *text,u16 x,u16 y)
     {
         u16 tile=(text[i]-'A')*2+title_font_base;
         for(u16 dy=0;dy<2;dy++)for(u16 dx=0;dx<2;dx++)
-            VDP_setTileMapXY(BG_A,TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,tile+dx+dy*52),x+i*2+dx,y+dy);
+            ui_put(TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,tile+dx+dy*52),x+i*2+dx,y+dy);
     }
 }
 
@@ -94,7 +116,9 @@ void view_init(void)
 
 static void begin(const Game *g)
 {
-    SYS_disableInts();VDP_setEnable(FALSE);fits=true;
+    SYS_disableInts();VDP_setEnable(FALSE);fits=true;image_count=0;
+    ui_tiles_clear(&ui_tiles);
+    lighting=g->screen==TITLE;VDP_setHilightShadow(lighting);
     VDP_setHorizontalScroll(BG_A,0);VDP_setHorizontalScroll(BG_B,0);
     VDP_clearPlane(BG_A,TRUE);VDP_clearPlane(BG_B,TRUE);VDP_clearSprites();VDP_updateSprites(1,DMA);
     VDP_loadTileSet(&art_font_ivory,TILE_FONT_INDEX,DMA);
@@ -117,8 +141,22 @@ static void begin(const Game *g)
         ui_text(zone_name(g->zone),2,0,true);
         ui_text("A Talk   B Menu   C Map",5,27,false);
     }
-    else if(g->screen==TITLE)draw_image(&art_title,PAL0,4,1);
-    else if(g->screen==WORLD)draw_image(&art_world,PAL0,4,3);
+    else if(g->screen==TITLE)
+    {
+        draw_image(&art_title,PAL0,4,1);
+        const SpriteDefinition *masks[]={&art_title_mask0,&art_title_mask1};
+        for(u16 i=0;i<2;i++)
+        {
+            const TileSet *tiles=masks[i]->animations[0]->frames[0]->tileset;
+            mask_base[i]=reserve(tiles->numTile);VDP_loadTileSet(tiles,mask_base[i],DMA);
+        }
+    }
+    else if(g->screen==WORLD)
+    {
+        draw_image(&art_world,PAL0,4,3);
+        const TileSet *tiles=art_travel_pin.animations[0]->frames[0]->tileset;
+        pin_base=reserve(tiles->numTile);VDP_loadTileSet(tiles,pin_base,DMA);
+    }
     else if(g->screen==INTRO)
     {
         draw_image(&art_intro_sky,PAL0,0,2);
@@ -134,7 +172,7 @@ static void begin(const Game *g)
     }
     ui_draw(g);
     if(!fits){VDP_clearPlane(BG_A,TRUE);ui_text("Art reservation exceeds VRAM",2,12,false);}
-    VDP_setEnable(TRUE);SYS_enableInts();
+    ui_flush(DMA);VDP_setEnable(TRUE);SYS_enableInts();
 }
 
 void view_frame(Game *g)
@@ -143,10 +181,41 @@ void view_frame(Game *g)
     {begin(g);g->dirty=false;g->ui_dirty=false;previous=g->screen;}
     else if(g->ui_dirty)
     {
-        /* Rebuild text/selection tiles, reusing the same resource reservations. */
-        begin(g);g->ui_dirty=false;
+        /* Input only changes cached tilemap cells. No blanking, palette writes
+         * or resource uploads: changed rows are copied during VBlank below. */
+        if(g->screen!=DIALOGUE)
+        {
+            ui_tiles_clear(&ui_tiles);
+            if(g->screen!=TITLE&&g->screen!=WORLD)ui_panel(0,0,40,28);
+        }
+        ui_draw(g);g->ui_dirty=false;
     }
     if(g->screen==FIELD||g->screen==DIALOGUE)actors_frame(g);
+    if(g->screen==WORLD)
+    {
+        static const u16 pins[4][2]={{11,12},{31,7},{19,6},{32,16}};
+        u16 phase=(g->ticks/8)%8,bob=phase<4?phase:7-phase;
+        VDP_setSpriteFull(0,pins[g->selection][0]*8,pins[g->selection][1]*8-14-bob,
+            SPRITE_SIZE(2,2),TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,pin_base),0);
+        VDP_updateSprites(1,DMA_QUEUE);
+    }
+    else if(g->screen==TITLE)
+    {
+        const SpriteDefinition *masks[]={&art_title_mask0,&art_title_mask1};u16 count=0;
+        for(u16 i=0;i<2;i++)
+        {
+            const AnimationFrame *frame=masks[i]->animations[0]->frames[0];u16 tile=mask_base[i];
+            for(u16 j=0;j<(frame->numSprite&0x7F);j++)
+            {
+                const FrameVDPSprite *piece=&frame->frameVDPSprites[j];
+                VDP_setSpriteFull(count,32+i*128+piece->offsetX,64+piece->offsetY,piece->size,
+                    TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,tile),count+1);
+                count++;tile+=piece->numTile;
+            }
+        }
+        if(count)VDP_setSpriteLink(count-1,0);
+        VDP_updateSprites(count,DMA_QUEUE);
+    }
     ui_tick(g);
     if(g->screen==INTRO)
     {
@@ -158,4 +227,5 @@ void view_frame(Game *g)
         u16 color=(level<<1)|(level<<5)|(blue<<9);
         PAL_setColors(63,&color,1,DMA_QUEUE_COPY);
     }
+    ui_flush(DMA_QUEUE_COPY);
 }

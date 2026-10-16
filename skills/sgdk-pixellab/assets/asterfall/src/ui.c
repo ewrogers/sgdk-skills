@@ -57,7 +57,7 @@ static void world(const Game *g)
     static const u16 pins[4][2]={{11,12},{31,7},{19,6},{32,16}};
     for(u16 i=0;i<4;i++)
     {
-        ui_image(i==g->selection?&art_map_pin_selected:&art_map_pin,PAL3,pins[i][0],pins[i][1]);
+        ui_image(&art_map_location,PAL3,pins[i][0],pins[i][1]);
     }
     ui_panel(0,23,40,5);ui_text(zone_name(g->selection),3,24,true);
     ui_text("D-pad Choose   A Travel   B Back",3,26,false);

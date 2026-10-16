@@ -25,7 +25,21 @@ class AsterfallTests(unittest.TestCase):
         if not cc:self.skipTest('Host C compiler unavailable')
         with tempfile.TemporaryDirectory(prefix='asterfall logic ')as temp:
             executable=Path(temp)/('probe.exe'if os.name=='nt'else'probe')
-            result=subprocess.run([cc,'-std=c17','-Wall','-Wextra','-Werror','-I',str(LAB/'inc'),str(LAB/'src/game.c'),str(LAB/'src/field.c'),str(ROOT/'tests/fixtures/asterfall/game_probe.c'),'-o',str(executable)],capture_output=True,text=True)
+            result=subprocess.run([cc,'-std=c17','-Wall','-Wextra','-Werror','-I',str(LAB/'inc'),str(LAB/'src/game.c'),str(LAB/'src/field.c'),str(LAB/'src/ui_tiles.c'),str(ROOT/'tests/fixtures/asterfall/game_probe.c'),'-o',str(executable)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+            result=subprocess.run([str(executable)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+
+    def test_cursor_redraw_reuses_art_and_palettes_with_vblank_rows(self):
+        cc=shutil.which('cc')or shutil.which('clang')or shutil.which('gcc')
+        if not cc:self.skipTest('Host C compiler unavailable')
+        with tempfile.TemporaryDirectory(prefix='asterfall view ')as temp:
+            executable=Path(temp)/('view.exe'if os.name=='nt'else'view')
+            fixture=ROOT/'tests/fixtures/asterfall'
+            result=subprocess.run([cc,'-std=c17','-Wall','-Wextra','-Werror',
+                '-I',str(fixture/'view-stubs'),'-I',str(LAB/'inc'),
+                str(LAB/'src/view.c'),str(LAB/'src/ui_tiles.c'),str(fixture/'view_probe.c'),
+                '-o',str(executable)],capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
             result=subprocess.run([str(executable)],capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
@@ -37,16 +51,20 @@ class AsterfallTests(unittest.TestCase):
             project=Path(temp)/'new project';report=module.prepare(project)
             self.assertEqual(report['font']['source_size'],[64,80]);self.assertEqual(len(report['font']['glyphs']),80)
             self.assertEqual(len(report['actor_palette']),16)
-            # Every generated glyph keeps its exact alpha silhouette, despite
-            # the service returning a different atlas orientation than documented.
-            fw,fh,source=module.read_png(LAB/'raw/font.png')
+            # Production lettering is an exact authored 5x7 bitmap, with a
+            # blank last row and side gutters; no resampling or edge shades.
             w,h,prepared=module.read_png(project/'res/font_ivory.png')
             ink=tuple(bytes.fromhex(module.UI[15]))
-            for glyph,char in enumerate(module.GLYPHS):
-                for y in range(8):
+            for code in range(32,127):
+                for y,row in enumerate(module.glyph_rows(chr(code))):
                     for x in range(8):
-                        self.assertEqual(source[((glyph//8)*8+y)*fw+(glyph%8)*8+x][3]>=128,
-                            prepared[y*w+(ord(char)-32)*8+x][:3]==ink)
+                        expected=1<=x<=5 and bool(row&(1<<(5-x)))
+                        self.assertEqual(prepared[y*w+(code-32)*8+x][:3]==ink,expected)
+            self.assertEqual(report['title_lighting']['region'],[0,56,256,120])
+            for half in range(2):
+                w,h,mask=module.read_png(project/f'res/title-mask{half}.png')
+                self.assertEqual((w,h),(128,64))
+                self.assertTrue(all(p[3]==0 or p[:3]in [(255,255,255),(255,0,0)]for p in mask))
 
             for name in ['town','forest','coast','dungeon']:
                 self.assertEqual(report[name]['native_size'],[320,192])
@@ -85,7 +103,7 @@ class AsterfallContainerTests(unittest.TestCase):
             # Keep the full resource set linked into the regular ROM above; the
             # separate direct-entry probe executes gameplay logic without VDP/audio.
             for file in(project/'src').glob('*.c'):
-                if file.name not in ['game.c','field.c']:file.unlink()
+                if file.name not in ['game.c','field.c','ui_tiles.c']:file.unlink()
             shutil.copyfile(ROOT/'tests/fixtures/asterfall/game_probe.c',project/'src/main.c')
             for mode in ['release','debug']:
                 run('make','clean');run('make',mode)

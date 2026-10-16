@@ -4,7 +4,7 @@
 static const char keyboard[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-";
 static void enter(Game *g,Screen screen)
 {
-    g->screen=screen;g->selection=0;g->screen_age=0;g->dirty=true;g->ui_dirty=true;
+    g->screen=screen;g->selection=screen==MENU?g->menu_selection:0;g->screen_age=0;g->dirty=true;g->ui_dirty=true;
 }
 
 uint16_t menu_size(Screen screen)
@@ -156,7 +156,7 @@ void game_step(Game *g,uint16_t held,uint16_t pressed,uint16_t navigation)
     else if(g->screen==MENU)
     {
         static const Screen destinations[]={STATUS,EQUIPMENT,INVENTORY,SPELLS,JOURNAL,WORLD,OPTIONS};
-        uint16_t choice=g->selection;
+        uint16_t choice=g->selection;g->menu_selection=choice;
         if(choice==6)g->options_back=MENU;
         enter(g,destinations[choice]);if(choice==5)g->selection=g->zone;
     }

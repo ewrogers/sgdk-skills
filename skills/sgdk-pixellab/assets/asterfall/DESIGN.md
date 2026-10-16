@@ -30,8 +30,12 @@ Explore screens use two source-derived background palette lines, one shared
 field-character line and one UI line. Palette sets may change per location.
 Menus can repurpose the background lines for portraits and item/spell icons.
 The intro uses separate background/foreground plane art and fading text.
-Shadow/highlight is optional, never blindly enabled: a full-width sprite mask
-would consume too much scanline headroom alongside wandering actors.
+The title uses a selective 256×64 shadow/highlight operator mask below its
+lettering. Field scenes disable S/H to preserve actor scanline headroom. Cursor
+updates reuse loaded art and queue only changed UI rows through VBlank; no
+input-triggered palette uploads. Production lettering is authored at 5×7 pixels
+after playtesting found the generated font uneven. Map locations use circles
+with a pixel-smooth bobbing selection pin. Submenus retain their parent choice.
 
 The generation allowance is **200 maximum**, starting at account usage 159.30.
 Record requests and returned costs, including pending work, and stop before the

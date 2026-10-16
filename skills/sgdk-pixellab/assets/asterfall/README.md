@@ -61,23 +61,31 @@ character sheets retain native 48×48 frames and consistent direction order.
 - Backgrounds select a complete palette line per 8×8 tile. They are VDP tile
   planes, not hundreds of hardware sprites. Only current actor frames occupy
   their fixed VRAM windows; other frames stay in ROM until needed.
-- Images are never smooth-downscaled. The font’s actual 8-column atlas is mapped
-  to ASCII, its glyph masks are preserved and recolored, missing arrow/bracket
-  glyphs are authored, and the title gets an integer 2× variant with an explicit
-  shadow and color treatment. Ordinary text cells use opaque navy to prevent
+- Images are never smooth-downscaled. The generated font proved uneven during
+  playtesting, so the production UI uses hand-authored 5×7 bitmap letters in 8×8
+  cells, including lowercase for names. The original atlas remains in the catalog.
+  The title enlarges those shapes by exactly 2×. Opaque navy text cells prevent
   scenery bleeding through letters inside panels.
 - PixelLab invented lettering in the intro sky. A recorded, native-size empty
   sky strip repair removes it; the original is retained. Two small map pins and
   the UI layout/nine-slice assembly are authored directly. The healing tonic
   returned blue despite the green brief; its liquid ramp is explicitly recolored
   to emerald before shared-palette fitting, preserving its shape and highlights.
-- No full-screen shadow/highlight mask is used: reserving the scanline space for
-  actors is more useful here. The separate lighting study demonstrates that
-  optional technique and its cost. Nothing here prescribes another game’s style.
+- The title illustration uses a selective shadow/highlight mask in a 256×64
+  region, below the title text and above its menu. It adds at most 256 VRAM tiles,
+  16 hardware sprites and 256 sprite pixels per scanline. Background tiles have
+  high priority for a normal baseline; PAL3 sprite indices 14/15 provide lighting
+  operators. No HBlank palette writes are involved. Field scenes disable S/H so
+  actors keep their scanline budget and ordinary sprite colors.
+- Cursor and text changes reuse cached art and palettes. A 2,240-byte RAM tilemap
+  plus 28 dirty flags queues changed rows for VBlank; naming input never blanks
+  the display or reloads palettes. Full screen changes still load under blanking.
+- Character-menu selection is retained when returning from a submenu. The map
+  marks locations with circles and floats a gold pin above the current selection.
 
 `asset-report.json` in each prepared build records palette plans, dimensions,
 conversion hints and cleanup. `tools/prepare.py` performs no paid/network calls.
-Font alpha thresholding and sprite alpha threshold 128 are explicit decisions.
+Sprite alpha threshold 128 is an explicit decision.
 The title-only font variant is loaded only for that screen.
 The body artwork can overlap scenery; collision uses smaller foot boxes and
 hand-authored walking regions, not colors inferred from an image.

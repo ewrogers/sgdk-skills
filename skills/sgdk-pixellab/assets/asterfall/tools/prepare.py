@@ -13,6 +13,8 @@ from art_pipeline import contract,quantize,inspect
 from fit_palette import fit
 from background_banks import prepare as bank_background,validate_banks
 from make_audio import assets as audio_assets
+from glyphs import rows as glyph_rows
+from shadow_highlight import prepare as light_background
 
 UI=['000000','000024','242449','24496d','496d92','6d92b6','92b6db','dbb66d',
     'ffdb92','db9249','926d49','6d2449','24926d','49b6b6','b6dbdb','ffffff']
@@ -77,6 +79,25 @@ def prepare(destination):
             colors=[(0,0,0)]+fit(histogram,15);colors=full_line(colors)
             banks.append(dict(slot=slot,palette=hexes(colors)))
         palettes=validate_banks(dict(banks=banks));colors,indices,metrics=bank_background(w,h,pixels,palettes)
+        if name=='title':
+            # Operators affect only the illustration between the title lettering
+            # and menu. Normal-priority actors never share this mask's scanlines.
+            indices,_,preview,normal=light_background(w,h,pixels,palettes,False)
+            crop=pixels[56*w:120*w]
+            lit,mask,lit_preview,lighting=light_background(w,64,crop,palettes,True)
+            indices[56*w:120*w]=lit
+            preview[56*w:120*w]=lit_preview
+            display_colors=sorted(set(preview));lookup={c:i for i,c in enumerate(display_colors)}
+            (out/'title-preview.png').write_bytes(indexed_png(w,h,[lookup[c]for c in preview],display_colors))
+            control=[(0,0,0)]*16;control[14]=(255,255,255);control[15]=(255,0,0)
+            for half in range(2):
+                part=[mask[y*w+half*128+x]for y in range(64)for x in range(128)]
+                (out/f'title-mask{half}.png').write_bytes(indexed_png(128,64,part,control,True))
+                lines.append(f'SPRITE art_title_mask{half} "title-mask{half}.png" 16 8 NONE 0 NONE NONE')
+            report['title_lighting']=dict(region=[0,56,256,120],lighting=lighting,
+                max_hardware_sprites=16,max_scanline_sprites=8,max_scanline_pixels=256,
+                max_mask_tiles=256,normal=normal,
+                operation='Title-only shadow/highlight operators; high-priority background; unchanged palette lines; no HBlank CRAM writes')
         filename=name+'.png';(out/filename).write_bytes(indexed_png(w,h,indices,colors))
         report[name]=dict(native_size=[w,h],banks=banks,metrics=metrics)
         lines.append(f'IMAGE art_{name.replace("-","_")} "{filename}" NONE')
@@ -129,31 +150,19 @@ def prepare(destination):
     # Actual atlas is 8 columns by 10 rows, despite the tool schema saying 10x8.
     fw,fh,font=read_png(ROOT/'raw/font.png');columns=fw//8
     if fw%8 or fh%8 or (fw//8)*(fh//8)!=len(GLYPHS):raise ValueError('Unknown generated glyph atlas layout')
+    # Native, hand-authored 5x7 letterforms replace the irregular generated font.
     for label,index in [('ivory',15),('gold',8)]:
         sheet=[1]*(768*8)
-        for code in range(32,128):
-            if chr(code)not in GLYPHS:continue
-            cell=GLYPHS.index(chr(code));sx=(cell%columns)*8;sy=(cell//columns)*8
-            for y in range(8):
-                for x in range(8):
-                    if font[(sy+y)*fw+sx+x][3]>=128:sheet[y*768+(code-32)*8+x]=index
-        # The service's alphabet omits arrows/brackets; author those tiny UI
-        # glyphs directly instead of silently falling back to a different font.
-        repairs={'>':[16,8,4,2,4,8,16,0],'<':[2,4,8,16,8,4,2,0],
-                 '[':[14,8,8,8,8,8,14,0],']':[14,2,2,2,2,2,14,0]}
-        for char,rows in repairs.items():
-            for y,row in enumerate(rows):
-                for x in range(8):
-                    if row&(1<<(7-x)):sheet[y*768+(ord(char)-32)*8+x]=index
+        for code in range(32,127):
+            for y,row in enumerate(glyph_rows(chr(code))):
+                for x in range(5):
+                    if row & (1<<(4-x)):sheet[y*768+(code-32)*8+x+1]=index
         (out/f'font_{label}.png').write_bytes(indexed_png(768,8,sheet,p['colors']))
         lines.append(f'TILESET art_font_{label} "font_{label}.png" NONE NONE ROW')
-    # Integer enlargement retains the generated letter shapes. Add a one-pixel
-    # dark offset and ivory-to-gold lower half for the title only.
     large=[0]*(416*16)
     for i,char in enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
-        cell=GLYPHS.index(char);sx=cell%columns*8;sy=cell//columns*8
-        positions=[(x*2+dx,y*2+dy)for y in range(8)for x in range(8)
-                   if font[(sy+y)*fw+sx+x][3]>=128 for dx in range(2)for dy in range(2)]
+        positions=[(x*2+dx+2,y*2+dy)for y,row in enumerate(glyph_rows(char))for x in range(5)
+                   if row&(1<<(4-x))for dx in range(2)for dy in range(2)]
         for x,y in positions:
             if x<15 and y<15:large[(y+1)*416+i*16+x+1]=2
         for x,y in positions:large[y*416+i*16+x]=15 if y<8 else 8
@@ -170,8 +179,16 @@ def prepare(destination):
             for x in range(6,10):pin[y*16+x]=15
         (out/f'{name}.png').write_bytes(indexed_png(16,16,pin,p['colors'],True))
         lines.append(f'IMAGE art_{name} "{name}.png" NONE')
-    report['authored_map_pins']='Two native 16x16 markers, shared UI palette; no generation or rescaling'
-    report['font']=dict(source_size=[fw,fh],glyph_grid=[columns,fh//8],glyphs=GLYPHS,operation='Preserve generated glyph masks; recolor to ivory/gold on opaque navy cells; remap ASCII; authored arrows/brackets; integer 2x title variant')
+    circle=[0]*256
+    for y in range(16):
+        for x in range(16):
+            distance=(x-8)**2+(y-8)**2
+            if 17<=distance<=36:circle[y*16+x]=8 if distance<28 else 15
+    (out/'map_location.png').write_bytes(indexed_png(16,16,circle,p['colors'],True))
+    lines.append('IMAGE art_map_location "map_location.png" NONE')
+    lines.append('SPRITE art_travel_pin "map_pin_selected.png" 2 2 NONE 0 NONE')
+    report['authored_map_pins']='Native 16x16 circle markers and gold bobbing pin, shared UI palette; no generation or rescaling'
+    report['font']=dict(source_size=[fw,fh],glyph_grid=[columns,fh//8],glyphs=GLYPHS,operation='Generated atlas retained as reference; production uses authored native 5x7 bitmap glyphs, opaque navy cells and integer 2x title')
     for name,data in audio_assets().items():(out/name).write_bytes(data)
     for name in ['title','travel','town','dungeon','forest','coast','menu']:lines.append(f'XGM2 music_{name} "{name}.vgm"')
     for name in ['move','accept','back','denied','talk','travel','page','name']:lines.append(f'WAV sfx_{name} "{name}.wav" XGM2')

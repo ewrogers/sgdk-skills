@@ -17,7 +17,7 @@ enum {CUE_MOVE=1,CUE_ACCEPT=2,CUE_BACK=4,CUE_DENIED=8,CUE_TALK=16,CUE_TRAVEL=32,
 typedef struct {int16_t x,y;uint8_t direction,frame;bool moving;} Actor;
 typedef struct {
     Screen screen,options_back;
-    uint16_t selection,keyboard,events;
+    uint16_t selection,menu_selection,keyboard,events;
     uint32_t ticks,screen_age;
     uint8_t zone,slot,speaker,dialogue_page,text_speed,music_volume,level;
     char name[9];uint8_t name_length;
