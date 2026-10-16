@@ -10,6 +10,9 @@ and VDP functions, not a ready-made menu or widget system. Keep menu state,
 controller navigation and drawing separate enough to test without a console.
 Use the game's existing structure rather than imposing a UI framework.
 
+For NPC conversations, branching choices and portrait exchanges, use
+`sgdk-dialogue` when available. This skill covers the shared UI foundations.
+
 ## Choose the right reference
 
 - [Fonts and text](references/fonts-and-text.md): glyph layout, bounded

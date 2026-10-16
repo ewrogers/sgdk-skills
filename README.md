@@ -21,6 +21,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
 | [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
+| [sgdk-dialogue](skills/sgdk-dialogue/SKILL.md) | Add text boxes, animated portraits, gradual styled text, choices and branching. |
 | [sgdk-levels](skills/sgdk-levels/SKILL.md) | Import Tiled levels, stream large maps, and keep collision and cameras aligned. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
 | [sgdk-shmup](skills/sgdk-shmup/SKILL.md) | Build vertical or horizontal shooters. Includes [Shooter Lab](skills/sgdk-shmup/assets/shooter-lab/README.md) and [Carpet Lab](skills/sgdk-shmup/assets/carpet-lab/README.md). |
@@ -68,6 +69,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-audio to add music, prioritized effects and a pause-menu transition."
 - "Use sgdk-input to add 3/6-button pad and mouse controls, with Team Player support."
 - "Use sgdk-ui to add a title screen, options, pause menu and fixed score display."
+- "Use sgdk-dialogue to add a portrait conversation with gradual text and branching choices."
 - "Use sgdk-levels to import a Tiled level with scrolling, walls and camera limits."
 - "Use sgdk-gameplay to add a scrolling player, wall collision and reusable bullets."
 - "Use sgdk-shmup to build a scrolling shooter with readable bullet patterns, upgrades and a boss."

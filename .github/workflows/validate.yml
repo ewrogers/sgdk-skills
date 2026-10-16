@@ -89,6 +89,8 @@ jobs:
             build/carpet-integration/*.log
             build/best-practices-integration/best-practices-report.json
             build/best-practices-integration/*.log
+            build/dialogue-integration/dialogue-report.json
+            build/dialogue-integration/*.log
 
   compare:
     name: Compare generated ROMs
@@ -161,4 +163,11 @@ jobs:
           practices = {arch: json.loads(paths[0].read_text()) for arch, paths in practices_reports.items()}
           assert all(report["passed"] for report in practices.values())
           assert practices["amd64"]["hashes"] == practices["arm64"]["hashes"], practices
+          dialogue_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("dialogue-report.json"))
+                              for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in dialogue_reports.values()), dialogue_reports
+          dialogues = {arch: json.loads(paths[0].read_text()) for arch, paths in dialogue_reports.items()}
+          assert all(report["passed"] for report in dialogues.values())
+          assert dialogues["amd64"]["hashes"] == dialogues["arm64"]["hashes"], dialogues
+          assert dialogues["amd64"]["geometry"] == dialogues["arm64"]["geometry"], dialogues
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")
