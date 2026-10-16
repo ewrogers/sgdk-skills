@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "font_base": 128,
+  "font_tiles": 192,
+  "name_chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZÉÑéñ -",
+  "languages": [
+    {"id": 0, "tag": "en", "separator": ","},
+    {"id": 1, "tag": "fr", "separator": " "},
+    {"id": 2, "tag": "es", "separator": "."},
+    {"id": 3, "tag": "ja", "separator": ""}
+  ],
+  "messages": [
+    {"id": 0, "key": "title", "box": [36, 1, 1], "text": {
+      "en": "The Word Ferry", "fr": "Le bac des mots", "es": "El ferry de palabras", "ja": "コトバノフネ"}},
+    {"id": 1, "key": "language", "box": [36, 1, 1], "text": {
+      "en": "English", "fr": "Français", "es": "Español", "ja": "ニホンゴ"}},
+    {"id": 2, "key": "talk", "box": [20, 1, 1], "text": {
+      "en": "Talk", "fr": "Parler", "es": "Hablar", "ja": "ハナス"}},
+    {"id": 3, "key": "inventory", "box": [20, 1, 1], "text": {
+      "en": "Inventory", "fr": "Inventaire", "es": "Inventario", "ja": "ドウグ"}},
+    {"id": 4, "key": "name", "box": [20, 1, 1], "text": {
+      "en": "Name", "fr": "Nom", "es": "Nombre", "ja": "ナマエ"}},
+    {"id": 5, "key": "back", "box": [20, 1, 1], "text": {
+      "en": "Back", "fr": "Retour", "es": "Volver", "ja": "モドル"}},
+    {"id": 6, "key": "dialogue", "box": [36, 3, 3], "text": {
+      "en": "Welcome, {name}! This ferry carries stories between islands.\nEvery name has a place here.\nBring your maps, your questions and a little courage.\nThe next voyage begins at dawn.",
+      "fr": "Bienvenue, {name} ! Ce bac transporte des récits entre les îles.\nChaque nom a sa place ici.\nApporte tes cartes, tes questions et un peu de courage.\nLe prochain voyage commence à l'aube.",
+      "es": "¡Bienvenido, {name}! Este ferry lleva historias entre las islas.\nCada nombre tiene su lugar aquí.\nTrae tus mapas, tus preguntas y un poco de valor.\nEl próximo viaje comienza al amanecer.",
+      "ja": "ヤア、{name}！\nコノ フネハ シマヲ ツナグ。\nタビノ ハナシヲ キカセテ。\nアサニ マタ アオウ。"}},
+    {"id": 7, "key": "found_one", "box": [36, 2, 1], "text": {
+      "en": "{name} found {count} star fragment.", "fr": "{name} a trouvé {count} fragment d'étoile.",
+      "es": "{name} encontró {count} fragmento estelar.", "ja": "{name}ハ カケラヲ {count}コ ミツケタ。"}},
+    {"id": 8, "key": "found_many", "box": [36, 2, 1], "text": {
+      "en": "{name} found {count} star fragments.", "fr": "{name} a trouvé {count} fragments d'étoile.",
+      "es": "{name} encontró {count} fragmentos estelares.", "ja": "{name}ハ カケラヲ {count}コ ミツケタ。"}},
+    {"id": 9, "key": "bag_title", "box": [36, 1, 1], "text": {
+      "en": "Traveler's bag", "fr": "Sac de voyage", "es": "Bolsa de viaje", "ja": "タビノ フクロ"}},
+    {"id": 10, "key": "item", "box": [36, 1, 1], "text": {
+      "en": "Star fragment", "fr": "Fragment d'étoile", "es": "Fragmento estelar", "ja": "ホシノ カケラ"}},
+    {"id": 11, "key": "name_prompt", "box": [36, 1, 1], "text": {
+      "en": "Choose your name", "fr": "Choisissez votre nom", "es": "Elige tu nombre", "ja": "ナマエヲ エラブ"}},
+    {"id": 12, "key": "home_hint", "box": [36, 2, 1], "text": {
+      "en": "LEFT/RIGHT: language\nA: choose   UP/DOWN: menu", "fr": "GAUCHE/DROITE : langue\nA : choisir   HAUT/BAS : menu",
+      "es": "IZQ./DER.: idioma\nA: elegir   ARRIBA/ABAJO: menú", "ja": "LEFT/RIGHT: コトバ\nA: エラブ   UP/DOWN: メニュー"}},
+    {"id": 13, "key": "dialogue_hint", "box": [36, 2, 1], "text": {
+      "en": "A: next page   B: back\nC: language", "fr": "A : page suivante   B : retour\nC : langue",
+      "es": "A: página siguiente   B: volver\nC: idioma", "ja": "A: ツギ   B: モドル\nC: コトバ"}},
+    {"id": 14, "key": "bag_hint", "box": [36, 2, 1], "text": {
+      "en": "A: change quantity   B: back\nC: language", "fr": "A : changer la quantité   B : retour\nC : langue",
+      "es": "A: cambiar cantidad   B: volver\nC: idioma", "ja": "A: カズ   B: モドル\nC: コトバ"}},
+    {"id": 15, "key": "name_hint", "box": [36, 2, 1], "text": {
+      "en": "A: add   B: erase   START: done\nC: language", "fr": "A : ajouter  B : effacer  START : OK\nC : langue",
+      "es": "A: añadir  B: borrar  START: listo\nC: idioma", "ja": "A: エラブ   B: ケス   START: OK\nC: コトバ"}},
+    {"id": 16, "key": "accent_sample", "box": [36, 2, 1], "text": {
+      "en": "A café, a résumé and a piñata.", "fr": "Été, îles, cœur, façade, où êtes-vous ?",
+      "es": "¡Qué día! Niño, pingüino y corazón.", "ja": "カタカナノ ショウレイ。\nコトバノ カケラヲ ミツケヨウ。"}},
+    {"id": 17, "key": "preference", "box": [36, 1, 1], "text": {
+      "en": "Language remembered", "fr": "Langue mémorisée", "es": "Idioma guardado", "ja": "コトバヲ キロク"}}
+  ]
+}

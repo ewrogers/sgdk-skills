@@ -601,3 +601,25 @@ feedback improved formations, overhead targeting, down-facing artwork and
 message readability. Regional display/audio and physical hardware remain
 separate checks. The original Lab's setting, art, music and combat tuning are
 illustrative rather than requirements of the installed genre skill.
+
+
+## Localization
+
+`tests/test_localization.py` validates UTF-8/NFC catalogs, stable IDs, required
+translations, explicit fallback, placeholder agreement, glyph coverage and
+worst-case wrapping/paging. Native font pixels and compiler output reproduce
+exactly. Host C checks at `-O0` and `-O3` execute formatting boundaries, accented
+name limits, menu retention, language changes and preference corruption. A
+recording SDK checks tile ownership, copied screen transfers and interrupted
+preference writes at every byte boundary.
+
+Container checks build standalone release/debug ROMs and execute the actual
+rules as base M68000 instructions. All 72 translated layouts and every compiled
+font row are compared with generated source data. Native ARM64/AMD64 CI compares
+normal/probe ROM hashes, font budgets and target structure sizes in
+`build/localization-integration/localization-report.json`.
+
+Local ares playtesting confirmed language switching, accents, dialogue paging,
+large quantities and eight-glyph names. The Japanese sample is a small katakana
+repertoire, not general Japanese support. Tests do not judge translation quality,
+emulate VDP/SRAM hardware or establish PAL/physical-console presentation.

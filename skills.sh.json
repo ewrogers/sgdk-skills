@@ -21,6 +21,7 @@
         "sgdk-raster",
         "sgdk-input",
         "sgdk-ui",
+        "sgdk-localization",
         "sgdk-dialogue",
         "sgdk-levels",
         "sgdk-gameplay",
