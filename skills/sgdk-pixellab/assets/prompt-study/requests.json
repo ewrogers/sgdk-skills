@@ -1,0 +1,616 @@
+{
+  "date": "2026-10-15",
+  "generation_limit": 100,
+  "starting_generations_used": 41,
+  "trials": [
+    {
+      "id": "key-short",
+      "tool": "create_image_pixen",
+      "args": {
+        "description": "An antique brass key with a teal gem, pixel art.",
+        "width": 16,
+        "height": 16,
+        "no_background": true,
+        "seed": 4101
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 5ae64713-2439-4db1-9f35-eee4a50f18ae\njob_id: 5ae64713-2439-4db1-9f35-eee4a50f18ae\nmodel: pixen\ndescription: An antique brass key with a teal gem, pixel art.\nsize: 16x16px\ntransparent: True\nasset_id: 0d16317e-e2bb-5e3a-bf02-a49fbf08474c\nasset_status: pending (saved when generation completes)\nseed: 4101\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"5ae64713-2439-4db1-9f35-eee4a50f18ae\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "key-specific",
+      "tool": "create_image_pixen",
+      "args": {
+        "description": "One collectible brass key, diagonal from bottom-left teeth to top-right ring, teal gem inside the ring. Native 16x16 pixel sprite, complete silhouette inside a 14x14 area with one transparent pixel margin. Thick readable ring, two square teeth. Solid pixel clusters, three brass shades and two teal shades, dark purple outline. No glow, no detached sparkles, no cast shadow, no lettering.",
+        "width": 16,
+        "height": 16,
+        "no_background": true,
+        "detail": "low detail",
+        "outline": "single color outline",
+        "seed": 4101
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 8b32191e-12e6-4d13-a778-97ecc6f1aecc\njob_id: 8b32191e-12e6-4d13-a778-97ecc6f1aecc\nmodel: pixen\ndescription: One collectible brass key, diagonal from bottom-left teeth to top-right ring, teal gem inside the ring. Native 16x16 pixel sprite, complete silhouette inside a 14x14 area with one transparent pixel margin. Thick readable ring, two square teeth. Solid pixel clusters, three brass shades and two teal shades, dark purple outline. No glow, no detached sparkles, no cast shadow, no lettering.\nsize: 16x16px\ntransparent: True\nasset_id: d2936a7b-502a-581a-aa8e-bf9a061c168b\nasset_status: pending (saved when generation completes)\nseed: 4101\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"8b32191e-12e6-4d13-a778-97ecc6f1aecc\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "robot-short",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "A small explorer robot with a teal body and amber visor, side view, pixel art.",
+        "width": 32,
+        "height": 32,
+        "no_background": true,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "seed": 4102
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: bea718dc-a021-4b08-90f4-c50d26dea454\njob_id: bea718dc-a021-4b08-90f4-c50d26dea454\ndescription: A small explorer robot with a teal body and amber visor, side view, pixel art.\nsize: 32x32px\ntransparent: True\nasset_id: c749c333-c063-5b2c-bf4b-6211f8462eb6\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4102\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"bea718dc-a021-4b08-90f4-c50d26dea454\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "robot-specific",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "One small explorer robot standing and facing east, strict side elevation. Native 32x32 sprite, entire body within x=4..27 and y=3..29, feet on row 29. Large amber visor, teal torso, cream limbs, two readable boots, compact backpack behind its body. Broad solid pixel clusters and restrained two-step shading. One-pixel dark outline. Preserve a clear silhouette. No scenery, ground shadow, particles, glow or lettering.",
+        "width": 32,
+        "height": 32,
+        "no_background": true,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "direction": "east",
+        "view": "side",
+        "detail": "low detail",
+        "shading": "basic shading",
+        "outline": "single color outline",
+        "seed": 4102
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 2ec56a5d-91c3-4421-936d-64e1180c61f3\njob_id: 2ec56a5d-91c3-4421-936d-64e1180c61f3\ndescription: One small explorer robot standing and facing east, strict side elevation. Native 32x32 sprite, entire body within x=4..27 and y=3..29, feet on row 29. Large amber visor, teal torso, cream limbs, two readable boots, compact backpack behind its body. Broad solid pixel clusters and restrained two-step shading. One-pixel dark outline. Preserve a clear silhouette. No scenery, ground shadow, particles, glow or lettering.\nsize: 32x32px\ntransparent: True\nasset_id: 94dfebd9-3567-5d57-ae65-d3fca6e61c6a\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4102\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"2ec56a5d-91c3-4421-936d-64e1180c61f3\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "background-short",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "Rocky coastal cliffs and a calm sea under a dusk sky, side-scrolling game background.",
+        "width": 256,
+        "height": 128,
+        "no_background": false,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "seed": 4103
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: de5da56f-24fa-4dec-8e20-01e89cdd84e9\njob_id: de5da56f-24fa-4dec-8e20-01e89cdd84e9\ndescription: Rocky coastal cliffs and a calm sea under a dusk sky, side-scrolling game background.\nsize: 256x128px\ntransparent: False\nasset_id: be5ba1b4-0474-5436-bfd1-e3a5bfa77613\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4103\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"de5da56f-24fa-4dec-8e20-01e89cdd84e9\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "background-specific",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "Side-scrolling distant background: a quiet rocky coast at dusk, orthographic side elevation, no foreground props or characters. Native 256x128 pixels. Broad quiet sky occupies top 64 rows, distant cliffs along lower third, calm sea at bottom. Large readable shapes, sparse detail. Blend adjacent sky and sea shades with deliberate sparse 2x2 ordered checkerboard dithering only along broad color transitions. Keep silhouettes crisp and flat interiors quiet. No blur, no antialiasing, no text, no interface, no nearest foreground ledge. Left and right edges should join for horizontal scrolling.",
+        "width": 256,
+        "height": 128,
+        "no_background": false,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "view": "side",
+        "detail": "low detail",
+        "shading": "basic shading",
+        "seed": 4103
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 96467abb-1635-4a72-886e-02d601660d4e\njob_id: 96467abb-1635-4a72-886e-02d601660d4e\ndescription: Side-scrolling distant background: a quiet rocky coast at dusk, orthographic side elevation, no foreground props or characters. Native 256x128 pixels. Broad quiet sky occupies top 64 rows, distant cliffs along lower third, calm sea at bottom. Large readable shapes, sparse detail. Blend adjacent sky and sea shades with deliberate sparse 2x2 ordered checkerboard dithering only along broad color transitions. Keep silhouettes crisp and flat interiors quiet. No blur, no antialiasing, no text, no interface, no nearest foreground ledge. Left and right edges should join for horizontal scrolling.\nsize: 256x128px\ntransparent: False\nasset_id: 7664b22e-af11-5f33-bf21-e14d3c12f4e2\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4103\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"96467abb-1635-4a72-886e-02d601660d4e\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "key-eight-pro",
+      "tool": "create_image_pro",
+      "args": {
+        "description": "One tiny brass key with a teal inset, complete crisp silhouette, no sparkles, no shadow. Native 8x8 inventory icon, legible at actual size.",
+        "width": 8,
+        "height": 8,
+        "no_background": true,
+        "palette": [
+          "#242449",
+          "#926d49",
+          "#ffdb92",
+          "#49b6b6",
+          "#ffffff"
+        ],
+        "max_colors": 5,
+        "seed": 4110
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "2 validation errors for call[create_image_pro]\nwidth\n  Input should be greater than or equal to 16 [type=greater_than_equal, input_value=8, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/greater_than_equal\nheight\n  Input should be greater than or equal to 16 [type=greater_than_equal, input_value=8, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/greater_than_equal"
+          }
+        ],
+        "isError": true
+      }
+    },
+    {
+      "id": "key-pro",
+      "tool": "create_image_pro",
+      "args": {
+        "description": "One readable brass key with a teal jewel, diagonal shaft from lower-left to upper-right ring. Native 16x16 pixel-art inventory sprite with a complete dark outline, thick ring and two square teeth, transparent margin. Clean flat icon with broad clusters, no glow or separate particles.",
+        "width": 16,
+        "height": 16,
+        "no_background": true,
+        "palette": [
+          "#242449",
+          "#926d49",
+          "#ffdb92",
+          "#246d6d",
+          "#49b6b6",
+          "#ffffff"
+        ],
+        "max_colors": 6,
+        "seed": 4111
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 1016b18e-b355-43e1-9811-ad202e5ae2bf\njob_id: 1016b18e-b355-43e1-9811-ad202e5ae2bf\nmodel: pro\ndescription: One readable brass key with a teal jewel, diagonal shaft from lower-left to upper-right ring. Native 16x16 pixel-art inventory sprite with a complete dark outline, thick ring and two square teeth, transparent margin. Clean flat icon with broad clusters, no glow or separate particles.\nsize: 16x16px\ntransparent: True\ncandidates: 64\npalette: 6 colours\nmax colours: 6 per image\nseed: 4111\nasset_id: 3288deed-4f3d-5545-8883-9455ffc69f68\nasset_status: pending (saved when generation completes)\ncost: 10 generations\nstatus: processing (~1-10 min)\n\nhint: get_image(job_id=\"1016b18e-b355-43e1-9811-ad202e5ae2bf\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "ui-ornate",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "One empty rectangular dialogue panel for a storybook adventure, 64x32 native pixels. Complete two-pixel carved dark frame, warm brass corner caps, quiet dark teal interior, subtle chamfered corners. Front view, symmetric straight sides, no perspective, no letters or icons. All corners and edges inside canvas. No external shadow. Transparent outside panel.",
+        "width": 64,
+        "height": 32,
+        "no_background": true,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "detail": "low detail",
+        "shading": "basic shading",
+        "seed": 4120
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 8ca8f5ce-69ae-4c60-bcef-ef4fc5d59c6a\njob_id: 8ca8f5ce-69ae-4c60-bcef-ef4fc5d59c6a\ndescription: One empty rectangular dialogue panel for a storybook adventure, 64x32 native pixels. Complete two-pixel carved dark frame, warm brass corner caps, quiet dark teal interior, subtle chamfered corners. Front view, symmetric straight sides, no perspective, no letters or icons. All corners and edges inside canvas. No external shadow. Transparent outside panel.\nsize: 64x32px\ntransparent: True\nasset_id: b24331ec-53ff-53f3-8a6d-b68a2efdabf0\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4120\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"8ca8f5ce-69ae-4c60-bcef-ef4fc5d59c6a\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "ui-minimal",
+      "tool": "create_image_pixen",
+      "args": {
+        "description": "One clean minimalist science-fiction HUD panel, native 64x32 pixel canvas. Thin cream rectangular outline with clipped corners, dark navy flat interior, two teal accent pixels at each corner. Symmetric frame, no text, no symbols, no gradients, no outside shadow. Transparent outside frame.",
+        "width": 64,
+        "height": 32,
+        "no_background": true,
+        "detail": "low detail",
+        "outline": "single color outline",
+        "seed": 4121
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: c3d21b92-55f5-49ef-a2f5-5bdc6ccbac23\njob_id: c3d21b92-55f5-49ef-a2f5-5bdc6ccbac23\nmodel: pixen\ndescription: One clean minimalist science-fiction HUD panel, native 64x32 pixel canvas. Thin cream rectangular outline with clipped corners, dark navy flat interior, two teal accent pixels at each corner. Symmetric frame, no text, no symbols, no gradients, no outside shadow. Transparent outside frame.\nsize: 64x32px\ntransparent: True\nasset_id: 143beb6d-e732-5702-baea-34abf9d1e504\nasset_status: pending (saved when generation completes)\nseed: 4121\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"c3d21b92-55f5-49ef-a2f5-5bdc6ccbac23\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "title-illustration",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "Native 320x224 pixel-art title-screen illustration for a quiet coastal exploration adventure. Tiny explorer on a lighthouse pier at bottom right; distant cliffs and sea at dusk. Top third is calm dark sky reserved for a future title logo, center-left is quiet space for menu text. No lettering or UI in the image. Clear silhouette layers, restrained clusters, sparse 2x2 ordered dithering at broad sky transitions, crisp edges and quiet interiors.",
+        "width": 320,
+        "height": 224,
+        "no_background": false,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "view": "side",
+        "detail": "medium detail",
+        "shading": "basic shading",
+        "seed": 4122
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: f1fe9f56-ed9d-4d42-ac86-8dc3cb7a75ff\njob_id: f1fe9f56-ed9d-4d42-ac86-8dc3cb7a75ff\ndescription: Native 320x224 pixel-art title-screen illustration for a quiet coastal exploration adventure. Tiny explorer on a lighthouse pier at bottom right; distant cliffs and sea at dusk. Top third is calm dark sky reserved for a future title logo, center-left is quiet space for menu text. No lettering or UI in the image. Clear silhouette layers, restrained clusters, sparse 2x2 ordered dithering at broad sky transitions, crisp edges and quiet interiors.\nsize: 320x224px\ntransparent: False\nasset_id: c146a691-a81e-575f-b002-0d3757b16938\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4122\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"f1fe9f56-ed9d-4d42-ac86-8dc3cb7a75ff\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "character-fantasy",
+      "tool": "create_image_pixen",
+      "args": {
+        "description": "One tiny mossy stone golem, strict overhead top-down view, facing south. Native 16x16 game sprite; full body with one transparent pixel margin. Squat square head and two blocky hands. Storybook fantasy style, quiet grey stone, two leaf-green accents, two warm yellow eyes, three-level shading, dark complete outline. No ground, no cast shadow, no detached particles.",
+        "width": 16,
+        "height": 16,
+        "no_background": true,
+        "view": "high top-down",
+        "direction": "south",
+        "outline": "single color outline",
+        "detail": "low detail",
+        "seed": 4123
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: ffbb3127-228d-446a-9c55-c5de6d22d7d2\njob_id: ffbb3127-228d-446a-9c55-c5de6d22d7d2\nmodel: pixen\ndescription: One tiny mossy stone golem, strict overhead top-down view, facing south. Native 16x16 game sprite; full body with one transparent pixel margin. Squat square head and two blocky hands. Storybook fantasy style, quiet grey stone, two leaf-green accents, two warm yellow eyes, three-level shading, dark complete outline. No ground, no cast shadow, no detached particles.\nsize: 16x16px\ntransparent: True\nasset_id: 2a1c7c3b-c7c6-5a61-846a-88fc40439817\nasset_status: pending (saved when generation completes)\nseed: 4123\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"ffbb3127-228d-446a-9c55-c5de6d22d7d2\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "terrain-sixteen",
+      "tool": "create_topdown_tileset",
+      "args": {
+        "lower_description": "Quiet charcoal cobblestone floor seen directly from above, large simple stones, restrained dark grey shades, no noisy speckles, no perspective",
+        "upper_description": "Muted moss-green grass seen directly from above, broad flat clusters, sparse short blades, simple low-detail adventure-game terrain",
+        "transition_description": "Crisp irregular grass edge meeting stone, one dark separating pixel, no shadows outside tile",
+        "tile_size": {
+          "width": 16,
+          "height": 16
+        },
+        "view": "high top-down",
+        "detail": "low detail",
+        "shading": "basic shading",
+        "outline": "selective outline",
+        "transition_size": 0.2
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: fdbee1a6-f16a-46de-842e-e4bb203d52cf\nterrain: Quiet charcoal cobblestone floor seen directly from above, large simple stones, restrained dark grey shades, no noisy speckles, no perspective \u2192 Muted moss-green grass seen directly from above, broad flat clusters, sparse short blades, simple low-detail adventure-game terrain\ntransition: Crisp irregular grass edge meeting stone, one dark separating pixel, no shadows outside tile (size=0.25)\ntiles: 16 (generating ~100s)\n\nbase_tile_ids:\n  lower (Quiet charcoal cobblestone floor seen directly from above, large simple stones, restrained dark grey shades, no noisy speckles, no perspective): 41bb1374-4090-4fe4-8b11-6d0b5f2ec7f1\n  upper (Muted moss-green grass seen directly from above, broad flat clusters, sparse short blades, simple low-detail adventure-game terrain): ac008f51-a582-4378-b479-3e28728314ef\n\nhint: get_topdown_tileset(\"fdbee1a6-f16a-46de-842e-e4bb203d52cf\")\nresource: pixellab://docs/godot/wang-tilesets"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "robot-profile",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.",
+        "width": 32,
+        "height": 32,
+        "no_background": true,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "direction": "east",
+        "view": "side",
+        "detail": "low detail",
+        "shading": "basic shading",
+        "seed": 4130
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 3eb53989-1bc8-411b-98af-4cfef9405867\njob_id: 3eb53989-1bc8-411b-98af-4cfef9405867\ndescription: One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.\nsize: 32x32px\ntransparent: True\nasset_id: bf20ca51-5b2d-5ea5-987f-e7819e8846b0\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4130\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"3eb53989-1bc8-411b-98af-4cfef9405867\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "background-painterly",
+      "tool": "create_image_pixen",
+      "args": {
+        "description": "Wide native 320x192 pixel-art fantasy title backdrop. Amber sunrise behind layered terracotta desert mesas and a tiny turquoise-roofed village at lower right. Painterly pixel clusters with broad atmospheric color ramps and sparse ordered dithering across the sky. Empty upper-left half for a title added later. Flat side elevation, no close foreground objects, no labels, no lettering, no signatures. Soft warm atmosphere but exact crisp one-pixel grid.",
+        "width": 320,
+        "height": 192,
+        "no_background": false,
+        "detail": "medium detail",
+        "seed": 4140
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 1436c53e-bbbe-434f-baf3-a2a7b809d078\njob_id: 1436c53e-bbbe-434f-baf3-a2a7b809d078\nmodel: pixen\ndescription: Wide native 320x192 pixel-art fantasy title backdrop. Amber sunrise behind layered terracotta desert mesas and a tiny turquoise-roofed village at lower right. Painterly pixel clusters with broad atmospheric color ramps and sparse ordered dithering across the sky. Empty upper-left half for a title added later. Flat side elevation, no close foreground objects, no labels, no lettering, no signatures. Soft warm atmosphere but exact crisp one-pixel grid.\nsize: 320x192px\ntransparent: False\nasset_id: 5d3d8e1a-9e76-5a10-bdb3-d903c4fa2c72\nasset_status: pending (saved when generation completes)\nseed: 4140\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"1436c53e-bbbe-434f-baf3-a2a7b809d078\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "object-chest",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "One closed travel chest, strict orthographic side view facing east. Native 32x32 pixel art prop, complete object inside 28x20 pixels, centered with transparent margin. Teal wooden body, brass straps, one cream latch. Bold chunky shapes, clear dark outline, flat two-tone shading, no cast shadow, no sparks, no floor or text.",
+        "width": 32,
+        "height": 32,
+        "no_background": true,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpKttK8+AAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "view": "side",
+        "detail": "low detail",
+        "shading": "flat shading",
+        "seed": 4141
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: ad166b19-32eb-4b53-b146-d7b15fbbede8\njob_id: ad166b19-32eb-4b53-b146-d7b15fbbede8\ndescription: One closed travel chest, strict orthographic side view facing east. Native 32x32 pixel art prop, complete object inside 28x20 pixels, centered with transparent margin. Teal wooden body, brass straps, one cream latch. Bold chunky shapes, clear dark outline, flat two-tone shading, no cast shadow, no sparks, no floor or text.\nsize: 32x32px\ntransparent: True\nasset_id: f255aca1-b889-5915-a3ca-5e9b0e78a778\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4141\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"ad166b19-32eb-4b53-b146-d7b15fbbede8\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "terrain-thirtytwo",
+      "tool": "create_sidescroller_tileset",
+      "args": {
+        "lower_description": "Warm red-brown sandstone block masonry, straight orthographic side elevation, large simple bricks with dark mortar and clear outer corners, flat two-tone native pixel clusters, no speckles",
+        "transition_description": "A narrow pale sandstone cap on top of the stone wall, simple readable platform edge, no grass or foliage",
+        "tile_size": {
+          "width": 32,
+          "height": 32
+        },
+        "detail": "low detail",
+        "shading": "basic shading",
+        "outline": "selective outline",
+        "transition_size": 0.25,
+        "seed": 4142
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 9fef8dea-8c1c-44d1-b270-3ce8325aab53\nterrain: Sidescroller: Warm red-brown sandstone block masonry, straight orthographic side elevation, large simple bricks with dark mortar and clear outer corners, flat two-tone native pixel clusters, no speckles with A narrow pale sandstone cap on top of the stone wall, simple readable platform edge, no grass or foliage\ntype: sidescroller (side-view, transparent bg, no slopes)\nstatus: processing (~100s)\nbase_tile_id: 427c20b0-1ea7-4b92-a19d-7f379c45f9f2\n\nhint: get_sidescroller_tileset(\"9fef8dea-8c1c-44d1-b270-3ce8325aab53\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "desert-dither-none",
+      "tool": "reduce_colors",
+      "args": {
+        "image_urls": [
+          "https://api.pixellab.ai/mcp/images/1436c53e-bbbe-434f-baf3-a2a7b809d078/download"
+        ],
+        "palette_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJJCRtSUmSbUm2km3bkm3/tm3/25L//9skSUkkbW1JtraSttttbZKSkrb8c/kHAAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "dithering": "none",
+        "dithering_strength": 3
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 50ac84ad-0e13-4f93-ba8c-2a96bf860875\njob_id: 50ac84ad-0e13-4f93-ba8c-2a96bf860875\nasset_id: 1fe9606d-99e5-5e2d-9ad1-761814989e1d\nasset_status: pending (saved when generation completes)\nframes: 1\nsize: 320x192px (unchanged)\npalette: palette image\ndithering: none\ncost: 0.1 generations\nstatus: processing (~1s)\n\nhint: get_image(job_id=\"50ac84ad-0e13-4f93-ba8c-2a96bf860875\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "desert-dither-2x2",
+      "tool": "reduce_colors",
+      "args": {
+        "image_urls": [
+          "https://api.pixellab.ai/mcp/images/1436c53e-bbbe-434f-baf3-a2a7b809d078/download"
+        ],
+        "palette_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJJCRtSUmSbUm2km3bkm3/tm3/25L//9skSUkkbW1JtraSttttbZKSkrb8c/kHAAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "dithering": "2x2",
+        "dithering_strength": 3
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 4db4493b-43a3-41e0-9c7e-962d820c2b67\njob_id: 4db4493b-43a3-41e0-9c7e-962d820c2b67\nasset_id: 0046ccd5-7d42-593b-afa5-11c4e66e7d36\nasset_status: pending (saved when generation completes)\nframes: 1\nsize: 320x192px (unchanged)\npalette: palette image\ndithering: 2x2 @ 3.0\ncost: 0.1 generations\nstatus: processing (~1s)\n\nhint: get_image(job_id=\"4db4493b-43a3-41e0-9c7e-962d820c2b67\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "desert-dither-4x4",
+      "tool": "reduce_colors",
+      "args": {
+        "image_urls": [
+          "https://api.pixellab.ai/mcp/images/1436c53e-bbbe-434f-baf3-a2a7b809d078/download"
+        ],
+        "palette_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAABCAMAAADgp95tAAAAMFBMVEUAAAAkJElJJCRtSUmSbUm2km3bkm3/tm3/25L//9skSUkkbW1JtraSttttbZKSkrb8c/kHAAAAGUlEQVR42mNgYGRiZmFlY+fg5OLm4eXjBwACuQB5Wm3WCQAAAABJRU5ErkJggg==",
+        "dithering": "4x4",
+        "dithering_strength": 3
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: bf34f147-af11-4045-810d-850a86c7ebb6\njob_id: bf34f147-af11-4045-810d-850a86c7ebb6\nasset_id: 0c362c3e-8767-517b-8f2f-0b87a43e0be2\nasset_status: pending (saved when generation completes)\nframes: 1\nsize: 320x192px (unchanged)\npalette: palette image\ndithering: 4x4 @ 3.0\ncost: 0.1 generations\nstatus: processing (~1s)\n\nhint: get_image(job_id=\"bf34f147-af11-4045-810d-850a86c7ebb6\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "chest-wide-pro",
+      "tool": "create_image_pro",
+      "args": {
+        "description": "One wide closed travel chest. Strict orthographic side elevation, fully visible, native 32x16 canvas. Teal wooden panels, two brass straps, one cream latch. Complete one-pixel dark outline, broad pixel clusters, flat two-step shading. Transparent margin, no floor or shadow, no text. Match the first reference's construction and the second reference's color relationships.",
+        "width": 32,
+        "height": 16,
+        "no_background": true,
+        "palette": [
+          "#242449",
+          "#49496d",
+          "#926d49",
+          "#ffdb92",
+          "#ffffff",
+          "#246d6d",
+          "#49b6b6",
+          "#92dbdb"
+        ],
+        "max_colors": 8,
+        "reference_images": [
+          {
+            "url": "https://api.pixellab.ai/mcp/images/ad166b19-32eb-4b53-b146-d7b15fbbede8/download",
+            "usage": "Chest construction and brass straps, recompose at the requested native dimensions without resizing the reference"
+          },
+          {
+            "url": "https://api.pixellab.ai/mcp/images/3eb53989-1bc8-411b-98af-4cfef9405867/download",
+            "usage": "Related teal, cream and brass color relationships and chunky outline treatment, not the robot subject"
+          }
+        ],
+        "seed": 4150
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 44a6cb60-df87-4888-a756-76268adc1a35\njob_id: 44a6cb60-df87-4888-a756-76268adc1a35\nmodel: pro\ndescription: One wide closed travel chest. Strict orthographic side elevation, fully visible, native 32x16 canvas. Teal wooden panels, two brass straps, one cream latch. Complete one-pixel dark outline, broad pixel clusters, flat two-step shading. Transparent margin, no floor or shadow, no text. Match the first reference's construction and the second reference's color relationships.\nsize: 32x16px\ntransparent: True\ncandidates: 64\nreferences: 2\npalette: 8 colours\nmax colours: 8 per image\nseed: 4150\nasset_id: fe29568f-a3dc-56e1-b36f-258af14a5a8e\nasset_status: pending (saved when generation completes)\ncost: 10 generations\nstatus: processing (~1-10 min)\n\nhint: get_image(job_id=\"44a6cb60-df87-4888-a756-76268adc1a35\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "robot-idle",
+      "tool": "animate_image",
+      "args": {
+        "first_frame_url": "https://api.pixellab.ai/mcp/images/3eb53989-1bc8-411b-98af-4cfef9405867/download",
+        "action": "Subtle idle breathing loop, feet planted and head remains facing right, visor flickers gently, body rises by one pixel then returns, no camera movement, no new effects",
+        "frame_count": 4,
+        "no_background": true,
+        "seed": 4151
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 553f9f83-4875-4f4e-85d3-02103a3ac9be\njob_id: 553f9f83-4875-4f4e-85d3-02103a3ac9be\naction: Subtle idle breathing loop, feet planted and head remains facing right, visor flickers gently, body rises by one pixel then returns, no camera movement, no new effects\nframes: 4\nsize: 32x32px\ntransparent: True\nseed: 4151\nasset_id: 5f96cdff-3f38-5bc7-8ef2-ed39c3695d64\nasset_status: pending (saved when generation completes)\ncost: 1 generation\nstatus: processing (~30-180s)\n\nhint: get_image(job_id=\"553f9f83-4875-4f4e-85d3-02103a3ac9be\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "id": "robot-opaque-palette",
+      "tool": "create_image_pixflux",
+      "args": {
+        "description": "One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.",
+        "width": 32,
+        "height": 32,
+        "no_background": true,
+        "color_image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAABCAMAAAA2AgQIAAAALVBMVEUkJElJSW2SbUnbkm3/25L///9tJEm2SW3bkpIkbW1JtraS29skJCRJSUmSkpI2K5sLAAAAGElEQVR42mNgYGRiZmFlY+fg5OLm4eUDAAJAAGqCcKmhAAAAAElFTkSuQmCC",
+        "direction": "east",
+        "view": "side",
+        "detail": "low detail",
+        "shading": "basic shading",
+        "seed": 4130
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 68854cf4-77cb-42f6-b02f-8eb796330559\njob_id: 68854cf4-77cb-42f6-b02f-8eb796330559\ndescription: One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.\nsize: 32x32px\ntransparent: True\nasset_id: d18b696d-9dac-5f04-a147-13a4a90765e5\nasset_status: pending (saved when generation completes)\nforced_palette: yes\nseed: 4130\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"68854cf4-77cb-42f6-b02f-8eb796330559\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ],
+  "capability_checks": [
+    {
+      "tool": "create_image_pro",
+      "width": 8,
+      "height": 8,
+      "outcome": "Rejected before generation: minimum width and height 16"
+    },
+    {
+      "tool": "create_topdown_tileset",
+      "argument": "seed",
+      "outcome": "Exposed schema advertised seed, live endpoint rejected it; retry omitted seed"
+    }
+  ],
+  "ending_generations_used": 83.3,
+  "generations_spent": 42.3,
+  "exact_drawing": {
+    "tool": "pixelart_workbench",
+    "drawing_id": "b9f2c68c-88c2-4e18-877c-095c94024c67",
+    "canvas": [
+      8,
+      8
+    ],
+    "rows": [
+      "eeeeieee",
+      "esssisss",
+      "ssssisss",
+      "iiiiiiii",
+      "eeieeeee",
+      "ssisssss",
+      "ssisssss",
+      "iiiiiiii"
+    ],
+    "legend": {
+      "i": "#242449",
+      "s": "#49496d",
+      "e": "#929292"
+    },
+    "cost": 0
+  },
+  "map": {
+    "map_id": "e3423609-a64f-4429-9057-ab8ef5e57c45",
+    "tileset_id": "fdbee1a6-f16a-46de-842e-e4bb203d52cf",
+    "initial_problem": "Four missing path/empty-boundary corner shapes; provider warned and drew black",
+    "fix": "Surround the path with grass and use axis-aligned rectangles; follow-up returned no missing-shape warning",
+    "final_native_layout": "raw/map-native-layout.json"
+  },
+  "observed_animation_source_changes": {
+    "visible_pixels": 14,
+    "returned_frame": 0,
+    "original": "raw/robot-profile.png",
+    "provider_frame": "raw/robot-idle-0.png",
+    "prepared_sheet_first_frame": "final/robot-profile.png"
+  }
+}

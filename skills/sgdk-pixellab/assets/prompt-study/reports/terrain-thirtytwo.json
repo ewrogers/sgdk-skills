@@ -1,0 +1,360 @@
+{
+  "source": {
+    "palette_vdp_words": [
+      "0x000",
+      "0x222",
+      "0x224",
+      "0x446",
+      "0x468",
+      "0x68A",
+      "0x8AC",
+      "0xACE",
+      "0x444",
+      "0x666",
+      "0x888",
+      "0xAAA",
+      "0xCCC",
+      "0xEEE",
+      "0x442",
+      "0x664"
+    ],
+    "width": 128,
+    "height": 128,
+    "opaque_pixels": 7250,
+    "opaque_colors": 22,
+    "off_palette_pixels": 7250,
+    "partial_alpha_pixels": 0,
+    "transparent_pixels": 9134,
+    "bounds": [
+      0,
+      0,
+      127,
+      127
+    ],
+    "isolated_pixels": [],
+    "frames": [
+      {
+        "bounds": [
+          0,
+          16,
+          14,
+          31
+        ],
+        "edge_pixels": 28
+      },
+      {
+        "bounds": [
+          18,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 56
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 90
+      },
+      {
+        "bounds": [
+          0,
+          16,
+          31,
+          31
+        ],
+        "edge_pixels": 62
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 53
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 90
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 124
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 87
+      },
+      {
+        "bounds": [
+          18,
+          0,
+          31,
+          13
+        ],
+        "edge_pixels": 25
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          13
+        ],
+        "edge_pixels": 56
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 87
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          13,
+          31
+        ],
+        "edge_pixels": 56
+      },
+      {
+        "bounds": null,
+        "edge_pixels": 0
+      },
+      {
+        "bounds": [
+          17,
+          16,
+          31,
+          31
+        ],
+        "edge_pixels": 28
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 53
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          13,
+          13
+        ],
+        "edge_pixels": 25
+      }
+    ],
+    "unique_8x8_patterns": 129,
+    "seam_mismatched_rows": 8,
+    "note": "Seam, isolated-pixel and edge counts are review hints, not visual correctness or hardware sprite counts"
+  },
+  "prepared": {
+    "palette_vdp_words": [
+      "0x000",
+      "0x222",
+      "0x224",
+      "0x446",
+      "0x468",
+      "0x68A",
+      "0x8AC",
+      "0xACE",
+      "0x444",
+      "0x666",
+      "0x888",
+      "0xAAA",
+      "0xCCC",
+      "0xEEE",
+      "0x442",
+      "0x664"
+    ],
+    "width": 128,
+    "height": 128,
+    "opaque_pixels": 7250,
+    "opaque_colors": 6,
+    "off_palette_pixels": 0,
+    "partial_alpha_pixels": 0,
+    "transparent_pixels": 9134,
+    "bounds": [
+      0,
+      0,
+      127,
+      127
+    ],
+    "isolated_pixels": [],
+    "frames": [
+      {
+        "bounds": [
+          0,
+          16,
+          14,
+          31
+        ],
+        "edge_pixels": 28
+      },
+      {
+        "bounds": [
+          18,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 56
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 90
+      },
+      {
+        "bounds": [
+          0,
+          16,
+          31,
+          31
+        ],
+        "edge_pixels": 62
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 53
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 90
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 124
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 87
+      },
+      {
+        "bounds": [
+          18,
+          0,
+          31,
+          13
+        ],
+        "edge_pixels": 25
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          13
+        ],
+        "edge_pixels": 56
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 87
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          13,
+          31
+        ],
+        "edge_pixels": 56
+      },
+      {
+        "bounds": null,
+        "edge_pixels": 0
+      },
+      {
+        "bounds": [
+          17,
+          16,
+          31,
+          31
+        ],
+        "edge_pixels": 28
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          31,
+          31
+        ],
+        "edge_pixels": 53
+      },
+      {
+        "bounds": [
+          0,
+          0,
+          13,
+          13
+        ],
+        "edge_pixels": 25
+      }
+    ],
+    "unique_8x8_patterns": 49,
+    "seam_mismatched_rows": 3,
+    "note": "Seam, isolated-pixel and edge counts are review hints, not visual correctness or hardware sprite counts"
+  },
+  "exact_edit_pixels": [],
+  "changed_opaque_rgb_pixels": 7250
+}

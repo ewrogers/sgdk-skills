@@ -91,6 +91,10 @@ jobs:
             build/best-practices-integration/*.log
             build/dialogue-integration/dialogue-report.json
             build/dialogue-integration/*.log
+            build/pixellab-integration/pixellab-report.json
+            build/pixellab-integration/*.log
+            build/pixellab-shadow-integration/pixellab-shadow-report.json
+            build/pixellab-shadow-integration/*.log
 
   compare:
     name: Compare generated ROMs
@@ -170,4 +174,17 @@ jobs:
           assert all(report["passed"] for report in dialogues.values())
           assert dialogues["amd64"]["hashes"] == dialogues["arm64"]["hashes"], dialogues
           assert dialogues["amd64"]["geometry"] == dialogues["arm64"]["geometry"], dialogues
+          art_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("pixellab-report.json"))
+                         for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in art_reports.values()), art_reports
+          art = {arch: json.loads(paths[0].read_text()) for arch, paths in art_reports.items()}
+          assert all(report["passed"] for report in art.values())
+          assert art["amd64"]["hashes"] == art["arm64"]["hashes"], art
+          assert art["amd64"]["budgets"] == art["arm64"]["budgets"], art
+          shadow_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("pixellab-shadow-report.json"))
+                            for arch in ["amd64", "arm64"]}
+          assert all(len(paths) == 1 for paths in shadow_reports.values()), shadow_reports
+          shadows = {arch: json.loads(paths[0].read_text()) for arch, paths in shadow_reports.items()}
+          assert all(report["passed"] for report in shadows.values())
+          assert shadows["amd64"]["hashes"] == shadows["arm64"]["hashes"], shadows
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")

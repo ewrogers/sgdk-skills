@@ -1,0 +1,364 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SGDK PixelLab prompt study</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#101419;color:#e2e8ef;font:16px/1.55 system-ui,sans-serif}header,main{max-width:1320px;margin:auto;padding:24px}h1{font-size:30px}h2{font-size:21px;color:#91caff}h3{font-size:15px;margin-bottom:8px}a{color:#91caff}article{border:1px solid #34404c;border-radius:12px;margin:24px 0;padding:24px;background:#181e25}.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}.image{overflow:auto;min-height:120px;padding:20px;background:repeating-conic-gradient(#222b35 0% 25%,#29333f 0% 50%) 0/16px 16px;border-radius:6px}img{image-rendering:pixelated;max-width:none}pre{white-space:pre-wrap;word-break:break-word;font-size:13px}.metrics,.status{color:#aab9c8}select,button{background:#253442;color:#fff;border:1px solid #5b7185;border-radius:5px;padding:8px;margin-right:12px}nav{position:sticky;top:0;background:#101419;padding:12px 0;z-index:1}details{margin-top:18px}summary{cursor:pointer;color:#91caff}@media(max-width:700px){.compare{grid-template-columns:1fr}header,main{padding:14px}}</style>
+<header><p><a href="../color-study/gallery.html">New: same-asset color study across four themes</a></p><h1>PixelLab → Mega Drive: prompt study</h1><p>Exact requests, original outputs, honest assessments and prepared native assets. 42.3 generations used within a 100-generation allowance. No image was resized into its working resolution.</p><p>Corrected comparison: the middle image is the same asset prepared for export; a third image, when present, is a different design. The palette and multiple styles here are experiments, not recommendations for another game's appearance. “Selected” means suitable for the stated art role after the recorded work, not console-tested.</p><nav><label>Category <select id="filter"><option>All</option><option>Backgrounds</option><option>Characters</option><option>Dithering</option><option>Objects</option><option>Tilesets</option><option>Title art</option><option>UI</option></select></label><label>Preview <select id="zoom"><option value="1">Native 1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="8">8×</option></select></label></nav></header><main><article data-group="Objects"><h2>key-short</h2>
+<p class="status">Objects — Not selected for the original role</p><p class="metrics">16×16 | 30 opaque RGB colors | 84 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/key-short.png" alt="Raw key-short" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/key-short.png" alt="Same asset prepared key-short" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/key-pro-selected.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>Readable tiny key, but the named colors did not constrain its thirty opaque RGB shades.</p><h3>Additional work</h3><p>Map to the shared actor palette. Prefer the more legible Pro candidate for use.</p>
+<details><summary>Exact prompt and controls</summary><p>An antique brass key with a teal gem, pixel art.</p><pre>{
+  &quot;description&quot;: &quot;An antique brass key with a teal gem, pixel art.&quot;,
+  &quot;width&quot;: 16,
+  &quot;height&quot;: 16,
+  &quot;no_background&quot;: true,
+  &quot;seed&quot;: 4101
+}</pre></details></article><article data-group="Objects"><h2>key-specific</h2>
+<p class="status">Objects — Not selected for the original role</p><p class="metrics">16×16 | 32 opaque RGB colors | 99 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/key-specific.png" alt="Raw key-specific" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/key-specific.png" alt="Same asset prepared key-specific" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/key-pro-selected.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>The outline and gem are clearer, but more prompt detail did not reduce colors: thirty-two shades remain.</p><h3>Additional work</h3><p>Palette conversion is still required. No need to keep regenerating this design.</p>
+<details><summary>Exact prompt and controls</summary><p>One collectible brass key, diagonal from bottom-left teeth to top-right ring, teal gem inside the ring. Native 16x16 pixel sprite, complete silhouette inside a 14x14 area with one transparent pixel margin. Thick readable ring, two square teeth. Solid pixel clusters, three brass shades and two teal shades, dark purple outline. No glow, no detached sparkles, no cast shadow, no lettering.</p><pre>{
+  &quot;description&quot;: &quot;One collectible brass key, diagonal from bottom-left teeth to top-right ring, teal gem inside the ring. Native 16x16 pixel sprite, complete silhouette inside a 14x14 area with one transparent pixel margin. Thick readable ring, two square teeth. Solid pixel clusters, three brass shades and two teal shades, dark purple outline. No glow, no detached sparkles, no cast shadow, no lettering.&quot;,
+  &quot;width&quot;: 16,
+  &quot;height&quot;: 16,
+  &quot;no_background&quot;: true,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;outline&quot;: &quot;single color outline&quot;,
+  &quot;seed&quot;: 4101
+}</pre></details></article><article data-group="Objects"><h2>key-pro</h2>
+<p class="status">Objects — Selected for this role</p><p class="metrics">16×16 | 5 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/key-pro.png" alt="Raw key-pro" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/key-pro.png" alt="Same asset prepared key-pro" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/key-pro-selected.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>Hard palette controls helped: candidate 0 has five opaque colors. Its shaft touches the bottom edge.</p><h3>Additional work</h3><p>Review the 64-candidate overview; choose candidate 5, which has a clear border. Preserve the selected pixels and assign final palette indices.</p>
+<details><summary>Exact prompt and controls</summary><p>One readable brass key with a teal jewel, diagonal shaft from lower-left to upper-right ring. Native 16x16 pixel-art inventory sprite with a complete dark outline, thick ring and two square teeth, transparent margin. Clean flat icon with broad clusters, no glow or separate particles.</p><pre>{
+  &quot;description&quot;: &quot;One readable brass key with a teal jewel, diagonal shaft from lower-left to upper-right ring. Native 16x16 pixel-art inventory sprite with a complete dark outline, thick ring and two square teeth, transparent margin. Clean flat icon with broad clusters, no glow or separate particles.&quot;,
+  &quot;width&quot;: 16,
+  &quot;height&quot;: 16,
+  &quot;no_background&quot;: true,
+  &quot;palette&quot;: [
+    &quot;#242449&quot;,
+    &quot;#926d49&quot;,
+    &quot;#ffdb92&quot;,
+    &quot;#246d6d&quot;,
+    &quot;#49b6b6&quot;,
+    &quot;#ffffff&quot;
+  ],
+  &quot;max_colors&quot;: 6,
+  &quot;seed&quot;: 4111
+}</pre></details></article><article data-group="Characters"><h2>robot-short</h2>
+<p class="status">Characters — Not selected for the original role</p><p class="metrics">32×32 | 11 opaque RGB colors | 154 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/robot-short.png" alt="Raw robot-short" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/robot-short.png" alt="Same asset prepared robot-short" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/robot-profile.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>A charming compact robot; the pose is oblique rather than a strict profile. Opaque black is one of the forced RGB colors.</p><h3>Additional work</h3><p>Opaque black cannot become transparent index zero. Our conversion changes it to the nearest reserved opaque shade. Not selected for the profile role.</p>
+<details><summary>Exact prompt and controls</summary><p>A small explorer robot with a teal body and amber visor, side view, pixel art.</p><pre>{
+  &quot;description&quot;: &quot;A small explorer robot with a teal body and amber visor, side view, pixel art.&quot;,
+  &quot;width&quot;: 32,
+  &quot;height&quot;: 32,
+  &quot;no_background&quot;: true,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;seed&quot;: 4102
+}</pre></details></article><article data-group="Characters"><h2>robot-specific</h2>
+<p class="status">Characters — Not selected for the original role</p><p class="metrics">32×32 | 12 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/robot-specific.png" alt="Raw robot-specific" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/robot-specific.png" alt="Same asset prepared robot-specific" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/robot-profile.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>Despite east-facing controls and numeric bounds, this is essentially front-facing. The pixel work is useful, but the view is wrong.</p><h3>Additional work</h3><p>Reject for this role. Retry by describing which side shows the visor, backpack and toes.</p>
+<details><summary>Exact prompt and controls</summary><p>One small explorer robot standing and facing east, strict side elevation. Native 32x32 sprite, entire body within x=4..27 and y=3..29, feet on row 29. Large amber visor, teal torso, cream limbs, two readable boots, compact backpack behind its body. Broad solid pixel clusters and restrained two-step shading. One-pixel dark outline. Preserve a clear silhouette. No scenery, ground shadow, particles, glow or lettering.</p><pre>{
+  &quot;description&quot;: &quot;One small explorer robot standing and facing east, strict side elevation. Native 32x32 sprite, entire body within x=4..27 and y=3..29, feet on row 29. Large amber visor, teal torso, cream limbs, two readable boots, compact backpack behind its body. Broad solid pixel clusters and restrained two-step shading. One-pixel dark outline. Preserve a clear silhouette. No scenery, ground shadow, particles, glow or lettering.&quot;,
+  &quot;width&quot;: 32,
+  &quot;height&quot;: 32,
+  &quot;no_background&quot;: true,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;direction&quot;: &quot;east&quot;,
+  &quot;view&quot;: &quot;side&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;outline&quot;: &quot;single color outline&quot;,
+  &quot;seed&quot;: 4102
+}</pre></details></article><article data-group="Characters"><h2>robot-profile</h2>
+<p class="status">Characters — Selected for this role</p><p class="metrics">32×32 | 14 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/robot-profile.png" alt="Raw robot-profile" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/robot-profile.png" alt="Same asset prepared robot-profile" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>The retry reads as a right-facing explorer with a stable full-body silhouette. It uses fourteen opaque colors from the usable palette.</p><h3>Additional work</h3><p>Assign the exact shared palette indices without resizing. No RGB changes were necessary.</p>
+<details><summary>Exact prompt and controls</summary><p>One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.</p><pre>{
+  &quot;description&quot;: &quot;One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.&quot;,
+  &quot;width&quot;: 32,
+  &quot;height&quot;: 32,
+  &quot;no_background&quot;: true,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;direction&quot;: &quot;east&quot;,
+  &quot;view&quot;: &quot;side&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;seed&quot;: 4130
+}</pre></details></article><article data-group="Characters"><h2>robot-opaque-palette</h2>
+<p class="status">Characters — Selected for this role</p><p class="metrics">32×32 | 13 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/robot-opaque-palette.png" alt="Raw robot-opaque-palette" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/robot-opaque-palette.png" alt="Same asset prepared robot-opaque-palette" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>The fifteen-opaque-color palette variant remains readable and avoids relying on the transparent RGB entry as an opaque color.</p><h3>Additional work</h3><p>Keep as an alternative design; it changes the body proportions, so do not substitute it into an existing animation without review.</p>
+<details><summary>Exact prompt and controls</summary><p>One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.</p><pre>{
+  &quot;description&quot;: &quot;One small explorer robot in a walking-ready idle pose, strict right-facing profile. One amber visor visible only on the right side of its head, backpack protrudes on its left, both toes point right. Teal body with cream limbs. Entire subject inside a native 32x32 canvas with a transparent border. Simple chunky silhouette, solid clusters and basic shading. No text or scene.&quot;,
+  &quot;width&quot;: 32,
+  &quot;height&quot;: 32,
+  &quot;no_background&quot;: true,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;direction&quot;: &quot;east&quot;,
+  &quot;view&quot;: &quot;side&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;seed&quot;: 4130
+}</pre></details></article><article data-group="Characters"><h2>robot-idle</h2>
+<p class="status">Characters — Not selected for the original role</p><p class="metrics"></p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/robot-idle-original-sheet.png" alt="Raw robot-idle" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/robot-idle-sheet.png" alt="Same asset prepared robot-idle" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>Five native 32x32 images returned, but the claimed unchanged input frame has fourteen visible pixel changes. Feet end at row 29; generated limbs move more than a subtle breathing idle.</p><h3>Additional work</h3><p>Retain the actual original separately and use it for the first prepared frame. Map the four generated frames to one palette, correcting six off-palette pixels, then pack without scaling. Review as an active fidget, not a restrained idle.</p>
+<details><summary>Exact prompt and controls</summary><p>Subtle idle breathing loop, feet planted and head remains facing right, visor flickers gently, body rises by one pixel then returns, no camera movement, no new effects</p><pre>{
+  &quot;first_frame_url&quot;: &quot;https://api.pixellab.ai/mcp/images/3eb53989-1bc8-411b-98af-4cfef9405867/download&quot;,
+  &quot;action&quot;: &quot;Subtle idle breathing loop, feet planted and head remains facing right, visor flickers gently, body rises by one pixel then returns, no camera movement, no new effects&quot;,
+  &quot;frame_count&quot;: 4,
+  &quot;no_background&quot;: true,
+  &quot;seed&quot;: 4151
+}</pre></details></article><article data-group="Characters"><h2>character-fantasy</h2>
+<p class="status">Characters — Selected for this role</p><p class="metrics">16×16 | 29 opaque RGB colors | 86 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/character-fantasy.png" alt="Raw character-fantasy" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/character-fantasy.png" alt="Same asset prepared character-fantasy" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>The tiny golem has a legible silhouette and two warm eyes, though the stones are cooler than the prose suggests. Twenty-nine shades exceed a sprite line.</p><h3>Additional work</h3><p>Quantize to the study palette and inspect the face. It is usable as a small enemy concept, not evidence of exact color-count prompting.</p>
+<details><summary>Exact prompt and controls</summary><p>One tiny mossy stone golem, strict overhead top-down view, facing south. Native 16x16 game sprite; full body with one transparent pixel margin. Squat square head and two blocky hands. Storybook fantasy style, quiet grey stone, two leaf-green accents, two warm yellow eyes, three-level shading, dark complete outline. No ground, no cast shadow, no detached particles.</p><pre>{
+  &quot;description&quot;: &quot;One tiny mossy stone golem, strict overhead top-down view, facing south. Native 16x16 game sprite; full body with one transparent pixel margin. Squat square head and two blocky hands. Storybook fantasy style, quiet grey stone, two leaf-green accents, two warm yellow eyes, three-level shading, dark complete outline. No ground, no cast shadow, no detached particles.&quot;,
+  &quot;width&quot;: 16,
+  &quot;height&quot;: 16,
+  &quot;no_background&quot;: true,
+  &quot;view&quot;: &quot;high top-down&quot;,
+  &quot;direction&quot;: &quot;south&quot;,
+  &quot;outline&quot;: &quot;single color outline&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;seed&quot;: 4123
+}</pre></details></article><article data-group="Objects"><h2>object-chest</h2>
+<p class="status">Objects — Selected for this role</p><p class="metrics">32×32 | 9 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/object-chest.png" alt="Raw object-chest" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/object-chest.png" alt="Same asset prepared object-chest" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/chest-native-crop.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>The chest is complete and crisp, but occupies only sixteen of its thirty-two rows. The source is already on the forced palette.</p><h3>Additional work</h3><p>Remove only empty rows 0-7 and 24-31. The resulting native 32x16 chest keeps every subject pixel; no resampling.</p>
+<details><summary>Exact prompt and controls</summary><p>One closed travel chest, strict orthographic side view facing east. Native 32x32 pixel art prop, complete object inside 28x20 pixels, centered with transparent margin. Teal wooden body, brass straps, one cream latch. Bold chunky shapes, clear dark outline, flat two-tone shading, no cast shadow, no sparks, no floor or text.</p><pre>{
+  &quot;description&quot;: &quot;One closed travel chest, strict orthographic side view facing east. Native 32x32 pixel art prop, complete object inside 28x20 pixels, centered with transparent margin. Teal wooden body, brass straps, one cream latch. Bold chunky shapes, clear dark outline, flat two-tone shading, no cast shadow, no sparks, no floor or text.&quot;,
+  &quot;width&quot;: 32,
+  &quot;height&quot;: 32,
+  &quot;no_background&quot;: true,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;view&quot;: &quot;side&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;flat shading&quot;,
+  &quot;seed&quot;: 4141
+}</pre></details></article><article data-group="Objects"><h2>chest-wide-pro</h2>
+<p class="status">Objects — Not selected for the original role</p><p class="metrics">32×16 | 6 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/chest-wide-pro.png" alt="Raw chest-wide-pro" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/chest-wide-pro.png" alt="Same asset prepared chest-wide-pro" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/chest-native-crop.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>The two-reference 32x16 batch produced panel-like strips, repeated compartments and partial chest motifs. The requested object did not come through.</p><h3>Additional work</h3><p>Reject this batch for the closed-chest role. Use the successful pixel-preserving crop rather than disguising a poor candidate.</p>
+<details><summary>Exact prompt and controls</summary><p>One wide closed travel chest. Strict orthographic side elevation, fully visible, native 32x16 canvas. Teal wooden panels, two brass straps, one cream latch. Complete one-pixel dark outline, broad pixel clusters, flat two-step shading. Transparent margin, no floor or shadow, no text. Match the first reference&#x27;s construction and the second reference&#x27;s color relationships.</p><pre>{
+  &quot;description&quot;: &quot;One wide closed travel chest. Strict orthographic side elevation, fully visible, native 32x16 canvas. Teal wooden panels, two brass straps, one cream latch. Complete one-pixel dark outline, broad pixel clusters, flat two-step shading. Transparent margin, no floor or shadow, no text. Match the first reference&#x27;s construction and the second reference&#x27;s color relationships.&quot;,
+  &quot;width&quot;: 32,
+  &quot;height&quot;: 16,
+  &quot;no_background&quot;: true,
+  &quot;palette&quot;: [
+    &quot;#242449&quot;,
+    &quot;#49496d&quot;,
+    &quot;#926d49&quot;,
+    &quot;#ffdb92&quot;,
+    &quot;#ffffff&quot;,
+    &quot;#246d6d&quot;,
+    &quot;#49b6b6&quot;,
+    &quot;#92dbdb&quot;
+  ],
+  &quot;max_colors&quot;: 8,
+  &quot;reference_images&quot;: [
+    {
+      &quot;url&quot;: &quot;https://api.pixellab.ai/mcp/images/ad166b19-32eb-4b53-b146-d7b15fbbede8/download&quot;,
+      &quot;usage&quot;: &quot;Chest construction and brass straps, recompose at the requested native dimensions without resizing the reference&quot;
+    },
+    {
+      &quot;url&quot;: &quot;https://api.pixellab.ai/mcp/images/3eb53989-1bc8-411b-98af-4cfef9405867/download&quot;,
+      &quot;usage&quot;: &quot;Related teal, cream and brass color relationships and chunky outline treatment, not the robot subject&quot;
+    }
+  ],
+  &quot;seed&quot;: 4150
+}</pre></details></article><article data-group="UI"><h2>ui-ornate</h2>
+<p class="status">UI — Selected for this role</p><p class="metrics">64×32 | 8 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/ui-ornate.png" alt="Raw ui-ornate" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/ui-ornate.png" alt="Same asset prepared ui-ornate" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>The complete frame is readable, but an oval decorative center makes it less neutral than the empty panel brief.</p><h3>Additional work</h3><p>Palette indexing needs no color changes. Use for a decorative placard, not automatically as a resizable nine-slice dialogue box.</p>
+<details><summary>Exact prompt and controls</summary><p>One empty rectangular dialogue panel for a storybook adventure, 64x32 native pixels. Complete two-pixel carved dark frame, warm brass corner caps, quiet dark teal interior, subtle chamfered corners. Front view, symmetric straight sides, no perspective, no letters or icons. All corners and edges inside canvas. No external shadow. Transparent outside panel.</p><pre>{
+  &quot;description&quot;: &quot;One empty rectangular dialogue panel for a storybook adventure, 64x32 native pixels. Complete two-pixel carved dark frame, warm brass corner caps, quiet dark teal interior, subtle chamfered corners. Front view, symmetric straight sides, no perspective, no letters or icons. All corners and edges inside canvas. No external shadow. Transparent outside panel.&quot;,
+  &quot;width&quot;: 64,
+  &quot;height&quot;: 32,
+  &quot;no_background&quot;: true,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;seed&quot;: 4120
+}</pre></details></article><article data-group="UI"><h2>ui-minimal</h2>
+<p class="status">UI — Selected for this role</p><p class="metrics">64×32 | 41 opaque RGB colors | 1745 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/ui-minimal.png" alt="Raw ui-minimal" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/ui-minimal.png" alt="Same asset prepared ui-minimal" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>The clipped frame is clean, but the luminous border carries forty-one shades despite the minimalist request.</p><h3>Additional work</h3><p>Map to the actor/UI study palette; inspect whether highlight loss is acceptable. This demonstrates a second style, not a default HUD appearance.</p>
+<details><summary>Exact prompt and controls</summary><p>One clean minimalist science-fiction HUD panel, native 64x32 pixel canvas. Thin cream rectangular outline with clipped corners, dark navy flat interior, two teal accent pixels at each corner. Symmetric frame, no text, no symbols, no gradients, no outside shadow. Transparent outside frame.</p><pre>{
+  &quot;description&quot;: &quot;One clean minimalist science-fiction HUD panel, native 64x32 pixel canvas. Thin cream rectangular outline with clipped corners, dark navy flat interior, two teal accent pixels at each corner. Symmetric frame, no text, no symbols, no gradients, no outside shadow. Transparent outside frame.&quot;,
+  &quot;width&quot;: 64,
+  &quot;height&quot;: 32,
+  &quot;no_background&quot;: true,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;outline&quot;: &quot;single color outline&quot;,
+  &quot;seed&quot;: 4121
+}</pre></details></article><article data-group="Backgrounds"><h2>background-short</h2>
+<p class="status">Backgrounds — Not selected for the original role</p><p class="metrics">256×128 | 14 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/background-short.png" alt="Raw background-short" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/background-short.png" alt="Same asset prepared background-short" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/background-specific.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>Attractive detailed coastal composition, but too much cliff and foreground detail for a quiet distant layer. It is not horizontally seamless.</p><h3>Additional work</h3><p>Palette indexing needs no RGB changes. Use as fixed illustration or re-author the seam; not selected for an infinitely scrolling strip.</p>
+<details><summary>Exact prompt and controls</summary><p>Rocky coastal cliffs and a calm sea under a dusk sky, side-scrolling game background.</p><pre>{
+  &quot;description&quot;: &quot;Rocky coastal cliffs and a calm sea under a dusk sky, side-scrolling game background.&quot;,
+  &quot;width&quot;: 256,
+  &quot;height&quot;: 128,
+  &quot;no_background&quot;: false,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;seed&quot;: 4103
+}</pre></details></article><article data-group="Backgrounds"><h2>background-specific</h2>
+<p class="status">Backgrounds — Selected for this role</p><p class="metrics">256×128 | 11 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/background-specific.png" alt="Raw background-specific" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/background-specific.png" alt="Same asset prepared background-specific" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>Quieter masses and open sky better suit distant scenery. Numeric sky placement and seamless-edge requests are only partly followed.</p><h3>Additional work</h3><p>The exported background remains useful for a bounded view. Do not claim seamless looping; inspect a repeated preview before enabling it.</p>
+<details><summary>Exact prompt and controls</summary><p>Side-scrolling distant background: a quiet rocky coast at dusk, orthographic side elevation, no foreground props or characters. Native 256x128 pixels. Broad quiet sky occupies top 64 rows, distant cliffs along lower third, calm sea at bottom. Large readable shapes, sparse detail. Blend adjacent sky and sea shades with deliberate sparse 2x2 ordered checkerboard dithering only along broad color transitions. Keep silhouettes crisp and flat interiors quiet. No blur, no antialiasing, no text, no interface, no nearest foreground ledge. Left and right edges should join for horizontal scrolling.</p><pre>{
+  &quot;description&quot;: &quot;Side-scrolling distant background: a quiet rocky coast at dusk, orthographic side elevation, no foreground props or characters. Native 256x128 pixels. Broad quiet sky occupies top 64 rows, distant cliffs along lower third, calm sea at bottom. Large readable shapes, sparse detail. Blend adjacent sky and sea shades with deliberate sparse 2x2 ordered checkerboard dithering only along broad color transitions. Keep silhouettes crisp and flat interiors quiet. No blur, no antialiasing, no text, no interface, no nearest foreground ledge. Left and right edges should join for horizontal scrolling.&quot;,
+  &quot;width&quot;: 256,
+  &quot;height&quot;: 128,
+  &quot;no_background&quot;: false,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;view&quot;: &quot;side&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;seed&quot;: 4103
+}</pre></details></article><article data-group="Title art"><h2>title-illustration</h2>
+<p class="status">Title art — Selected for this role</p><p class="metrics">320×224 | 14 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/title-illustration.png" alt="Raw title-illustration" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/title-illustration.png" alt="Same asset prepared title-illustration" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>Good reserved sky and layered silhouettes, but the model added a tiny signature-like mark despite the no-lettering instruction.</p><h3>Additional work</h3><p>Remove the invented mark with an exact native corner edit in the recorded 32x8 region. Preserve original RGB colors and assign the explicit background palette indices.</p>
+<details><summary>Exact prompt and controls</summary><p>Native 320x224 pixel-art title-screen illustration for a quiet coastal exploration adventure. Tiny explorer on a lighthouse pier at bottom right; distant cliffs and sea at dusk. Top third is calm dark sky reserved for a future title logo, center-left is quiet space for menu text. No lettering or UI in the image. Clear silhouette layers, restrained clusters, sparse 2x2 ordered dithering at broad sky transitions, crisp edges and quiet interiors.</p><pre>{
+  &quot;description&quot;: &quot;Native 320x224 pixel-art title-screen illustration for a quiet coastal exploration adventure. Tiny explorer on a lighthouse pier at bottom right; distant cliffs and sea at dusk. Top third is calm dark sky reserved for a future title logo, center-left is quiet space for menu text. No lettering or UI in the image. Clear silhouette layers, restrained clusters, sparse 2x2 ordered dithering at broad sky transitions, crisp edges and quiet interiors.&quot;,
+  &quot;width&quot;: 320,
+  &quot;height&quot;: 224,
+  &quot;no_background&quot;: false,
+  &quot;color_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;view&quot;: &quot;side&quot;,
+  &quot;detail&quot;: &quot;medium detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;seed&quot;: 4122
+}</pre></details></article><article data-group="Title art"><h2>background-painterly</h2>
+<p class="status">Title art — Selected for this role</p><p class="metrics">320×192 | 52 opaque RGB colors | 61440 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/background-painterly.png" alt="Raw background-painterly" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/background-painterly.png" alt="Same asset prepared background-painterly" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/desert-dither-2x2.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>A warm painted-pixel composition offers a genuinely different style. Fifty-two shades need reduction.</p><h3>Additional work</h3><p>Choose a dedicated sixteen-entry scene palette. Compare no dithering and two ordered variants; do not force the actor palette onto this scene.</p>
+<details><summary>Exact prompt and controls</summary><p>Wide native 320x192 pixel-art fantasy title backdrop. Amber sunrise behind layered terracotta desert mesas and a tiny turquoise-roofed village at lower right. Painterly pixel clusters with broad atmospheric color ramps and sparse ordered dithering across the sky. Empty upper-left half for a title added later. Flat side elevation, no close foreground objects, no labels, no lettering, no signatures. Soft warm atmosphere but exact crisp one-pixel grid.</p><pre>{
+  &quot;description&quot;: &quot;Wide native 320x192 pixel-art fantasy title backdrop. Amber sunrise behind layered terracotta desert mesas and a tiny turquoise-roofed village at lower right. Painterly pixel clusters with broad atmospheric color ramps and sparse ordered dithering across the sky. Empty upper-left half for a title added later. Flat side elevation, no close foreground objects, no labels, no lettering, no signatures. Soft warm atmosphere but exact crisp one-pixel grid.&quot;,
+  &quot;width&quot;: 320,
+  &quot;height&quot;: 192,
+  &quot;no_background&quot;: false,
+  &quot;detail&quot;: &quot;medium detail&quot;,
+  &quot;seed&quot;: 4140
+}</pre></details></article><article data-group="Dithering"><h2>desert-dither-none</h2>
+<p class="status">Dithering — Selected for this role</p><p class="metrics">320×192 | 11 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/desert-dither-none.png" alt="Raw desert-dither-none" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/desert-dither-none.png" alt="Same asset prepared desert-dither-none" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>Clean blocks preserve the illustration and remain a valid stylistic choice. Some sky bands become conspicuous.</p><h3>Additional work</h3><p>No extra cleanup beyond explicit palette indexing. Lowest native pattern count among the three reductions: 591.</p>
+<details><summary>Exact prompt and controls</summary><p>Exact pixel grid; see controls.</p><pre>{
+  &quot;image_urls&quot;: [
+    &quot;https://api.pixellab.ai/mcp/images/1436c53e-bbbe-434f-baf3-a2a7b809d078/download&quot;
+  ],
+  &quot;palette_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;dithering&quot;: &quot;none&quot;,
+  &quot;dithering_strength&quot;: 3
+}</pre></details></article><article data-group="Dithering"><h2>desert-dither-2x2</h2>
+<p class="status">Dithering — Selected for this role</p><p class="metrics">320×192 | 11 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/desert-dither-2x2.png" alt="Raw desert-dither-2x2" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/desert-dither-2x2.png" alt="Same asset prepared desert-dither-2x2" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>Sparse ordered texture softens broad bands without dominating the image at native size. This is my preferred option for this particular backdrop.</p><h3>Additional work</h3><p>Review scrolling on the target display. It uses 599 distinct 8x8 patterns, eight more than no dithering.</p>
+<details><summary>Exact prompt and controls</summary><p>Exact pixel grid; see controls.</p><pre>{
+  &quot;image_urls&quot;: [
+    &quot;https://api.pixellab.ai/mcp/images/1436c53e-bbbe-434f-baf3-a2a7b809d078/download&quot;
+  ],
+  &quot;palette_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;dithering&quot;: &quot;2x2&quot;,
+  &quot;dithering_strength&quot;: 3
+}</pre></details></article><article data-group="Dithering"><h2>desert-dither-4x4</h2>
+<p class="status">Dithering — Not selected for the original role</p><p class="metrics">320×192 | 11 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/desert-dither-4x4.png" alt="Raw desert-dither-4x4" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/desert-dither-4x4.png" alt="Same asset prepared desert-dither-4x4" loading="lazy"></div></section><section><h3>Different design / optional alternative</h3><div class="image"><img src="final/desert-dither-2x2.png" alt="Alternative design" loading="lazy"></div><p>Separate design choice, not palette conversion.</p></section></div>
+<h3>Assessment</h3><p>The larger pattern is visibly busier around the distant cliffs and sky. It may suit another aesthetic, but is not an automatic improvement.</p><h3>Additional work</h3><p>Keep for comparison, not selected here. It uses 615 patterns, twenty-four more than no dithering.</p>
+<details><summary>Exact prompt and controls</summary><p>Exact pixel grid; see controls.</p><pre>{
+  &quot;image_urls&quot;: [
+    &quot;https://api.pixellab.ai/mcp/images/1436c53e-bbbe-434f-baf3-a2a7b809d078/download&quot;
+  ],
+  &quot;palette_image_url&quot;: &quot;Palette PNG data URL; exact colors are in the contract.&quot;,
+  &quot;dithering&quot;: &quot;4x4&quot;,
+  &quot;dithering_strength&quot;: 3
+}</pre></details></article><article data-group="Tilesets"><h2>terrain-sixteen</h2>
+<p class="status">Tilesets — Selected for this role</p><p class="metrics">64×64 | 19 opaque RGB colors | 4096 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/terrain-sixteen.png" alt="Raw terrain-sixteen" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/terrain-sixteen.png" alt="Same asset prepared terrain-sixteen" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>Connected grass/stone shapes are useful, but the floor arrived purple and the grass is brighter than the muted charcoal brief. Nineteen shades exceed one line.</p><h3>Additional work</h3><p>Reassign to a deliberate grey/green terrain palette. Use the returned bounding boxes and corner metadata, then test a map.</p>
+<details><summary>Exact prompt and controls</summary><p>Quiet charcoal cobblestone floor seen directly from above, large simple stones, restrained dark grey shades, no noisy speckles, no perspective</p><pre>{
+  &quot;lower_description&quot;: &quot;Quiet charcoal cobblestone floor seen directly from above, large simple stones, restrained dark grey shades, no noisy speckles, no perspective&quot;,
+  &quot;upper_description&quot;: &quot;Muted moss-green grass seen directly from above, broad flat clusters, sparse short blades, simple low-detail adventure-game terrain&quot;,
+  &quot;transition_description&quot;: &quot;Crisp irregular grass edge meeting stone, one dark separating pixel, no shadows outside tile&quot;,
+  &quot;tile_size&quot;: {
+    &quot;width&quot;: 16,
+    &quot;height&quot;: 16
+  },
+  &quot;view&quot;: &quot;high top-down&quot;,
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;outline&quot;: &quot;selective outline&quot;,
+  &quot;transition_size&quot;: 0.2
+}</pre></details></article><article data-group="Tilesets"><h2>terrain-thirtytwo</h2>
+<p class="status">Tilesets — Selected for this role</p><p class="metrics">128×128 | 22 opaque RGB colors | 7250 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/terrain-thirtytwo.png" alt="Raw terrain-thirtytwo" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/terrain-thirtytwo.png" alt="Same asset prepared terrain-thirtytwo" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>Sandstone edges are strong and easy to read, with some interior texture. Transparent sides remain intact. Twenty-two opaque shades need consolidation.</p><h3>Additional work</h3><p>Map all sixteen authored cells together to one terrain palette; verify repeated edges at actual size.</p>
+<details><summary>Exact prompt and controls</summary><p>Warm red-brown sandstone block masonry, straight orthographic side elevation, large simple bricks with dark mortar and clear outer corners, flat two-tone native pixel clusters, no speckles</p><pre>{
+  &quot;lower_description&quot;: &quot;Warm red-brown sandstone block masonry, straight orthographic side elevation, large simple bricks with dark mortar and clear outer corners, flat two-tone native pixel clusters, no speckles&quot;,
+  &quot;transition_description&quot;: &quot;A narrow pale sandstone cap on top of the stone wall, simple readable platform edge, no grass or foliage&quot;,
+  &quot;tile_size&quot;: {
+    &quot;width&quot;: 32,
+    &quot;height&quot;: 32
+  },
+  &quot;detail&quot;: &quot;low detail&quot;,
+  &quot;shading&quot;: &quot;basic shading&quot;,
+  &quot;outline&quot;: &quot;selective outline&quot;,
+  &quot;transition_size&quot;: 0.25,
+  &quot;seed&quot;: 4142
+}</pre></details></article><article data-group="Tilesets"><h2>tile-eight</h2>
+<p class="status">Tilesets — Selected for this role</p><p class="metrics">8×8 | 3 opaque RGB colors | 0 pixels outside usable palette</p>
+<div class="compare"><section><h3>Returned</h3><div class="image"><img src="raw/tile-eight.png" alt="Raw tile-eight" loading="lazy"></div></section>
+<section><h3>Same asset — prepared palette</h3><div class="image"><img src="final/tile-eight.png" alt="Same asset prepared tile-eight" loading="lazy"></div></section></div>
+<h3>Assessment</h3><p>An exact native 8x8 masonry tile demonstrates the size the generation tools would not accept. Three deliberate colors and no ambiguity.</p><h3>Additional work</h3><p>Authored directly through PixelLab workbench grid drawing, not generated then shrunk. Assign the shared palette indices.</p>
+<details><summary>Exact prompt and controls</summary><p>Exact pixel grid; see controls.</p><pre>{
+  &quot;tool&quot;: &quot;pixelart_workbench&quot;,
+  &quot;drawing_id&quot;: &quot;b9f2c68c-88c2-4e18-877c-095c94024c67&quot;,
+  &quot;canvas&quot;: [
+    8,
+    8
+  ],
+  &quot;rows&quot;: [
+    &quot;eeeeieee&quot;,
+    &quot;esssisss&quot;,
+    &quot;ssssisss&quot;,
+    &quot;iiiiiiii&quot;,
+    &quot;eeieeeee&quot;,
+    &quot;ssisssss&quot;,
+    &quot;ssisssss&quot;,
+    &quot;iiiiiiii&quot;
+  ],
+  &quot;legend&quot;: {
+    &quot;i&quot;: &quot;#242449&quot;,
+    &quot;s&quot;: &quot;#49496d&quot;,
+    &quot;e&quot;: &quot;#929292&quot;
+  },
+  &quot;cost&quot;: 0
+}</pre></details></article>
+<article><h2>All 64 Pro candidates</h2><p>Row-major order, indices 0–63. Key candidate 5 was selected; the wide chest batch was rejected for the requested role.</p><div class="compare"><div class="image"><img src="raw/key-pro-candidates.png" alt="64 key candidates"></div><div class="image"><img src="raw/chest-pro-candidates.png" alt="64 wide chest candidates"></div></div></article>
+<article><h2>Native map from actual tile metadata</h2><p>The first painted path produced missing-shape warnings. Axis-aligned terrain surrounded by grass fixed them. This map uses returned corner rules and atlas bounding boxes, not Wang names as coordinates. It is a placement demonstration, not a collision map.</p><div class="image"><img src="final/map-native.png" alt="Native grass and stone map"></div></article>
+</main><script>const images=[...document.querySelectorAll('img')];function resize(){for(const im of images){if(im.naturalWidth)im.style.width=(im.naturalWidth*Number(document.querySelector('#zoom').value))+'px';}}for(const im of images)im.addEventListener('load',resize);document.querySelector('#zoom').addEventListener('change',resize);document.querySelector('#filter').addEventListener('change',e=>{for(const a of document.querySelectorAll('article[data-group]'))a.hidden=e.target.value!=='All'&&a.dataset.group!==e.target.value;});resize();</script></html>

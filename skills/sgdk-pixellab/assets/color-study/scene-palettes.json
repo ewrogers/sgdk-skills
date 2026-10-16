@@ -1,0 +1,342 @@
+{
+  "fantasy": {
+    "background_banks": [
+      {
+        "slot": 0,
+        "palette": [
+          "000000",
+          "000000",
+          "ffffff",
+          "246d49",
+          "242449",
+          "929292",
+          "6ddb6d",
+          "6d496d",
+          "244949",
+          "000024",
+          "dbb6db",
+          "6d6d6d",
+          "ffdb6d",
+          "b6dbdb",
+          "6d4924",
+          "492424"
+        ]
+      },
+      {
+        "slot": 1,
+        "palette": [
+          "000000",
+          "000000",
+          "ffffff",
+          "246d49",
+          "242424",
+          "6ddb6d",
+          "240024",
+          "922424",
+          "244949",
+          "b66d24",
+          "ffdb6d",
+          "b6b6b6",
+          "6d4924",
+          "499249",
+          "492424",
+          "dbb649"
+        ]
+      }
+    ],
+    "actor_item_slot": 2,
+    "actor_item_palette": [
+      "000000",
+      "240024",
+      "492449",
+      "92246d",
+      "db4992",
+      "004924",
+      "009249",
+      "24db6d",
+      "92ff92",
+      "6d4900",
+      "b69224",
+      "ffdb49",
+      "ffffb6",
+      "244992",
+      "49b6ff",
+      "ffffff"
+    ],
+    "ui_slot": 3,
+    "ui_palette": [
+      "000000",
+      "240024",
+      "492449",
+      "92246d",
+      "db4992",
+      "004924",
+      "009249",
+      "24db6d",
+      "92ff92",
+      "6d4900",
+      "b69224",
+      "ffdb49",
+      "ffffb6",
+      "244992",
+      "49b6ff",
+      "ffffff"
+    ],
+    "transition": "Load each new page with display blanked; replace its complete four-line set. No HBlank palette writes."
+  },
+  "sci-fi": {
+    "background_banks": [
+      {
+        "slot": 0,
+        "palette": [
+          "000000",
+          "000000",
+          "49ffff",
+          "494949",
+          "ff9224",
+          "926d24",
+          "242424",
+          "000024",
+          "6d4924",
+          "ffdb49",
+          "49b6b6",
+          "494924",
+          "496d6d",
+          "242449",
+          "b66d24",
+          "ffb649"
+        ]
+      },
+      {
+        "slot": 1,
+        "palette": [
+          "000000",
+          "000000",
+          "49ffff",
+          "496d6d",
+          "242424",
+          "ff9224",
+          "000024",
+          "929292",
+          "244949",
+          "ffdb49",
+          "92b6b6",
+          "6d6d92",
+          "ffb649",
+          "494949",
+          "926d24",
+          "242449"
+        ]
+      }
+    ],
+    "actor_item_slot": 2,
+    "actor_item_palette": [
+      "000000",
+      "000024",
+      "242449",
+      "24496d",
+      "246db6",
+      "2492ff",
+      "49dbff",
+      "92ffff",
+      "ffffff",
+      "492424",
+      "922424",
+      "db4924",
+      "ff9224",
+      "ffdb92",
+      "494949",
+      "929292"
+    ],
+    "ui_slot": 3,
+    "ui_palette": [
+      "000000",
+      "000024",
+      "242449",
+      "24496d",
+      "246db6",
+      "2492ff",
+      "49dbff",
+      "92ffff",
+      "929292",
+      "492424",
+      "922424",
+      "db4924",
+      "ff9224",
+      "ffdb92",
+      "494949",
+      "ffffff"
+    ],
+    "transition": "Load each new page with display blanked; replace its complete four-line set. No HBlank palette writes."
+  },
+  "modern": {
+    "background_banks": [
+      {
+        "slot": 0,
+        "palette": [
+          "000000",
+          "000000",
+          "ffffb6",
+          "496d92",
+          "242449",
+          "92b6ff",
+          "922424",
+          "49496d",
+          "490000",
+          "6d92db",
+          "000024",
+          "ffb66d",
+          "6d2400",
+          "6d9292",
+          "6d6d6d",
+          "b6b6b6"
+        ]
+      },
+      {
+        "slot": 1,
+        "palette": [
+          "000000",
+          "000000",
+          "ffffb6",
+          "6d6d6d",
+          "242424",
+          "ff6dff",
+          "db9249",
+          "244924",
+          "92246d",
+          "6d2400",
+          "49496d",
+          "929292",
+          "ffb6db",
+          "000024",
+          "002400",
+          "b66d49"
+        ]
+      }
+    ],
+    "actor_item_slot": 2,
+    "actor_item_palette": [
+      "000000",
+      "242424",
+      "494949",
+      "929292",
+      "dbdbdb",
+      "ffffff",
+      "002449",
+      "004992",
+      "006ddb",
+      "24b6ff",
+      "6ddbff",
+      "490024",
+      "920049",
+      "db246d",
+      "ff4992",
+      "ffdb6d"
+    ],
+    "ui_slot": 3,
+    "ui_palette": [
+      "000000",
+      "242424",
+      "494949",
+      "929292",
+      "dbdbdb",
+      "ffdb6d",
+      "002449",
+      "004992",
+      "006ddb",
+      "24b6ff",
+      "6ddbff",
+      "490024",
+      "920049",
+      "db246d",
+      "ff4992",
+      "ffffff"
+    ],
+    "transition": "Load each new page with display blanked; replace its complete four-line set. No HBlank palette writes."
+  },
+  "colonial": {
+    "background_banks": [
+      {
+        "slot": 0,
+        "palette": [
+          "000000",
+          "000024",
+          "ffdbb6",
+          "9292b6",
+          "244949",
+          "db4924",
+          "b6dbdb",
+          "92b6b6",
+          "492424",
+          "926d49",
+          "db9224",
+          "922400",
+          "92926d",
+          "002424",
+          "6d4924",
+          "246d92"
+        ]
+      },
+      {
+        "slot": 1,
+        "palette": [
+          "000000",
+          "000024",
+          "ffdbb6",
+          "924924",
+          "244949",
+          "499292",
+          "db9224",
+          "002424",
+          "492424",
+          "db4924",
+          "246d92",
+          "6db6b6",
+          "dbb66d",
+          "6d4924",
+          "242449",
+          "b66d24"
+        ]
+      }
+    ],
+    "actor_item_slot": 2,
+    "actor_item_palette": [
+      "000000",
+      "242424",
+      "242449",
+      "24496d",
+      "246d92",
+      "2492b6",
+      "49b6db",
+      "92dbff",
+      "ffffff",
+      "492400",
+      "926d24",
+      "db9224",
+      "ffdb6d",
+      "ffffb6",
+      "922449",
+      "db496d"
+    ],
+    "ui_slot": 3,
+    "ui_palette": [
+      "000000",
+      "242424",
+      "242449",
+      "24496d",
+      "246d92",
+      "2492b6",
+      "49b6db",
+      "92dbff",
+      "db496d",
+      "492400",
+      "926d24",
+      "db9224",
+      "ffdb6d",
+      "ffffb6",
+      "922449",
+      "ffffff"
+    ],
+    "transition": "Load each new page with display blanked; replace its complete four-line set. No HBlank palette writes."
+  }
+}

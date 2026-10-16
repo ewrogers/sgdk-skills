@@ -498,3 +498,41 @@ Local NTSC ares feedback confirmed dialogue/controls and the original harbor
 music with the ending-cue fix. PAL presentation, VDP timing under gameplay load
 and physical-console sound/input remain separate checks. Follow Dialogue Lab's
 playtest checklist when adapting it to a game.
+
+
+## PixelLab art pipeline
+
+`tests/test_pixellab.py` checks native/frame dimensions, palette contracts,
+transparent versus opaque black, nearest-color conversion against a distance
+oracle, deterministic ordered dithering and frame phase, all five PNG filters,
+checksums/truncation/invalid palette indices, bounded decompression, paths with
+spaces and no-overwrite errors. Committed prepared artwork reproduces offline;
+the 32x16 chest crop and five-frame sheet are compared with their exact source
+pixels. Tests do not prescribe art style or assert that a metric is beauty.
+
+Docker checks build actual 8x8 tile, 16x16 icon, 32x16 prop, five-frame 32x32
+actor and large-image resources in release/debug. A direct-entry Unicorn
+M68000 probe checks tile nibbles, linked palettes, sprite/frame geometry and
+resource counts. Native ARM64/AMD64 jobs compare hashes and budgets in
+`build/pixellab-integration/pixellab-report.json`. This bypasses startup and is
+not a playable ROM or VDP/audio/timing emulation.
+
+No paid PixelLab calls run in CI. The 2026-10-15 manual study preserves exact
+requests, originals, candidate overviews, assessments, cleanup and final indexed
+assets in the independently installed skill. Its local HTML gallery supports
+native/integer-zoom visual review. Those findings do not prove arbitrary
+seamlessness, scene readability or console performance. Dithering remains an
+optional visual choice with possible texture and tile-budget costs.
+
+The PixelLab color study also reproduces same-source conversions offline, tests
+protected palette colors and per-8×8-tile line assignment, and checks real
+ResComp banked IMAGE palette words/tilemap attributes. Its four-page native
+showcase is compiled in both modes as part of the PixelLab integration check;
+paid generation calls are never made by tests or CI.
+
+The optional PixelLab shadow/highlight experiment tests per-pixel brightness
+selection against an independent oracle, reproduces committed modeled previews,
+and decodes samples from every linked lighting-mask sprite in real M68000 code.
+CI builds both the normal comparison ROM and the executable probe in release/debug
+on ARM64 and AMD64 and compares their hashes. Emulator review is separate from
+these resource checks; the ares preview model is not an analog hardware guarantee.

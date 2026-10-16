@@ -1,0 +1,209 @@
+[
+  {
+    "id": "key-short",
+    "group": "Objects",
+    "opinion": "Readable tiny key, but the named colors did not constrain its thirty opaque RGB shades.",
+    "work": "Map to the shared actor palette. Prefer the more legible Pro candidate for use.",
+    "selected": false,
+    "raw": "key-short.png",
+    "final": "key-pro-selected.png"
+  },
+  {
+    "id": "key-specific",
+    "group": "Objects",
+    "opinion": "The outline and gem are clearer, but more prompt detail did not reduce colors: thirty-two shades remain.",
+    "work": "Palette conversion is still required. No need to keep regenerating this design.",
+    "selected": false,
+    "raw": "key-specific.png",
+    "final": "key-pro-selected.png"
+  },
+  {
+    "id": "key-pro",
+    "group": "Objects",
+    "opinion": "Hard palette controls helped: candidate 0 has five opaque colors. Its shaft touches the bottom edge.",
+    "work": "Review the 64-candidate overview; choose candidate 5, which has a clear border. Preserve the selected pixels and assign final palette indices.",
+    "selected": true,
+    "raw": "key-pro.png",
+    "final": "key-pro-selected.png"
+  },
+  {
+    "id": "robot-short",
+    "group": "Characters",
+    "opinion": "A charming compact robot; the pose is oblique rather than a strict profile. Opaque black is one of the forced RGB colors.",
+    "work": "Opaque black cannot become transparent index zero. Our conversion changes it to the nearest reserved opaque shade. Not selected for the profile role.",
+    "selected": false,
+    "raw": "robot-short.png",
+    "final": "robot-profile.png"
+  },
+  {
+    "id": "robot-specific",
+    "group": "Characters",
+    "opinion": "Despite east-facing controls and numeric bounds, this is essentially front-facing. The pixel work is useful, but the view is wrong.",
+    "work": "Reject for this role. Retry by describing which side shows the visor, backpack and toes.",
+    "selected": false,
+    "raw": "robot-specific.png",
+    "final": "robot-profile.png"
+  },
+  {
+    "id": "robot-profile",
+    "group": "Characters",
+    "opinion": "The retry reads as a right-facing explorer with a stable full-body silhouette. It uses fourteen opaque colors from the usable palette.",
+    "work": "Assign the exact shared palette indices without resizing. No RGB changes were necessary.",
+    "selected": true,
+    "raw": "robot-profile.png",
+    "final": "robot-profile.png"
+  },
+  {
+    "id": "robot-opaque-palette",
+    "group": "Characters",
+    "opinion": "The fifteen-opaque-color palette variant remains readable and avoids relying on the transparent RGB entry as an opaque color.",
+    "work": "Keep as an alternative design; it changes the body proportions, so do not substitute it into an existing animation without review.",
+    "selected": true,
+    "raw": "robot-opaque-palette.png",
+    "final": "robot-opaque-palette.png"
+  },
+  {
+    "id": "robot-idle",
+    "group": "Characters",
+    "opinion": "Five native 32x32 images returned, but the claimed unchanged input frame has fourteen visible pixel changes. Feet end at row 29; generated limbs move more than a subtle breathing idle.",
+    "work": "Retain the actual original separately and use it for the first prepared frame. Map the four generated frames to one palette, correcting six off-palette pixels, then pack without scaling. Review as an active fidget, not a restrained idle.",
+    "selected": false,
+    "raw": "robot-idle-original-sheet.png",
+    "final": "robot-idle-sheet.png"
+  },
+  {
+    "id": "character-fantasy",
+    "group": "Characters",
+    "opinion": "The tiny golem has a legible silhouette and two warm eyes, though the stones are cooler than the prose suggests. Twenty-nine shades exceed a sprite line.",
+    "work": "Quantize to the study palette and inspect the face. It is usable as a small enemy concept, not evidence of exact color-count prompting.",
+    "selected": true,
+    "raw": "character-fantasy.png",
+    "final": "character-fantasy.png"
+  },
+  {
+    "id": "object-chest",
+    "group": "Objects",
+    "opinion": "The chest is complete and crisp, but occupies only sixteen of its thirty-two rows. The source is already on the forced palette.",
+    "work": "Remove only empty rows 0-7 and 24-31. The resulting native 32x16 chest keeps every subject pixel; no resampling.",
+    "selected": true,
+    "raw": "object-chest.png",
+    "final": "chest-native-crop.png"
+  },
+  {
+    "id": "chest-wide-pro",
+    "group": "Objects",
+    "opinion": "The two-reference 32x16 batch produced panel-like strips, repeated compartments and partial chest motifs. The requested object did not come through.",
+    "work": "Reject this batch for the closed-chest role. Use the successful pixel-preserving crop rather than disguising a poor candidate.",
+    "selected": false,
+    "raw": "chest-wide-pro.png",
+    "final": "chest-native-crop.png"
+  },
+  {
+    "id": "ui-ornate",
+    "group": "UI",
+    "opinion": "The complete frame is readable, but an oval decorative center makes it less neutral than the empty panel brief.",
+    "work": "Palette indexing needs no color changes. Use for a decorative placard, not automatically as a resizable nine-slice dialogue box.",
+    "selected": true,
+    "raw": "ui-ornate.png",
+    "final": "ui-ornate.png"
+  },
+  {
+    "id": "ui-minimal",
+    "group": "UI",
+    "opinion": "The clipped frame is clean, but the luminous border carries forty-one shades despite the minimalist request.",
+    "work": "Map to the actor/UI study palette; inspect whether highlight loss is acceptable. This demonstrates a second style, not a default HUD appearance.",
+    "selected": true,
+    "raw": "ui-minimal.png",
+    "final": "ui-minimal.png"
+  },
+  {
+    "id": "background-short",
+    "group": "Backgrounds",
+    "opinion": "Attractive detailed coastal composition, but too much cliff and foreground detail for a quiet distant layer. It is not horizontally seamless.",
+    "work": "Palette indexing needs no RGB changes. Use as fixed illustration or re-author the seam; not selected for an infinitely scrolling strip.",
+    "selected": false,
+    "raw": "background-short.png",
+    "final": "background-specific.png"
+  },
+  {
+    "id": "background-specific",
+    "group": "Backgrounds",
+    "opinion": "Quieter masses and open sky better suit distant scenery. Numeric sky placement and seamless-edge requests are only partly followed.",
+    "work": "The exported background remains useful for a bounded view. Do not claim seamless looping; inspect a repeated preview before enabling it.",
+    "selected": true,
+    "raw": "background-specific.png",
+    "final": "background-specific.png"
+  },
+  {
+    "id": "title-illustration",
+    "group": "Title art",
+    "opinion": "Good reserved sky and layered silhouettes, but the model added a tiny signature-like mark despite the no-lettering instruction.",
+    "work": "Remove the invented mark with an exact native corner edit in the recorded 32x8 region. Preserve original RGB colors and assign the explicit background palette indices.",
+    "selected": true,
+    "raw": "title-illustration.png",
+    "final": "title-illustration.png"
+  },
+  {
+    "id": "background-painterly",
+    "group": "Title art",
+    "opinion": "A warm painted-pixel composition offers a genuinely different style. Fifty-two shades need reduction.",
+    "work": "Choose a dedicated sixteen-entry scene palette. Compare no dithering and two ordered variants; do not force the actor palette onto this scene.",
+    "selected": true,
+    "raw": "background-painterly.png",
+    "final": "desert-dither-2x2.png"
+  },
+  {
+    "id": "desert-dither-none",
+    "group": "Dithering",
+    "opinion": "Clean blocks preserve the illustration and remain a valid stylistic choice. Some sky bands become conspicuous.",
+    "work": "No extra cleanup beyond explicit palette indexing. Lowest native pattern count among the three reductions: 591.",
+    "selected": true,
+    "raw": "desert-dither-none.png",
+    "final": "desert-dither-none.png"
+  },
+  {
+    "id": "desert-dither-2x2",
+    "group": "Dithering",
+    "opinion": "Sparse ordered texture softens broad bands without dominating the image at native size. This is my preferred option for this particular backdrop.",
+    "work": "Review scrolling on the target display. It uses 599 distinct 8x8 patterns, eight more than no dithering.",
+    "selected": true,
+    "raw": "desert-dither-2x2.png",
+    "final": "desert-dither-2x2.png"
+  },
+  {
+    "id": "desert-dither-4x4",
+    "group": "Dithering",
+    "opinion": "The larger pattern is visibly busier around the distant cliffs and sky. It may suit another aesthetic, but is not an automatic improvement.",
+    "work": "Keep for comparison, not selected here. It uses 615 patterns, twenty-four more than no dithering.",
+    "selected": false,
+    "raw": "desert-dither-4x4.png",
+    "final": "desert-dither-2x2.png"
+  },
+  {
+    "id": "terrain-sixteen",
+    "group": "Tilesets",
+    "opinion": "Connected grass/stone shapes are useful, but the floor arrived purple and the grass is brighter than the muted charcoal brief. Nineteen shades exceed one line.",
+    "work": "Reassign to a deliberate grey/green terrain palette. Use the returned bounding boxes and corner metadata, then test a map.",
+    "selected": true,
+    "raw": "terrain-sixteen.png",
+    "final": "terrain-sixteen.png"
+  },
+  {
+    "id": "terrain-thirtytwo",
+    "group": "Tilesets",
+    "opinion": "Sandstone edges are strong and easy to read, with some interior texture. Transparent sides remain intact. Twenty-two opaque shades need consolidation.",
+    "work": "Map all sixteen authored cells together to one terrain palette; verify repeated edges at actual size.",
+    "selected": true,
+    "raw": "terrain-thirtytwo.png",
+    "final": "terrain-thirtytwo.png"
+  },
+  {
+    "id": "tile-eight",
+    "group": "Tilesets",
+    "opinion": "An exact native 8x8 masonry tile demonstrates the size the generation tools would not accept. Three deliberate colors and no ambiguity.",
+    "work": "Authored directly through PixelLab workbench grid drawing, not generated then shrunk. Assign the shared palette indices.",
+    "selected": true,
+    "raw": "tile-eight.png",
+    "final": "tile-eight.png"
+  }
+]
