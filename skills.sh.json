@@ -25,6 +25,7 @@
         "sgdk-localization",
         "sgdk-dialogue",
         "sgdk-levels",
+        "sgdk-streaming",
         "sgdk-gameplay",
         "sgdk-math",
         "sgdk-ai",
