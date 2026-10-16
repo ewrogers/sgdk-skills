@@ -1,10 +1,10 @@
-/* Pre-optimization selector for behavior and target-work comparisons. */
+/* Simple conservative-band oracle with deliberately straightforward traversal. */
 #include "effects.h"
 static s16 clamp(s16 x,s16 lo,s16 hi) { return x<lo ? lo : x>hi ? hi : x; }
 void fx_reference_select(const FxLab *s,FxRender *out,u16 budget)
 {
     *out=(FxRender){0};
-    u8 lines[224]={0};
+    u8 bands[28]={0};
     if (budget>FX_DRAW_MAX) budget=FX_DRAW_MAX;
     s16 base=clamp(s->player_x-152,0,320);
     static const s8 jitter[]={0,2,-2,1,-1,2,-1,0};
@@ -22,9 +22,9 @@ void fx_reference_select(const FxLab *s,FxRender *out,u16 budget)
         if (x<0 || x>312 || y<FX_TOP || y>FX_BOTTOM-8) continue;
         out->visible++;
         bool fits=out->count<budget;
-        for (u16 line=(u16)y;line<(u16)y+8;line++) if (lines[line]>=FX_LINE_MAX) fits=false;
+        for (u16 band=(u16)y/8;band<=((u16)y+7)/8;band++) if (bands[band]>=FX_LINE_MAX) fits=false;
         if (!fits) { out->skipped++; continue; }
-        for (u16 line=(u16)y;line<(u16)y+8;line++) lines[line]++;
+        for (u16 band=(u16)y/8;band<=((u16)y+7)/8;band++) bands[band]++;
         u8 frame;
         if (p->kind==FX_SPARK) frame=p->age<12 ? 0 : 1;
         else if (p->kind==FX_SMOKE) frame=p->age<32 ? 2 : 3;
@@ -33,5 +33,5 @@ void fx_reference_select(const FxLab *s,FxRender *out,u16 budget)
         else frame=p->age<12 ? 6 : 7;
         out->items[out->count++]=(FxDraw){x,y,slot,frame};
     }
-    for (u16 y=0;y<224;y++) out->lines[y/8]|=(u32)lines[y]<<((y&7)*4);
+    for (u16 band=0;band<28;band++) out->bands[band]=bands[band];
 }

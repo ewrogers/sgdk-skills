@@ -14,10 +14,17 @@ Do not grow the array or allocate a heap object for every spark.
 
 Effects Lab accepts priorities: impacts/smoke, then trails, then weather. At
 capacity an incoming effect can replace the oldest particle at a strictly
-lower priority; equal-priority requests are rejected. A separate 48-particle weather allowance
-leaves room in the 96-slot pool for other effects. Its `rejected` counter
+lower priority; equal-priority requests are rejected. A separate 32-particle weather allowance
+leaves room in the 64-slot pool for other effects. Its `rejected` counter
 counts valid requests refused for capacity, not invalid arguments or render
 culling. These rules are examples, not SGDK features or a mandatory policy.
+
+The lantern has one retriggerable burst emitter: eight sparks and four smoke
+particles. Pressing A replaces its previous burst rather than stacking unlimited
+explosions. Other particles, including the fountain, remain alive. This bounds
+both sustained work and the full-pool replacement searches on a spawn frame.
+A game with simultaneous explosions can budget several emitters instead; choose
+its policy deliberately and test them alongside weather, not in isolation.
 
 ## Time and numeric ranges
 

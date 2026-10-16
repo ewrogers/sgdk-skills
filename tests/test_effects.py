@@ -41,11 +41,14 @@ def execute_profile(rom,symbols):
         if address!=0xC00000:return
         if size!=2:raise AssertionError('Expected word output')
         value&=65535
-        if value in (0xEA01,0xEA03):start[0]=counter[0]
+        if value in (0xEA01,0xEA03,0xEA05,0xEA07):start[0]=counter[0]
         elif value in (0xEA02,0xEA04):work['optimized' if value==0xEA02 else 'reference']=counter[0]-start[0]
+        elif value in (0xEA06,0xEA08):
+            key='mixed_simulation_max' if value==0xEA06 else 'mixed_selection_max'
+            work[key]=max(work.get(key,0),counter[0]-start[0])
         else:values.append(value)
     machine.hook_add(UC_HOOK_CODE,instruction);machine.hook_add(UC_HOOK_MEM_WRITE,write)
-    machine.emu_start(entries[0],0x300000,count=2000000)
+    machine.emu_start(entries[0],0x300000,count=10000000)
     if machine.reg_read(UC_M68K_REG_PC)!=0x300000:raise AssertionError('Probe instruction budget exceeded')
     return machine.reg_read(UC_M68K_REG_D0),values,work
 
@@ -75,12 +78,13 @@ class EffectsTests(unittest.TestCase):
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
     def test_full_pool_priority_replacement_rejection_validation_and_reuse(self):self.case('pool')
+    def test_retriggered_burst_stays_bounded_and_preserves_other_emitters(self):self.case('bursts')
     def test_motion_lifetime_world_trails_pause_edges_and_reduced_shake(self):self.case('motion')
     def test_visible_admission_frame_and_scanline_caps_camera_edges(self):self.case('render')
     def test_equal_pal_ntsc_elapsed_time_and_clock_wrap(self):self.case('clocks')
     def test_equal_priority_fairness_and_render_budget_cannot_mutate_simulation(self):self.case('fairness')
-    def test_every_renderable_row_rejects_a_ninth_rectangle_without_nibble_carry(self):self.case('scanlines')
-    def test_5000_selections_match_pre_optimization_reference(self):self.case('reference')
+    def test_every_renderable_row_rejects_a_ninth_rectangle(self):self.case('scanlines')
+    def test_5000_selections_match_simple_reference(self):self.case('reference')
     def test_100000_mixed_frames_against_scanline_oracle_and_bounds(self):self.case('soak')
 
     def test_frame_upload_failure_cleanup_shared_tiles_sat_termination_and_hud_isolation(self):
@@ -149,9 +153,11 @@ class EffectsContainerTests(unittest.TestCase):
                     if kind=='probe':
                         code,raw,work=execute_profile(rom,run('m68k-elf-nm','out/rom.out'))
                         self.assertLess(work['optimized'],work['reference']*0.85)
+                        self.assertLess(work['mixed_simulation_max'],6000)
+                        self.assertLess(work['mixed_selection_max'],5500)
                         self.assertEqual(code&65535,0,f'Target contract failed at {code&65535}')
                         values=[v&65535 for v in raw];geometry=values[:4]
-                        self.assertEqual(geometry[:3],[1670,634,16])
+                        self.assertEqual(geometry[:3],[1126,550,16])
                         self.assertEqual((values[4]<<16)|values[5],expected_digest)
                         cursor=6
                         for name,w,h,frames in [('fx.png',8,8,8),('lantern.png',16,16,4)]:
@@ -172,8 +178,12 @@ class EffectsContainerTests(unittest.TestCase):
                                             expected.extend([word>>16,word&65535])
                                 self.assertEqual(values[cursor:cursor+len(expected)],expected);cursor+=len(expected)
                         self.assertEqual(cursor,len(values))
+            shutil.copyfile(LAB/'src/main.c',project/'src/main.c')
+            (project/'src/select_reference.c').unlink()
+            run('make','clean');run('make','release','EXTRA_FLAGS=-DFX_STRESS_TEST')
+            hashes['stress-release']=hashlib.sha256((project/'out/rom.bin').read_bytes()).hexdigest()
             (output/'effects-report.json').write_text(json.dumps({'passed':True,'hashes':hashes,'geometry':geometry,
-                'trace_digest':expected_digest,'selection_instructions':work,'budgets':{'pool':96,'weather':48,'effect_sprites':64,'effects_per_line':8,
+                'trace_digest':expected_digest,'selection_instructions':work,'budgets':{'pool':64,'weather':32,'effect_sprites':64,'effects_per_line':8,
                 'cached_tiles':24,'background_tiles':9},'execution':'Base M68000 rules/resources; no VDP timing emulation'},indent=2)+'\n')
 
 

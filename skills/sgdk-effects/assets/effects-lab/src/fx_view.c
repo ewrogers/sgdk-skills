@@ -113,7 +113,7 @@ static void two_digits(char *out,u16 value)
 
 void fx_view_hud(const FxLab *s,const FxRender *render,u16 hz,u16 fps)
 {
-    char rate[]="00FPS",counts[]="LIVE 00/96 SHOWN 00 HIDDEN 00 60HZ";
+    char rate[]="00FPS",counts[]="LIVE 00/64 SHOWN 00 HIDDEN 00 60HZ";
     two_digits(rate,fps);
     two_digits(counts+5,fx_active(s));two_digits(counts+17,render->count);
     two_digits(counts+27,render->skipped);two_digits(counts+30,hz);

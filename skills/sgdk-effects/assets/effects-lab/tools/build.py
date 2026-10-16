@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--platform',choices=['linux/arm64','linux/amd64'])
     parser.add_argument('--mode',choices=['release','debug'],default='release')
     parser.add_argument('--region',choices=['auto','ntsc','pal'],default='auto')
+    parser.add_argument('--stress',action='store_true',help='Run automatic maximum-snow/movement/burst test')
     args=parser.parse_args()
     try:
         output=prepare(args.output)
@@ -24,6 +25,7 @@ def main():
         if args.platform:command+=['--platform',args.platform]
         if hasattr(os,'getuid'):command+=['--user',f'{os.getuid()}:{os.getgid()}']
         command+=['--mount',f'type=bind,source={output},target=/workspace','ewrogers/sgdk:latest','make',args.mode]
+        if args.stress:command+=['EXTRA_FLAGS=-DFX_STRESS_TEST']
         result=subprocess.run(command)
         if result.returncode:return result.returncode
         print(f'Effects Lab: {output/"out/rom.bin"}')

@@ -8,7 +8,7 @@ static int check_pool(void)
 {
     FxLab s; fx_init(&s,0);
     CHECK(s.random!=0 && fx_active(&s)==0);
-    for (u16 i=0;i<FX_CAPACITY;i++) CHECK(fx_spawn(&s,i<48 ? FX_RAIN : FX_TRAIL,100,80,0,0,180));
+    for (u16 i=0;i<FX_CAPACITY;i++) CHECK(fx_spawn(&s,i<FX_WEATHER_MAX ? FX_RAIN : FX_TRAIL,100,80,0,0,180));
     CHECK(fx_active(&s)==FX_CAPACITY);
     s.particles[27].age=40;
     CHECK(!fx_spawn(&s,FX_SNOW,100,80,0,0,50) && s.rejected==1);
@@ -52,19 +52,42 @@ static int check_motion(void)
     return 0;
 }
 
+static int check_bursts(void)
+{
+    FxLab s;fx_init(&s,7);s.weather=0;
+    CHECK(fx_spawn(&s,FX_SNOW,100,80,0,0,180));
+    CHECK(fx_spawn(&s,FX_TRAIL,100,80,0,0,24));
+    CHECK(fx_spawn(&s,FX_SPARK,100,80,0,0,45)); /* Separate fountain. */
+    for (u16 n=0;n<100;n++) {
+        fx_burst(&s,160,112);
+        u16 bursts=0,sparks=0,smoke=0;
+        for (u16 i=0;i<FX_CAPACITY;i++) {
+            const FxParticle *p=&s.particles[i];
+            if (!p->life || !p->burst) continue;
+            bursts++;sparks+=p->kind==FX_SPARK;smoke+=p->kind==FX_SMOKE;
+        }
+        CHECK(bursts==12 && sparks==8 && smoke==4 && s.occupied==15);
+        CHECK(s.particles[0].life && s.particles[1].life && s.particles[2].life);
+        CHECK(s.free_count+s.occupied==FX_CAPACITY && !s.rejected && !s.replaced);
+    }
+    u16 random=s.random;fx_burst(&s,-1,112);CHECK(s.random==random && s.occupied==15);
+    fx_clear(&s);fx_burst(&s,160,112);CHECK(s.occupied==12);
+    return 0;
+}
+
 static int check_render(void)
 {
     FxLab s; FxRender r; fx_init(&s,1); s.weather=0;
     for (u16 i=0;i<FX_CAPACITY;i++) CHECK(fx_spawn(&s,FX_TRAIL,100,100,0,0,180));
     fx_select(&s,&r,FX_DRAW_MAX);
-    CHECK(r.visible==96 && r.count==8 && r.skipped==88);
+    CHECK(r.visible==FX_CAPACITY && r.count==8 && r.skipped==FX_CAPACITY-8);
     CHECK(fx_spawn(&s,FX_SPARK,100,100,0,0,30));
     fx_select(&s,&r,FX_DRAW_MAX); CHECK(r.items[0].slot==0);
     for (u16 i=0;i<224;i++) CHECK(fx_line_count(&r,i)<=FX_LINE_MAX);
-    fx_select(&s,&r,0); CHECK(!r.count && r.skipped==96);
+    fx_select(&s,&r,0); CHECK(!r.count && r.skipped==FX_CAPACITY);
     fx_clear(&s);
     /* Distributed rectangles can fill the whole frame budget. */
-    for (u16 i=0;i<FX_CAPACITY;i++) CHECK(fx_spawn(&s,FX_TRAIL,12+(i%8)*36,48+(i/8)*10,0,0,180));
+    for (u16 i=0;i<FX_CAPACITY;i++) CHECK(fx_spawn(&s,FX_TRAIL,12+(i%8)*36,48+(i/8)*16,0,0,180));
     fx_select(&s,&r,0xFFFF); CHECK(r.count==FX_DRAW_MAX);
     for (u16 i=0;i<r.count;i++) {
         CHECK(r.items[i].x>=0 && r.items[i].x<=312 && r.items[i].y>=FX_TOP && r.items[i].y<=FX_BOTTOM-8);
@@ -81,7 +104,7 @@ static bool render_equal(const FxRender *a,const FxRender *b)
 {
     if(a->camera_x!=b->camera_x || a->camera_y!=b->camera_y || a->count!=b->count ||
        a->visible!=b->visible || a->skipped!=b->skipped)return false;
-    for(u16 i=0;i<224;i++)if(fx_line_count(a,i)!=fx_line_count(b,i))return false;
+    for(u16 i=0;i<28;i++)if(a->bands[i]!=b->bands[i])return false;
     for(u16 i=0;i<a->count;i++)if(a->items[i].x!=b->items[i].x || a->items[i].y!=b->items[i].y ||
        a->items[i].slot!=b->items[i].slot || a->items[i].frame!=b->items[i].frame)return false;
     return true;

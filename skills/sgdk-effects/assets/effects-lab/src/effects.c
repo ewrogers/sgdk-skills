@@ -1,5 +1,4 @@
 #include "effects.h"
-_Static_assert(FX_LINE_MAX==8,"Packed admission uses an eight-sprite allowance");
 
 static u16 next_random(FxLab *s)
 {
@@ -33,12 +32,18 @@ void fx_init(FxLab *s,u16 seed)
     s->density=1; s->weather=1; s->shake_enabled=true;
 }
 
-bool fx_spawn(FxLab *s,u8 kind,s16 x,s16 y,s16 vx,s16 vy,u16 life)
+static void retire(FxLab *s,u16 slot)
 {
-    if (kind>=FX_KIND_COUNT || !life || life>180 || x<0 || x>=FX_WORLD_WIDTH ||
-        y<FX_TOP || y>=FX_BOTTOM || vx<-96 || vx>96 || vy<-96 || vy>96) return false;
-    u8 incoming=priority(kind);
-    if (!incoming && (s->occupied==FX_CAPACITY || s->priorities[0]>=FX_WEATHER_MAX)) { increment(&s->rejected); return false; }
+    FxParticle *p=&s->particles[slot];
+    p->life=0;s->occupied--;s->priorities[p->priority]--;
+    s->free_slots[s->free_count++]=(u8)slot;
+}
+
+static u16 acquire(FxLab *s,u8 incoming)
+{
+    if (!incoming && (s->occupied==FX_CAPACITY || s->priorities[0]>=FX_WEATHER_MAX)) {
+        increment(&s->rejected); return FX_CAPACITY;
+    }
     u16 slot;
     if (s->free_count) {
         slot=s->free_slots[--s->free_count];
@@ -46,7 +51,7 @@ bool fx_spawn(FxLab *s,u8 kind,s16 x,s16 y,s16 vx,s16 vy,u16 life)
     } else {
         u8 lowest=0;
         while (!s->priorities[lowest]) lowest++;
-        if (incoming<=lowest) { increment(&s->rejected); return false; }
+        if (incoming<=lowest) { increment(&s->rejected); return FX_CAPACITY; }
         u16 oldest=0;
         slot=FX_CAPACITY;
         for (u16 i=0;i<FX_CAPACITY;i++) {
@@ -57,8 +62,18 @@ bool fx_spawn(FxLab *s,u8 kind,s16 x,s16 y,s16 vx,s16 vy,u16 life)
         increment(&s->replaced);
     }
     s->priorities[incoming]++;
+    return slot;
+}
+
+bool fx_spawn(FxLab *s,u8 kind,s16 x,s16 y,s16 vx,s16 vy,u16 life)
+{
+    if (kind>=FX_KIND_COUNT || !life || life>180 || x<0 || x>=FX_WORLD_WIDTH ||
+        y<FX_TOP || y>=FX_BOTTOM || vx<-96 || vx>96 || vy<-96 || vy>96) return false;
+    u8 incoming=priority(kind);
+    u16 slot=acquire(s,incoming);
+    if (slot==FX_CAPACITY) return false;
     static const u8 first[]={0,2,4,5,6};
-    s->particles[slot]=(FxParticle){(s16)(x*FX_SCALE),(s16)(y*FX_SCALE),vx,vy,0,life,kind,incoming,first[kind]};
+    s->particles[slot]=(FxParticle){(s16)(x*FX_SCALE),(s16)(y*FX_SCALE),vx,vy,0,life,kind,incoming,first[kind],0};
     return true;
 }
 
@@ -67,12 +82,20 @@ void fx_burst(FxLab *s,s16 x,s16 y)
     static const s16 directions[16][2]={
         {64,0},{59,24},{45,45},{24,59},{0,64},{-24,59},{-45,45},{-59,24},
         {-64,0},{-59,-24},{-45,-45},{-24,-59},{0,-64},{24,-59},{45,-45},{59,-24}};
-    for (u16 i=0;i<24;i++) {
+    if (x<0 || x>=FX_WORLD_WIDTH || y<FX_TOP || y>=FX_BOTTOM) return;
+    /* One lantern emitter: restarting it releases its previous burst, keeping
+     * rapid button presses from accumulating unbounded overlapping explosions. */
+    for (u16 slot=0;slot<FX_CAPACITY;slot++)
+        if (s->particles[slot].life && s->particles[slot].burst) retire(s,slot);
+    s16 qx=(s16)(x*FX_SCALE),qy=(s16)(y*FX_SCALE);
+    for (u16 i=0;i<12;i++) {
         u16 n=next_random(s);
-        const s16 *d=directions[i&15];
+        const s16 *d=directions[i<8 ? i*2 : (i-8)*4+1];
         s16 speed=(s16)(8+(n&7));
-        fx_spawn(s,i<16 ? FX_SPARK : FX_SMOKE,x,y,(s16)(d[0]*speed/16),
-                 (s16)(d[1]*speed/16),i<16 ? 40 : 70);
+        u16 slot=acquire(s,2);
+        if (slot==FX_CAPACITY) continue;
+        s->particles[slot]=(FxParticle){qx,qy,(s16)(d[0]*speed/16),(s16)(d[1]*speed/16),
+            0,i<8 ? 40 : 70,i<8 ? FX_SPARK : FX_SMOKE,2,i<8 ? 0 : 2,1};
     }
     if (s->shake_enabled) s->shake_left=18;
 }
@@ -88,7 +111,7 @@ static void tick(FxLab *s,u16 held)
     for (u16 i=0;i<FX_CAPACITY;i++) {
         FxParticle *p=&s->particles[i];
         if (!p->life) continue;
-        if (++p->age>=p->life) { p->life=0; s->occupied--; s->priorities[p->priority]--; s->free_slots[s->free_count++]=(u8)i; continue; }
+        if (++p->age>=p->life) { retire(s,i); continue; }
         static const u8 first[]={0,2,4,5,6},threshold[]={12,32,255,255,12};
         p->frame=first[p->kind]+(p->age>=threshold[p->kind]);
         p->x+=p->vx; p->y+=p->vy;
@@ -96,7 +119,7 @@ static void tick(FxLab *s,u16 held)
         if (p->kind==FX_SMOKE && !(p->age&3)) { p->vx=p->vx*7/8; p->vy=p->vy*7/8-1; }
         if (p->kind==FX_SNOW && !(p->age&7)) p->vx=(p->age&16) ? 4 : -4;
         if (p->x<0 || p->x>=FX_WORLD_WIDTH*FX_SCALE || p->y<FX_TOP*FX_SCALE || p->y>=FX_BOTTOM*FX_SCALE)
-            { p->life=0; s->occupied--; s->priorities[p->priority]--; s->free_slots[s->free_count++]=(u8)i; }
+            { retire(s,i); }
     }
     static const u8 rates[]={12,8,5,3};
     if (!(s->ticks%rates[s->density])) {
@@ -134,7 +157,7 @@ u16 fx_active(const FxLab *s) { return s->occupied; }
 __attribute__((noinline)) void fx_select(const FxLab *restrict s,FxRender *restrict out,u16 budget)
 {
     u16 count=0,visible=0,skipped=0;
-    for (u16 line=0;line<28;line++) out->lines[line]=0;
+    for (u16 band=0;band<28;band++) out->bands[band]=0;
     if (budget>FX_DRAW_MAX) budget=FX_DRAW_MAX;
     s16 base=clamp(s->player_x-152,0,320);
     static const s8 jitter[]={0,2,-2,1,-1,2,-1,0};
@@ -144,31 +167,26 @@ __attribute__((noinline)) void fx_select(const FxLab *restrict s,FxRender *restr
     /* Critical impact feedback before trails before weather. Rotate ties so
      * a dense cluster does not permanently starve the same particles. */
     u16 start=(u16)(s->ticks%FX_CAPACITY);
-    for (s16 rank=2;rank>=0;rank--) {
+    for (u16 rank=3;rank--;) {
         if (!s->priorities[rank]) continue;
         const FxParticle *p=&s->particles[start];
-        u16 slot=start;
-        for (u16 n=0;n<FX_CAPACITY;n++,p++,slot++) {
-            if (slot==FX_CAPACITY) { slot=0; p=s->particles; }
-            if (!p->life || p->priority!=rank) continue;
+        u16 index=start;
+        for (u16 n=0;n<FX_CAPACITY;n++,p++,index++) {
+            if (index==FX_CAPACITY) { index=0; p=s->particles; }
+            if (!p->life || p->priority!=(u8)rank) continue;
             s16 x=(s16)((u16)p->x/FX_SCALE-camera_x-4);
             s16 y=(s16)((u16)p->y/FX_SCALE-camera_y-4);
             if (x<0 || x>312 || y<FX_TOP || y>FX_BOTTOM-8) continue;
             visible++;
             if (count>=budget) { skipped++; continue; }
-            /* Eight 4-bit scanline counters per word. The masks split an 8px
-             * rectangle across at most two words, without unaligned memory reads. */
-            static const u32 masks[]={0x11111111UL,0x11111110UL,0x11111100UL,0x11111000UL,
-                0x11110000UL,0x11100000UL,0x11000000UL,0x10000000UL};
-            u16 group=(u16)y/8,offset=(u16)y&7;
-            u32 first=masks[offset],second=0x11111111UL^first;
-            if ((out->lines[group]&(first<<3)) || (out->lines[group+1]&(second<<3))) {
-                skipped++; continue;
-            }
-            out->lines[group]+=first;
-            out->lines[group+1]+=second;
+            /* Conservative broad phase: a sprite occupies one or two 8px
+             * bands. Limiting every touched band also bounds each real line. */
+            u16 first=(u16)y/8,last=((u16)y+7)/8;
+            if (out->bands[first]>=FX_LINE_MAX || out->bands[last]>=FX_LINE_MAX) { skipped++; continue; }
+            out->bands[first]++;
+            if (last!=first) out->bands[last]++;
             FxDraw *draw=&out->items[count++];
-            draw->x=x;draw->y=y;draw->slot=slot;draw->frame=(u8)p->frame;
+            draw->x=x;draw->y=y;draw->slot=index;draw->frame=(u8)p->frame;
         }
     }
     out->count=count;out->visible=visible;out->skipped=skipped;

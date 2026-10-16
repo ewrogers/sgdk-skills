@@ -25,7 +25,7 @@ the hardware rectangle. Reusing tiles saves VRAM/uploads, not scanline capacity.
 - [Simulation and emission](references/simulation.md): lifetime, fixed steps,
   trails, bounded admission, priorities and cleanup.
 - [Rendering and budgets](references/rendering.md): shared frame caches,
-  SGDK adapters, exact scanline admission, weather and target profiling.
+  SGDK adapters, conservative scanline admission, weather and target profiling.
 - [Camera and feedback](references/feedback.md): shake, hit flashes, palette
   ownership, reduced effects and tests.
 - [Effects Lab](assets/effects-lab/README.md): a standalone executable example
@@ -47,7 +47,7 @@ renderer’s entries.
 
 ## Prove the busy case
 
-Test full pools, overlapping bursts, long-lived weather, concentrated scanlines,
+Test full pools, repeated bursts combined with maximum weather, concentrated scanlines,
 camera edges, pause, cleanup and PAL/NTSC elapsed time. Compare an optimization
 with a simple reference and keep cosmetic quality changes out of gameplay
 replays. Label active/rendered particle counts separately from FPS.

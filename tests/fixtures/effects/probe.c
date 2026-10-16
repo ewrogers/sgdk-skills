@@ -7,6 +7,7 @@ int main(bool hard_reset)
 {
     (void)hard_reset;
     int error=check_pool();if(error)return error;
+    error=check_bursts();if(error)return error;
     error=check_motion();if(error)return error;
     error=check_render();if(error)return error;
     volatile u16 *port=(volatile u16 *)0xC00000;
@@ -33,10 +34,21 @@ int main(bool hard_reset)
         }
     }
     fx_init(&s,1);fx_clear(&s);
-    for(u16 i=0;i<96;i++)fx_spawn(&s,FX_TRAIL,12+(i%8)*36,48+(i/8)*10,0,0,180);
+    for(u16 i=0;i<FX_CAPACITY;i++)fx_spawn(&s,FX_TRAIL,12+(i%8)*36,48+(i/8)*16,0,0,180);
     FxRender optimized,reference;
     *port=0xEA01;fx_select(&s,&optimized,64);*port=0xEA02;
     *port=0xEA03;fx_reference_select(&s,&reference,64);*port=0xEA04;
     if(!render_equal(&optimized,&reference))return 1020;
+    /* Real mixed pressure: weather at maximum density, moving emitter, repeated
+     * bursts and smoke. Include spawn frames rather than profiling only selection. */
+    fx_init(&s,0xCAFE);s.weather=2;s.density=3;
+    for(u16 i=0;i<180;i++)fx_frame(&s,0,60);
+    for(u16 i=0;i<60;i++) {
+        u16 held=(i<30 ? FX_RIGHT : FX_LEFT) | (i%12==0 ? FX_A : 0);
+        *port=0xEA05;fx_frame(&s,held,60);*port=0xEA06;
+        *port=0xEA07;fx_select(&s,&optimized,64);*port=0xEA08;
+        fx_reference_select(&s,&reference,64);
+        if(!render_equal(&optimized,&reference))return 1021;
+    }
     return 0;
 }

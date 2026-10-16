@@ -13,7 +13,7 @@ typedef int16_t s16;
 typedef int8_t s8;
 #endif
 
-enum { FX_CAPACITY=96, FX_WEATHER_MAX=48, FX_DRAW_MAX=64, FX_LINE_MAX=8, FX_WORLD_WIDTH=640,
+enum { FX_CAPACITY=64, FX_WEATHER_MAX=32, FX_DRAW_MAX=64, FX_LINE_MAX=8, FX_WORLD_WIDTH=640,
        FX_TOP=40, FX_BOTTOM=192, FX_SCALE=16 };
 enum { FX_SPARK, FX_SMOKE, FX_RAIN, FX_SNOW, FX_TRAIL, FX_KIND_COUNT };
 enum { FX_UP=1, FX_DOWN=2, FX_LEFT=4, FX_RIGHT=8, FX_B=16, FX_C=32,
@@ -24,7 +24,7 @@ typedef struct {
     s16 x,y,vx,vy;
     u16 age,life;
     u8 kind,priority;
-    u16 frame;
+    u8 frame,burst;
 } FxParticle;
 
 typedef struct {
@@ -43,11 +43,18 @@ typedef struct {
     FxDraw items[FX_DRAW_MAX];
     s16 camera_x,camera_y;
     u16 count,visible,skipped;
-    u32 lines[28];
+    u8 bands[28];
 } FxRender;
 
+/* Diagnostic only: derive exact coverage from the selected rectangles. The
+ * real-time admission path uses conservative eight-scanline bands. */
 static inline u8 fx_line_count(const FxRender *r,u16 y)
-{ return (u8)((r->lines[y/8]>>((y&7)*4))&15); }
+{
+    u8 count=0;
+    for (u16 i=0;i<r->count;i++)
+        if (y>=(u16)r->items[i].y && y<(u16)r->items[i].y+8) count++;
+    return count;
+}
 
 void fx_init(FxLab *s,u16 seed);
 bool fx_spawn(FxLab *s,u8 kind,s16 x,s16 y,s16 vx,s16 vy,u16 life);

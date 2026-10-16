@@ -18,14 +18,14 @@ static int clocks(void)
 
 static int fairness(void)
 {
-    FxLab s; FxRender r; bool seen[96]={0}; fx_init(&s,1);
-    for (u16 i=0;i<96;i++) CHECK(fx_spawn(&s,FX_TRAIL,100,100,0,0,180));
-    for (u16 i=0;i<96;i++) {
+    FxLab s; FxRender r; bool seen[FX_CAPACITY]={0}; fx_init(&s,1);
+    for (u16 i=0;i<FX_CAPACITY;i++) CHECK(fx_spawn(&s,FX_TRAIL,100,100,0,0,180));
+    for (u16 i=0;i<FX_CAPACITY;i++) {
         s.ticks=i; FxLab copy=s;
         fx_select(&s,&r,64); CHECK(memcmp(&s,&copy,sizeof(s))==0);
         for (u16 j=0;j<r.count;j++) seen[r.items[j].slot]=true;
     }
-    for (u16 i=0;i<96;i++) CHECK(seen[i]);
+    for (u16 i=0;i<FX_CAPACITY;i++) CHECK(seen[i]);
     fx_select(&s,&r,64); u32 before=state_digest(&s);
     fx_select(&s,&r,0); CHECK(state_digest(&s)==before);
     return 0;
@@ -40,7 +40,7 @@ static int soak(void)
         u16 keys=(u16)(random>>16)&0x7F;
         fx_frame(&s,keys,i&1 ? 50 : 60);
         fx_select(&s,&r,(u16)(i%80));
-        CHECK(fx_active(&s)<=96 && r.count<=64 && r.count+r.skipped==r.visible);
+        CHECK(fx_active(&s)<=FX_CAPACITY && r.count<=64 && r.count+r.skipped==r.visible);
         CHECK(s.player_x>=16 && s.player_x<=624 && s.player_y>=56 && s.player_y<=176);
         CHECK(r.camera_x>=0 && r.camera_x<=320);
         u8 oracle[224]={0};
@@ -50,15 +50,15 @@ static int soak(void)
         }
         for (u16 y=0;y<224;y++) CHECK(oracle[y]==fx_line_count(&r,y) && oracle[y]<=FX_LINE_MAX);
         u16 counted=0,priorities[3]={0};
-        for (u16 n=0;n<96;n++) {
+        for (u16 n=0;n<FX_CAPACITY;n++) {
             const FxParticle *p=&s.particles[n]; if (!p->life) continue;
             counted++;priorities[p->priority]++;
             CHECK(p->x>=0 && p->x<640*16 && p->y>=40*16 && p->y<192*16 && p->age<p->life);
         }
-        CHECK(counted==fx_active(&s) && priorities[0]<=FX_WEATHER_MAX && s.free_count+counted==96);
-        bool free_seen[96]={0};
+        CHECK(counted==fx_active(&s) && priorities[0]<=FX_WEATHER_MAX && s.free_count+counted==FX_CAPACITY);
+        bool free_seen[FX_CAPACITY]={0};
         for(u16 n=0;n<s.free_count;n++) {
-            u8 slot=s.free_slots[n];CHECK(slot<96 && !free_seen[slot] && !s.particles[slot].life);
+            u8 slot=s.free_slots[n];CHECK(slot<FX_CAPACITY && !free_seen[slot] && !s.particles[slot].life);
             free_seen[slot]=true;
         }
         for(u16 rank=0;rank<3;rank++) CHECK(priorities[rank]==s.priorities[rank]);
@@ -88,6 +88,16 @@ static int scanlines(void)
         fx_select(&s,&r,64);CHECK(r.count==8 && r.skipped==1);
         for(u16 line=0;line<224;line++)CHECK(fx_line_count(&r,line)==(line>=y && line<y+8 ? 8 : 0));
     }
+    /* Conservative rejection is intentional: non-overlapping rectangles can
+     * share a band. Rotation still gives the later candidate a turn. */
+    fx_clear(&s);
+    for(u16 i=0;i<8;i++)CHECK(fx_spawn(&s,FX_TRAIL,100,45,0,0,100));
+    CHECK(fx_spawn(&s,FX_TRAIL,100,59,0,0,100));
+    s.ticks=0;fx_select(&s,&r,64);
+    CHECK(r.count==8 && r.skipped==1 && fx_line_count(&r,55)==0);
+    s.ticks=8;fx_select(&s,&r,64);
+    CHECK(r.count==8 && r.skipped==1 && r.items[0].slot==8 && fx_line_count(&r,55)==1);
+
     return 0;
 }
 
@@ -96,6 +106,7 @@ int main(int argc,char **argv)
     if (argc!=2) return 2;
     int result;
     if (!strcmp(argv[1],"pool")) result=check_pool();
+    else if (!strcmp(argv[1],"bursts")) result=check_bursts();
     else if (!strcmp(argv[1],"motion")) result=check_motion();
     else if (!strcmp(argv[1],"render")) result=check_render();
     else if (!strcmp(argv[1],"clocks")) result=clocks();
