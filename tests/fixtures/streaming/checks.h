@@ -88,6 +88,8 @@ static int check_core(void)
 static int check_world(void)
 {
     u16 pages[SC_SLOTS],column;
+    for(u16 room=0;room<4;room++)CHECK(sw_camera(room*320+160)==room*320);
+    CHECK(sw_camera(0)==0 && sw_camera(1280)==960);
     CHECK(sw_columns(0)==40 && sw_columns(1)==41 && sw_columns(960)==40 && !sw_columns(961));
     CHECK(sw_entering(0,2,&column) && column==40);
     CHECK(!sw_entering(2,4,&column));

@@ -49,7 +49,8 @@ area's 3,072 bytes take 48 frames, versus 12 at 256 bytes.
 Before revealing the world, loading warms a 128-pixel margin in both directions.
 Walking should not snag at boundaries in either budget mode. Warps and explicit
 reloads intentionally show a resident Window cover while art and tilemap columns
-are prepared. A warm warp can still need a redraw.
+are prepared. A warm warp can still need a redraw. Warps center the courier exactly so the
+destination fills the view; an adjacent area becomes visible when you walk.
 
 ## Repeatable walking test
 

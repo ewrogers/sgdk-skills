@@ -1,6 +1,7 @@
 #ifndef STREAM_WORLD_H
 #define STREAM_WORLD_H
 #include "stream_cache.h"
+u16 sw_camera(u16 player);
 u16 sw_page(u16 world_column,u16 row);
 u16 sw_columns(u16 camera);
 u16 sw_wanted(u16 camera,u16 future,bool covered,u16 pages[SC_SLOTS]);

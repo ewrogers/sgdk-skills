@@ -118,7 +118,7 @@ static void frame(u16 held,u16 hz)
         if(next_player>1264)next_player=1264;
         ticks+=steps;
     }
-    u16 next_camera=loading ? load_camera : clamp_camera(next_player-152);
+    u16 next_camera=loading ? load_camera : sw_camera((u16)next_player);
     pins_and_request(next_camera);
     sc_step(&cache,slow ? 2 : SC_CHUNK_TILES,sc_rom_read,sc_dma_tiles,&io);
     if(loading) {

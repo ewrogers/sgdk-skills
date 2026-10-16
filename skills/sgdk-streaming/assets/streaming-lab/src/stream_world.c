@@ -1,5 +1,10 @@
 #include "stream_world.h"
 
+u16 sw_camera(u16 player)
+{
+    return player<160 ? 0 : player>1120 ? 960 : player-160;
+}
+
 u16 sw_page(u16 world_column,u16 row)
 {
     if(world_column>=160 || row>=24)return SC_PAGES;
