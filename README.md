@@ -59,6 +59,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | Skill | What to ask it for |
 | --- | --- |
 | [sgdk-testing](skills/sgdk-testing/SKILL.md) | Build deterministic replays, PAL/NTSC logic checks and regression reports for automated QA. Includes Test Lab. |
+| [sgdk-hardware](skills/sgdk-hardware/SKILL.md) | Check reset, video, sprite limits, DMA/audio and cartridge behavior, with explicit real-console checks. Includes Hardware Lab. |
 | [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
 | [sgdk-performance](skills/sgdk-performance/SKILL.md) | Measure frame-rate headroom, compare optimizations and separate CPU, DMA and scanline limits. |
 | [sgdk-memory](skills/sgdk-memory/SKILL.md) | Account for RAM, manage allocation lifetimes and diagnose fragmentation. Includes Memory Lab. |
@@ -123,6 +124,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-performance to measure a busy scene and optimize it without changing gameplay."
 - "Use sgdk-debug to investigate this fault using the matching ELF file."
 - "Use sgdk-testing to replay this route and catch regressions in both PAL and NTSC schedules."
+- "Use sgdk-hardware to prepare console checks and distinguish emulator observations from hardware evidence."
 - "Use sgdk-release to validate and package this release candidate without changing the ROM."
 
 Each skill works on its own. It includes focused references and, where useful,

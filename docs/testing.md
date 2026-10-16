@@ -749,3 +749,24 @@ Release/debug and PAL/NTSC-region ROM hashes, target type sizes and budgets are
 compared across native ARM64/AMD64 in `isometric-report.json`. These checks do
 not emulate VDP/audio timing or certify real hardware; record actual ares tests
 separately in the Isometric Lab README.
+
+## Hardware Lab
+
+`tests/test_hardware.py` compiles the portable C helper at `-O0` and `-O3`
+(with undefined-behavior checks on Unix). It checks PAL/NTSC nominal scheduling,
+unsigned VInt wrap, missed service and bounded catch-up, both H40/H32 scanline
+limits, VRAM upload boundaries, record round trips and every single-bit record
+corruption. An independent Python CRC oracle checks the serialized bytes.
+Standalone preparation is exercised through a second copied project.
+
+With `SGDK_SKILLS_INTEGRATION=1`, both container architectures build release/debug
+Hardware Lab and helper probes, plus PAL/NTSC header variants. Tests inspect the
+compiled SRAM header and font, then execute the helper contracts on base M68000.
+CI compares hashes and reports across architectures. These probes call `main`
+directly; they do **not** execute the SGDK startup or emulate VDP, Z80, controller
+or SRAM behavior. Header variants alone do not constitute PAL/NTSC runtime tests.
+
+The [console checklist](../skills/sgdk-hardware/references/checklist.md) separates
+emulator observations from real hardware checks. Physical cold boot/reset,
+video output, DMA/audio bus timing, peripheral compatibility and power-loss save
+retention remain unverified until tested on a console/flashcart.
