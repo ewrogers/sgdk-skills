@@ -1,0 +1,167 @@
+{
+  "flags": [
+    "compass",
+    "helped"
+  ],
+  "speakers": [
+    {
+      "id": "mira",
+      "name": "MIRA",
+      "portrait": 0
+    },
+    {
+      "id": "orrin",
+      "name": "ORRIN",
+      "portrait": 1
+    },
+    {
+      "id": "radio",
+      "name": "",
+      "portrait": null
+    }
+  ],
+  "stories": [
+    {
+      "title": "THE LAST FERRY",
+      "start": "ferry_welcome"
+    },
+    {
+      "title": "A VOICE IN THE FOG",
+      "start": "radio_first"
+    },
+    {
+      "title": "THE COMPASS QUESTION",
+      "start": "crossroads"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ferry_welcome",
+      "speaker": "orrin",
+      "text": "Evening, courier.[pause=350] The last ferry waits for [color=gold]one more passenger[/color].[page]Have you brought the letter for the lighthouse?",
+      "next": "ferry_mira"
+    },
+    {
+      "id": "ferry_mira",
+      "speaker": "mira",
+      "pane": "top",
+      "split": true,
+      "text": "Right here![pause=250] But the address says [font=soft][color=cyan]beyond the sleeping sea[/color][/font]. Is that a real place?",
+      "next": "ferry_answer"
+    },
+    {
+      "id": "ferry_answer",
+      "speaker": "orrin",
+      "split": true,
+      "text": "Only on quiet nights. Shall we take the ferry, or hear the old story first?",
+      "choices": [
+        {
+          "label": "Tell me the old story.",
+          "target": "ferry_tale",
+          "set": [
+            "helped"
+          ]
+        },
+        {
+          "label": "Let us catch that ferry!",
+          "target": "ferry_leave"
+        }
+      ]
+    },
+    {
+      "id": "ferry_tale",
+      "speaker": "orrin",
+      "split": true,
+      "text": "[speed=65]Long ago,[pause=650] a keeper hung a lantern above these waters.[speed=25] Its light still guides every boat home.",
+      "next": "ferry_thanks"
+    },
+    {
+      "id": "ferry_thanks",
+      "speaker": "mira",
+      "pane": "top",
+      "split": true,
+      "text": "Then we had better keep that light burning. [color=gold]Come on![/color]",
+      "next": "ferry_leave"
+    },
+    {
+      "id": "ferry_leave",
+      "speaker": "orrin",
+      "text": "All aboard, courier. The sea has been expecting you."
+    },
+    {
+      "id": "radio_first",
+      "speaker": "radio",
+      "nameplate": false,
+      "pane": "top",
+      "text": "[font=soft][color=cyan]...signal found...[pause=700] LANTERN STATION...[pause=450] can anyone hear me?[/color][/font]",
+      "next": "radio_reply"
+    },
+    {
+      "id": "radio_reply",
+      "speaker": "mira",
+      "split": true,
+      "text": "I hear you! Your words sound a little different through this old radio.",
+      "next": "radio_second"
+    },
+    {
+      "id": "radio_second",
+      "speaker": "radio",
+      "pane": "top",
+      "split": true,
+      "nameplate": false,
+      "text": "[font=soft][color=cyan][speed=45]The fog is thick tonight.[pause=600] Follow the [color=gold]three warm lights[/color], then turn toward home.[/color][/font]",
+      "next": "radio_done"
+    },
+    {
+      "id": "radio_done",
+      "speaker": "mira",
+      "split": true,
+      "text": "Three lights. I will remember. [color=gold]Thank you, whoever you are.[/color]"
+    },
+    {
+      "id": "crossroads",
+      "speaker": "orrin",
+      "text": "The bridge is hidden in the mist. A compass might help. What would you like to do?",
+      "choices": [
+        {
+          "label": "May I borrow a compass?",
+          "target": "compass_given",
+          "forbid": [
+            "compass"
+          ],
+          "set": [
+            "compass"
+          ]
+        },
+        {
+          "label": "Cross with my compass.",
+          "target": "bridge",
+          "require": [
+            "compass"
+          ]
+        },
+        {
+          "label": "Stay by the lantern.",
+          "target": "stay"
+        }
+      ]
+    },
+    {
+      "id": "compass_given",
+      "speaker": "orrin",
+      "text": "Of course. [color=gold]You received a compass![/color][pause=500] The choices will remember it when we talk again.",
+      "next": "crossroads"
+    },
+    {
+      "id": "bridge",
+      "speaker": "mira",
+      "pane": "top",
+      "text": "The needle points through the fog.[pause=400] There is the bridge! A little kindness goes a long way."
+    },
+    {
+      "id": "stay",
+      "speaker": "orrin",
+      "text": "There is always another boat tomorrow. Rest here as long as you need."
+    }
+  ]
+}

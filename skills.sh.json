@@ -20,6 +20,7 @@
         "sgdk-raster",
         "sgdk-input",
         "sgdk-ui",
+        "sgdk-dialogue",
         "sgdk-levels",
         "sgdk-gameplay",
         "sgdk-math",

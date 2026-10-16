@@ -469,3 +469,32 @@ example and SDK probe, reported in
 code and queue contracts, not live sprite allocation, interrupt scheduling,
 VRAM/CRAM transfer timing or emulator/console presentation. The examples are
 small build/execution probes rather than a playable Lab ROM.
+
+
+## Dialogue
+
+`tests/test_dialogue.py` executes the standalone C model at `-O0` and `-O3`,
+with UBSan on Unix. Tests cover timed reveal, delays, styles, wrapping/paging,
+speaker/pane retention, flag-filtered choices, all-hidden fallback, invalid
+programs, work limits, nine-slice geometry and 30,000 bounded authored steps.
+Nominal PAL/NTSC clock, pause, held input and single-use confirmation checks
+share the actual Lab controller code. A recording sound adapter checks cue
+priority, pause/resume and that completion never repeats its PCM cue on idle
+frames. Art/audio tests reproduce native indexed UI assets and VGM/WAV sources,
+check shared palette/portrait dimensions, finite sample endpoints and loop
+commands. Compiler checks include generated C escaping and no-overwrite errors.
+
+Docker integration builds normal release/debug ROMs and a direct-entry probe
+against the selected SDK. Unicorn executes it as M68000 to check linked font,
+portrait and palette resources, progression and target structure sizes. The
+probe supplies SGDK 2.11's default tilemap boundary because it bypasses startup;
+it does not execute the VDP initialization or emulate transfers/audio. Native
+ARM64/AMD64 CI compares all four ROM hashes and the resource/structure reports
+in `build/dialogue-integration/dialogue-report.json`. Host helpers run on all
+three OSes, and the distribution check copies the whole installed skill with
+telemetry disabled.
+
+Local NTSC ares feedback confirmed dialogue/controls and the original harbor
+music with the ending-cue fix. PAL presentation, VDP timing under gameplay load
+and physical-console sound/input remain separate checks. Follow Dialogue Lab's
+playtest checklist when adapting it to a game.

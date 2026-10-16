@@ -1,0 +1,24 @@
+{
+  "tool": "PixelLab Pixflux + Animate Image",
+  "date": "2026-10-15",
+  "native_size": [
+    32,
+    32
+  ],
+  "palette": "One shared 16-entry portrait palette; index 0 reserved for transparency",
+  "portraits": [
+    {
+      "name": "courier",
+      "image_job": "b505323c-f64f-4322-94b3-aa5cff7a3463",
+      "animation_job": "0694072b-f3a7-499d-80eb-eb61a1dbd02a"
+    },
+    {
+      "name": "keeper",
+      "image_job": "47eacd83-30b0-4e18-adca-2bc08de5c2b9",
+      "animation_job": "9b4f27ef-376c-488e-b1b1-4fe6dc1c8f0b"
+    }
+  ],
+  "preparation": "Five native frames per portrait, including original at index 0. Fixed alpha threshold 128, opaque colors mapped to palette indices 1..15, no resizing. Packed horizontally into 160x32 sheets.",
+  "other_assets": "Original deterministic panel tiles, font variants, indicators and harbor tiles; tools/make_art.py. Font patterns shared from Carpet Lab, MIT.",
+  "style": "Illustrative only; the skill does not prescribe these characters, palette or setting."
+}
