@@ -97,3 +97,22 @@ with the artist before integrating it as a character's default pose.
 Batch palette reduction across all directions/frames, or use the same explicit
 palette for each. Never independently auto-quantize each frame: it can cause
 color flicker. Color correction does not fix identity changes or bad motion.
+
+## Follow-up across themes
+
+The [second study](../assets/color-study/README.md) kept separate palette plans
+for fantasy, sci-fi, modern and colonial scenes. Forced-palette actors, objects
+and UI kept their returned RGB colors through export. Backgrounds used their
+own source-derived ramps and an optional second palette line. This is a more
+useful test of color preservation than replacing one design with another.
+
+Full-body wording plus a 48×48 native canvas gave the RPG hero enough room for
+equipment. An explicit head/body ratio helped the 32×32 golem, but a requested
+flat isometric floor still became a raised block. City buildings missed strict
+orthographic top-down despite that wording. Prompt specificity improves the
+contract; it does not make projection a hard guarantee. Reject or deliberately
+rework a mismatch rather than claiming palette conversion fixed it.
+
+`create_tiles_pro` produced independent 32×32 hex terrain variations. Do not
+confuse that with the adjacency-aware connected top-down tileset tool. Keep the
+actual returned metadata and validate material boundaries in a reconstructed map.

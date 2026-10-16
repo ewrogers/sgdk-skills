@@ -58,9 +58,15 @@ review the converted image again.
 The self-contained [asset helper](scripts/art_pipeline.py) inspects, prepares
 and validates indexed exports without resizing. Read its
 [contract and validation guide](references/palettes-and-validation.md) before
-using it; it supports a deliberately limited PNG subset and one palette line
-per export. It does not certify visual quality or an entire game's graphics
+using it; it supports a deliberately limited PNG subset. The basic exporter
+uses one line; the optional background exporter assigns a planned line per
+8×8 tile. It does not certify visual quality or an entire game's graphics
 budget. Use the real ResComp and linked-resource checks after preparation.
+
+Near-color cleanup or swaps are acceptable when they preserve the art brief.
+Treat specifically requested colors as constraints; explain hardware rounding
+and any proposed change rather than silently replacing them. Never use an
+unrelated generic palette simply to make the asset pass validation.
 
 ## Evidence and integration
 
@@ -68,6 +74,11 @@ budget. Use the real ResComp and linked-resource checks after preparation.
 raw outputs, all Pro candidate overviews, assessments, explicit corrections,
 final assets and a local comparison gallery. Its findings are a small sample,
 not a benchmark or a promise of repeatability.
+
+The [expanded color study](assets/color-study/README.md) corrects the initial
+gallery’s confusing design comparisons and tests four themed scene palettes.
+It includes same-asset exports, source-derived palette proposals, per-tile
+background lines and a buildable four-page showcase ROM.
 
 Use `ewrogers/sgdk:latest`, pulled before validation, and verify resource syntax
 in the selected image's `bin/rescomp.txt`. Budget actual frame tiles, palettes,

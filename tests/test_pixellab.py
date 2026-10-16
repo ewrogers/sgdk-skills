@@ -16,6 +16,7 @@ sys.path.insert(0,str(SCRIPTS))
 # Other labs have modules named pixel_io; this helper deliberately has its own name.
 from png_io import chunk, indexed_png, read_png, SIGNATURE
 import art_pipeline as art
+import background_banks as banked
 sys.path.pop(0)
 
 PALETTE=['000000','242449','49496d','926d49','db926d','ffdb92','ffffff','6d2449',
@@ -179,12 +180,20 @@ class PixelLabContainerTests(unittest.TestCase):
                 'SPRITE key "key-pro-selected.png" 2 2 NONE 0 NONE\n'
                 'SPRITE chest "chest-native-crop.png" 4 2 NONE 0 NONE\n'
                 'IMAGE background "desert-dither-2x2.png" NONE\n'
-                'IMAGE title "title-illustration.png" NONE\n')
+                'IMAGE title "title-illustration.png" NONE\n'
+                'IMAGE banked_scene "banked-scene.png" NONE\n')
+            color_study=SKILL/'assets/color-study'
+            shutil.copyfile(color_study/'final/fantasy-background-two-lines.png',project/'res/banked-scene.png')
+            bank_plan=banked.validate_banks(json.loads((color_study/'plans/fantasy-background-banks.json').read_text()))
+            bw,bh,bpixels=read_png(color_study/'raw/fantasy-background.png')
+            bank_colors,_,bank_report=banked.prepare(bw,bh,bpixels,bank_plan)
             p=plan();words=[((r>>5)<<1)|((g>>5)<<5)|((b>>5)<<9)for r,g,b in p['colors']]
             w,h,pixels=read_png(study/'final/tile-eight.png');indices=[p['colors'].index(px[:3])for px in pixels]
             rows=[sum(indices[y*8+x]<<(28-x*4)for x in range(8))for y in range(8)]
             (project/'inc/expected.h').write_text('static const u16 expected_palette[]={'+','.join(map(str,words))+'};\n'
-                'static const u32 expected_tile[]={'+','.join(str(v)+'UL' for v in rows)+'};\n')
+                'static const u32 expected_tile[]={'+','.join(str(v)+'UL' for v in rows)+'};\n'
+                'static const u16 expected_bank_palette[]={'+','.join(str(((r>>5)<<1)|((g>>5)<<5)|((b>>5)<<9))for r,g,b in bank_colors)+'};\n'
+                'static const u8 expected_bank_slots[]={'+','.join(map(str,bank_report['tile_palette_slots']))+'};\n')
             base=['docker','run','--rm']
             if os.environ.get('SGDK_PLATFORM'):base+=['--platform',os.environ['SGDK_PLATFORM']]
             if hasattr(os,'getuid'):base+=['--user',f'{os.getuid()}:{os.getgid()}']
@@ -201,6 +210,24 @@ class PixelLabContainerTests(unittest.TestCase):
                 self.assertEqual(code,0,f'M68000 asset contract failed at line {code}')
                 self.assertEqual(len(values),3)
                 budgets[mode]={'resident_sprite_frame_tiles':values[0],'background_tiles':values[1],'title_tiles':values[2]}
+            # Compile the normal visual demo as well as the executable resource probe.
+            import importlib.util
+            spec=importlib.util.spec_from_file_location('pixellab_showcase',color_study/'build_rom.py')
+            showcase=importlib.util.module_from_spec(spec);spec.loader.exec_module(showcase)
+            demo=project/'showcase';showcase.make_project(demo)
+            demo_base=base.copy();mount=demo_base.index('--mount')+1
+            demo_base[mount]=f'type=bind,source={demo},target=/workspace'
+            for mode in ['release','debug']:
+                for target in ['clean',mode]:
+                    result=subprocess.run(demo_base+['make',target],capture_output=True,text=True,timeout=240)
+                    self.assertEqual(result.returncode,0,(result.stdout+result.stderr)[-4000:])
+                log=result.stdout+result.stderr;(output/f'showcase-{mode}.log').write_text(log)
+                self.assertNotIn('warning:',log)
+                rom=bytearray((demo/'out/rom.bin').read_bytes())
+                self.assertEqual(rom[0x100:0x104],b'SEGA')
+                self.assertEqual(len(rom)%131072,0)
+                struct.pack_into('>I',rom,0x1A4,len(rom)-1)
+                hashes['showcase-'+mode]=hashlib.sha256(rom).hexdigest()
             (output/'pixellab-report.json').write_text(json.dumps(dict(passed=True,hashes=hashes,budgets=budgets),indent=2)+'\n')
 
 

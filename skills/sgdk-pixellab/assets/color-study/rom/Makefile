@@ -1,0 +1,1 @@
+include $(GDK)/makefile.gen

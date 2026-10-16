@@ -1,8 +1,12 @@
 # PixelLab → Mega Drive prompt study
 
-Open [the comparison gallery](gallery.html) locally. It shows exact prompts and
-controls, original images, assessments, additional work and the prepared asset
-chosen for each role. Preview at native size or an integer zoom. Both Pro
+Open [the corrected comparison gallery](gallery.html) locally. It shows exact
+prompts, originals and their own prepared exports. Different design candidates
+are labelled separately. The initial gallery mistakenly showed selected
+redesigns as though they were color conversions; the
+[expanded color study](../color-study/README.md) records the correction and
+revisits color preservation using the artist’s feedback. Historical selection
+notes below describe the first pass, not an instruction to prefer its palette. Preview at native size or an integer zoom. Both Pro
 batches include all 64 candidates in row-major contact sheets; key candidate 5
 was selected, and the wide chest batch was rejected.
 

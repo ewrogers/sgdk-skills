@@ -26,6 +26,10 @@ __attribute__((noipa)) int main(bool hard_reset)
     }
     CHECK(background.tileset->numTile > 0 && background.tileset->numTile <= 960);
     CHECK(title.tileset->numTile > 0 && title.tileset->numTile <= 1120);
+    CHECK(banked_scene.palette->length == 64);
+    CHECK(banked_scene.tilemap->w == 32 && banked_scene.tilemap->h == 16);
+    for(u16 i=0;i<64;i++) CHECK(banked_scene.palette->data[i] == expected_bank_palette[i]);
+    for(u16 i=0;i<512;i++) CHECK(((banked_scene.tilemap->tilemap[i]>>13)&3) == expected_bank_slots[i]);
     vu16 *port=(vu16 *)VDP_DATA_PORT;
     *port=frame_tiles; *port=background.tileset->numTile; *port=title.tileset->numTile;
     return 0;

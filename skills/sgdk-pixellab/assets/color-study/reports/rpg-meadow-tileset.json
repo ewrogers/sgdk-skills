@@ -1,0 +1,100 @@
+{
+  "source": {
+    "palette_vdp_words": [
+      "0x222",
+      "0x0CA",
+      "0x48A",
+      "0x262",
+      "0x0A4",
+      "0x468",
+      "0x242",
+      "0x6AC",
+      "0x282",
+      "0x446",
+      "0x0C2",
+      "0x46A",
+      "0x224",
+      "0x444",
+      "0x2C6",
+      "0x466"
+    ],
+    "width": 64,
+    "height": 64,
+    "opaque_pixels": 4096,
+    "opaque_colors": 67,
+    "off_palette_pixels": 4096,
+    "partial_alpha_pixels": 0,
+    "transparent_pixels": 0,
+    "bounds": [
+      0,
+      0,
+      63,
+      63
+    ],
+    "isolated_pixels": [],
+    "frames": [
+      {
+        "bounds": [
+          0,
+          0,
+          63,
+          63
+        ],
+        "edge_pixels": 252
+      }
+    ],
+    "unique_8x8_patterns": 64,
+    "seam_mismatched_rows": 46,
+    "note": "Seam, isolated-pixel and edge counts are review hints, not visual correctness or hardware sprite counts"
+  },
+  "prepared": {
+    "palette_vdp_words": [
+      "0x222",
+      "0x0CA",
+      "0x48A",
+      "0x262",
+      "0x0A4",
+      "0x468",
+      "0x242",
+      "0x6AC",
+      "0x282",
+      "0x446",
+      "0x0C2",
+      "0x46A",
+      "0x224",
+      "0x444",
+      "0x2C6",
+      "0x466"
+    ],
+    "width": 64,
+    "height": 64,
+    "opaque_pixels": 4096,
+    "opaque_colors": 16,
+    "off_palette_pixels": 0,
+    "partial_alpha_pixels": 0,
+    "transparent_pixels": 0,
+    "bounds": [
+      0,
+      0,
+      63,
+      63
+    ],
+    "isolated_pixels": [],
+    "frames": [
+      {
+        "bounds": [
+          0,
+          0,
+          63,
+          63
+        ],
+        "edge_pixels": 252
+      }
+    ],
+    "unique_8x8_patterns": 48,
+    "seam_mismatched_rows": 14,
+    "note": "Seam, isolated-pixel and edge counts are review hints, not visual correctness or hardware sprite counts"
+  },
+  "changed_opaque_rgb_pixels": 4096,
+  "policy": "Source-derived palette proposal; no unrelated universal palette"
+}

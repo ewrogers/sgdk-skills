@@ -64,3 +64,21 @@ and wide-reference results remain visible to explain the selection.
 - [SGDK ImageUtil](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/tools/commons/src/sgdk/tool/ImageUtil.java): `convertRGBA8888toRGBA4444` and palette masks.
 - [SGDK palette API](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/inc/pal.h): VDP color fields and runtime conversions.
 - [Plutiedev sprites](https://plutiedev.com/sprites): arrangement and scanline limits.
+
+## Native color showcase
+
+The [four-theme showcase](../assets/color-study/README.md) displays two-line
+backgrounds alongside actors/items on line 2 and UI on line 3. Palette sets
+change only while display is blanked. Build it using the self-contained
+`assets/color-study/build_rom.py` helper. A/Start advances and B returns.
+
+Host tests reproduce the prepared pixels from committed source art and plans.
+Container tests verify banked IMAGE palette words and each 8×8 tile’s palette
+attribute, then build the normal showcase in release and debug modes. These
+checks verify resource encoding and compilation, not subjective visual quality,
+analog color accuracy or real-hardware timing.
+
+ResComp’s indexed IMAGE format documents palette selection in bits 4–5 of the
+input index: see [the verified manual](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/bin/rescomp.txt).
+The showcase uses the actual [VDP image API](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/inc/vdp_bg.h)
+and [palette API](https://github.com/Stephane-D/SGDK/blob/ef9292c03fe33a2f8af3a2589ab856a53dcef35c/inc/pal.h).

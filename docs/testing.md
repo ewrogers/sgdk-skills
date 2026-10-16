@@ -523,3 +523,9 @@ assets in the independently installed skill. Its local HTML gallery supports
 native/integer-zoom visual review. Those findings do not prove arbitrary
 seamlessness, scene readability or console performance. Dithering remains an
 optional visual choice with possible texture and tile-budget costs.
+
+The PixelLab color study also reproduces same-source conversions offline, tests
+protected palette colors and per-8×8-tile line assignment, and checks real
+ResComp banked IMAGE palette words/tilemap attributes. Its four-page native
+showcase is compiled in both modes as part of the PixelLab integration check;
+paid generation calls are never made by tests or CI.

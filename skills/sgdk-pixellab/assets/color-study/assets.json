@@ -1,0 +1,288 @@
+[
+  {
+    "id": "city-farm",
+    "theme": "city",
+    "role": "sprite",
+    "width": 48,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "city-house",
+    "theme": "city",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "city-temple",
+    "theme": "city",
+    "role": "sprite",
+    "width": 48,
+    "height": 48,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "colonial-actor",
+    "theme": "colonial",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "colonial-background",
+    "theme": "colonial",
+    "role": "background",
+    "width": 256,
+    "height": 128,
+    "policy": "Source-derived palette proposal; no unrelated universal palette",
+    "two_lines": "colonial-background-two-lines.png"
+  },
+  {
+    "id": "colonial-object",
+    "theme": "colonial",
+    "role": "sprite",
+    "width": 16,
+    "height": 16,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "colonial-ui",
+    "theme": "colonial",
+    "role": "sprite",
+    "width": 64,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "fantasy-actor",
+    "theme": "fantasy",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "fantasy-background",
+    "theme": "fantasy",
+    "role": "background",
+    "width": 256,
+    "height": 128,
+    "policy": "Source-derived palette proposal; no unrelated universal palette",
+    "two_lines": "fantasy-background-two-lines.png"
+  },
+  {
+    "id": "fantasy-object",
+    "theme": "fantasy",
+    "role": "sprite",
+    "width": 16,
+    "height": 16,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "fantasy-ui",
+    "theme": "fantasy",
+    "role": "sprite",
+    "width": 64,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "first-background-short",
+    "theme": "other",
+    "role": "background",
+    "width": 256,
+    "height": 128,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "first-key-pro",
+    "theme": "other",
+    "role": "sprite",
+    "width": 16,
+    "height": 16,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "first-key-short",
+    "theme": "other",
+    "role": "sprite",
+    "width": 16,
+    "height": 16,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "first-key-specific",
+    "theme": "other",
+    "role": "sprite",
+    "width": 16,
+    "height": 16,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "first-robot-short",
+    "theme": "other",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "first-robot-specific",
+    "theme": "other",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "first-ui-minimal",
+    "theme": "other",
+    "role": "sprite",
+    "width": 64,
+    "height": 32,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "gothic-ui",
+    "theme": "other",
+    "role": "sprite",
+    "width": 96,
+    "height": 48,
+    "policy": "Source-derived palette proposal; no unrelated universal palette"
+  },
+  {
+    "id": "hex-atlas",
+    "theme": "other",
+    "role": "background",
+    "width": 128,
+    "height": 128,
+    "policy": "Source-derived palette proposal; no unrelated universal palette",
+    "two_lines": "hex-atlas-two-lines.png"
+  },
+  {
+    "id": "modern-actor",
+    "theme": "modern",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "modern-background",
+    "theme": "modern",
+    "role": "background",
+    "width": 256,
+    "height": 128,
+    "policy": "Source-derived palette proposal; no unrelated universal palette",
+    "two_lines": "modern-background-two-lines.png"
+  },
+  {
+    "id": "modern-object",
+    "theme": "modern",
+    "role": "sprite",
+    "width": 16,
+    "height": 16,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "modern-ui",
+    "theme": "modern",
+    "role": "sprite",
+    "width": 64,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "rpg-floor",
+    "theme": "fantasy",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "rpg-golem",
+    "theme": "fantasy",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "rpg-hero",
+    "theme": "fantasy",
+    "role": "sprite",
+    "width": 48,
+    "height": 48,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "rpg-meadow-tileset",
+    "theme": "fantasy",
+    "role": "background",
+    "width": 64,
+    "height": 64,
+    "policy": "Source-derived palette proposal; no unrelated universal palette",
+    "two_lines": "rpg-meadow-tileset-two-lines.png"
+  },
+  {
+    "id": "rpg-monster",
+    "theme": "fantasy",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "sci-fi-actor",
+    "theme": "sci-fi",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "sci-fi-background",
+    "theme": "sci-fi",
+    "role": "background",
+    "width": 256,
+    "height": 128,
+    "policy": "Source-derived palette proposal; no unrelated universal palette",
+    "two_lines": "sci-fi-background-two-lines.png"
+  },
+  {
+    "id": "sci-fi-monster",
+    "theme": "sci-fi",
+    "role": "sprite",
+    "width": 32,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "sci-fi-object",
+    "theme": "sci-fi",
+    "role": "sprite",
+    "width": 16,
+    "height": 16,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "sci-fi-rover",
+    "theme": "sci-fi",
+    "role": "sprite",
+    "width": 48,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  },
+  {
+    "id": "sci-fi-ui",
+    "theme": "sci-fi",
+    "role": "sprite",
+    "width": 64,
+    "height": 32,
+    "policy": "Project/theme palette planned before generation"
+  }
+]
