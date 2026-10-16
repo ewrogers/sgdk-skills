@@ -42,9 +42,10 @@
       ]
     },
     {
-      "title": "Debug and optimize",
-      "description": "Find problems and measure performance.",
+      "title": "Test, debug and optimize",
+      "description": "Catch regressions, find problems and measure performance.",
       "skills": [
+        "sgdk-testing",
         "sgdk-debug",
         "sgdk-performance"
       ]

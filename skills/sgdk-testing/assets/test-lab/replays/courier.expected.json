@@ -1,0 +1,142 @@
+{
+  "format": "sgdk-testlab-trace-v1",
+  "replay": "courier-v1",
+  "replay_sha256": "2d73196a4b51d75dd78d6dd7124a2d0dcafe5229cbe6bba6158e6602a3bb2e97",
+  "seed": 44257,
+  "tick_hz": 60,
+  "total_ticks": 720,
+  "render_hz": 60,
+  "frames": 720,
+  "checkpoints": [
+    {
+      "tick": 0,
+      "active": 0,
+      "x": 24,
+      "y": 96,
+      "score": 0,
+      "fired": 0,
+      "paused": 0,
+      "digest": 3296081682
+    },
+    {
+      "tick": 60,
+      "active": 60,
+      "x": 138,
+      "y": 96,
+      "score": 1,
+      "fired": 1,
+      "paused": 0,
+      "digest": 2602504527
+    },
+    {
+      "tick": 120,
+      "active": 119,
+      "x": 214,
+      "y": 56,
+      "score": 1,
+      "fired": 2,
+      "paused": 1,
+      "digest": 3625399877
+    },
+    {
+      "tick": 180,
+      "active": 120,
+      "x": 214,
+      "y": 56,
+      "score": 1,
+      "fired": 2,
+      "paused": 0,
+      "digest": 4285159552
+    },
+    {
+      "tick": 240,
+      "active": 180,
+      "x": 214,
+      "y": 176,
+      "score": 1,
+      "fired": 2,
+      "paused": 0,
+      "digest": 143968154
+    },
+    {
+      "tick": 300,
+      "active": 240,
+      "x": 96,
+      "y": 176,
+      "score": 1,
+      "fired": 3,
+      "paused": 0,
+      "digest": 1114875122
+    },
+    {
+      "tick": 360,
+      "active": 300,
+      "x": 16,
+      "y": 138,
+      "score": 1,
+      "fired": 4,
+      "paused": 0,
+      "digest": 1279916
+    },
+    {
+      "tick": 420,
+      "active": 360,
+      "x": 54,
+      "y": 58,
+      "score": 1,
+      "fired": 5,
+      "paused": 0,
+      "digest": 3149939238
+    },
+    {
+      "tick": 480,
+      "active": 420,
+      "x": 174,
+      "y": 58,
+      "score": 2,
+      "fired": 5,
+      "paused": 0,
+      "digest": 1635165378
+    },
+    {
+      "tick": 540,
+      "active": 480,
+      "x": 214,
+      "y": 136,
+      "score": 2,
+      "fired": 6,
+      "paused": 0,
+      "digest": 3149400688
+    },
+    {
+      "tick": 600,
+      "active": 540,
+      "x": 176,
+      "y": 180,
+      "score": 2,
+      "fired": 7,
+      "paused": 0,
+      "digest": 3934853454
+    },
+    {
+      "tick": 660,
+      "active": 600,
+      "x": 56,
+      "y": 180,
+      "score": 2,
+      "fired": 7,
+      "paused": 0,
+      "digest": 1821545050
+    },
+    {
+      "tick": 720,
+      "active": 660,
+      "x": 16,
+      "y": 180,
+      "score": 2,
+      "fired": 7,
+      "paused": 0,
+      "digest": 1955141942
+    }
+  ]
+}
