@@ -4,10 +4,11 @@
   "groupings": [
     {
       "title": "Get started",
-      "description": "Plan your game and set up the toolchain.",
+      "description": "Plan your game, set up the toolchain and write reliable C.",
       "skills": [
         "sgdk-project",
-        "sgdk-planning"
+        "sgdk-planning",
+        "sgdk-best-practices"
       ]
     },
     {
