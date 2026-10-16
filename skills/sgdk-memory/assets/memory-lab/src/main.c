@@ -5,47 +5,59 @@ static MemoryLab lab;
 static u16 previous,page,clock_ticks;
 static bool automatic,redraw=TRUE;
 static const char *message="A: ALLOCATE SIX BLOCKS";
+static u16 screen[28][40];
+
+static void put(const char *value,u16 x,u16 y)
+{
+    while(*value && x<40 && y<28)screen[y][x++]=TILE_FONT_INDEX+(u8)*value++-32;
+}
 
 static void number(const char *label,u16 n,u16 x,u16 y)
 {
-    char digits[6];uintToStr(n,digits,5);VDP_drawText(label,x,y);VDP_drawText(digits,x+strlen(label),y);
+    char digits[6];uintToStr(n,digits,5);put(label,x,y);put(digits,x+strlen(label),y);
 }
 
 static void block(u16 x,u16 y,u16 w,u16 h,u16 color)
 {
-    VDP_fillTileMapRect(BG_A,TILE_ATTR_FULL(PAL0,FALSE,FALSE,FALSE,96+color),x,y,w,h);
+    for(u16 row=y;row<y+h && row<28;row++)for(u16 col=x;col<x+w && col<40;col++)
+        screen[row][col]=TILE_ATTR_FULL(PAL0,FALSE,FALSE,FALSE,96+color);
 }
 
-static void draw(void)
+static bool draw(void)
 {
-    VDP_clearPlane(BG_A,TRUE);
-    VDP_drawText("MEMORY LAB",2,1);VDP_drawText(page ? "LIFETIMES" : "FRAGMENTATION",23,1);
+    for(u16 y=0;y<28;y++)for(u16 x=0;x<40;x++)screen[y][x]=TILE_FONT_INDEX;
+    put("MEMORY LAB",2,1);put(page ? "LIFETIMES" : "FRAGMENTATION",23,1);
     number("FREE ",MEM_getFree(),2,3);number("LARGEST ",MEM_getLargestFreeBlock(),20,3);
     number("USED ",MEM_getAllocated(),2,4);number("CYCLES ",page ? lab.room_loads : lab.cycles,20,4);
-    VDP_drawText("COUNTERS INCLUDE ALLOCATOR HEADERS",2,6);
-    block(2,8,2,1,2);VDP_drawText("SHARED 512 BYTES STAYS LIVE",5,8);
+    put("COUNTERS INCLUDE ALLOCATOR HEADERS",2,6);
+    block(2,8,2,1,2);put("SHARED 512 BYTES STAYS LIVE",5,8);
     if(!page) {
-        VDP_drawText("SIX 1,024-BYTE PAYLOADS",2,10);
+        put("SIX 1,024-BYTE PAYLOADS",2,10);
         for(u16 i=0;i<ML_BLOCKS;i++)block(2+i*6,12,4,2,lab.blocks[i] ? 1 : 3);
-        VDP_drawText("BLUE LIVE / GREY FREE",2,15);
-        VDP_drawText(lab.stage ? "TAIL RESERVED TO EXPOSE THE HOLES" : "TAIL AVAILABLE TO THE GAME",2,17);
-        VDP_drawText(message,2,19);
-        VDP_drawText(lab.stage==3 ? "PACK CANNOT MOVE LIVE BLOCKS" : "TRY A 1,536-BYTE REQUEST WITH B",2,21);
-        VDP_drawText("A NEXT  B TRY 1536  C CLEAN UP",2,24);
+        put("BLUE LIVE / GREY FREE",2,15);
+        put(lab.stage ? "TAIL RESERVED TO EXPOSE THE HOLES" : "TAIL AVAILABLE TO THE GAME",2,17);
+        put(message,2,19);
+        put(lab.stage==3 ? "PACK CANNOT MOVE LIVE BLOCKS" : "TRY A 1,536-BYTE REQUEST WITH B",2,21);
+        put("A NEXT  B TRY 1536  C CLEAN UP",2,24);
     } else {
         block(2,11,2,1,lab.room[0] ? 1 : 3);
-        VDP_drawText(lab.room[0] ? "ROOM 1,536 PAYLOAD BYTES" : "ROOM UNLOADED",5,11);
+        put(lab.room[0] ? "ROOM 1,536 PAYLOAD BYTES" : "ROOM UNLOADED",5,11);
         block(2,14,2,1,lab.staging ? 4 : 3);
-        VDP_drawText(lab.staging ? "128 BYTES BORROWED BY DMA" : "TRANSFER STAGING RELEASED",5,14);
-        for(u16 i=0;i<4;i++)VDP_setTileMapXY(BG_A,TILE_ATTR_FULL(PAL0,FALSE,FALSE,FALSE,112+i),33+i,14);
-        VDP_drawText("TILES",32,16);
-        VDP_drawText("SHARED OUTLIVES THE ROOM",2,17);
-        VDP_drawText("STAGING OUTLIVES ITS QUEUED COPY",2,19);
-        VDP_drawText("FREE ONLY AFTER DMA HAS DRAINED",2,21);
-        VDP_drawText("A LOAD/UNLOAD  B UPLOAD  C CLEAN",2,24);
+        put(lab.staging ? "128 BYTES BORROWED BY DMA" : "TRANSFER STAGING RELEASED",5,14);
+        for(u16 i=0;i<4;i++)screen[14][33+i]=TILE_ATTR_FULL(PAL0,FALSE,FALSE,FALSE,112+i);
+        put("TILES",32,16);
+        put("SHARED OUTLIVES THE ROOM",2,17);
+        put("STAGING OUTLIVES ITS QUEUED COPY",2,19);
+        put("FREE ONLY AFTER DMA HAS DRAINED",2,21);
+        put("A LOAD/UNLOAD  B UPLOAD  C CLEAN",2,24);
     }
-    VDP_drawText(automatic ? "LEFT/RIGHT PAGE  START AUTO: ON" : "LEFT/RIGHT PAGE  START AUTO: OFF",2,26);
-    if(!lab.healthy)VDP_drawText("CHECK FAILED - RESET THE ROM",2,23);
+    put(automatic ? "LEFT/RIGHT PAGE  START AUTO: ON" : "LEFT/RIGHT PAGE  START AUTO: OFF",2,26);
+    if(!lab.healthy)put("CHECK FAILED - RESET THE ROM",2,23);
+    /* The complete screen borrows fixed RAM until the frame queue drains. */
+    if(DMA_getQueueSize()+28>DMA_getMaxQueueSize() || !DMA_canQueue(DMA_VRAM,28*40))return FALSE;
+    for(u16 y=0;y<28;y++)
+        if(!DMA_queueDma(DMA_VRAM,screen[y],VDP_getPlaneAddress(BG_A,0,y),40,2))return FALSE;
+    return TRUE;
 }
 
 static void heap_action(void)
@@ -82,6 +94,7 @@ int main(bool hard_reset)
         VDP_drawText("NOT ENOUGH MEMORY TO START LAB",2,12);
         SYS_enableInts();VDP_setEnable(TRUE);while(TRUE)SYS_doVBlankProcess();
     }
+    DMA_setMaxTransferSize(4096);
     u16 hz=SYS_isPAL() ? 50 : 60;
     SYS_enableInts();SYS_doVBlankProcess();VDP_setEnable(TRUE);
     while(TRUE) {
@@ -107,7 +120,7 @@ int main(bool hard_reset)
         if(pressed&BUTTON_C) {
             ml_room_unload(&lab);ml_heap_clear(&lab);message="CLEAN: BASELINE RESTORED";redraw=TRUE;
         }
-        if(redraw){draw();redraw=FALSE;}
+        if(redraw)redraw=!draw();
         SYS_doVBlankProcess();
         while(DMA_getQueueSize())SYS_doVBlankProcess();
         if(lab.staging){ml_stage_complete(&lab,TRUE);redraw=TRUE;}

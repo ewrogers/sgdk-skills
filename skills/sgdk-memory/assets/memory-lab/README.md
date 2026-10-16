@@ -94,6 +94,7 @@ layout; customized heap/stack boundaries need a matching report.
 | Room buffers | 1,536 bytes total |
 | Transfer staging | 128 bytes until completion |
 | `MemoryLab` owner record | 122 static bytes on the tested M68000 build |
+| Retained text/indicator tilemap | 2,240 static bytes |
 | Preview tiles | 9 tiles / 288 bytes of VRAM, separate from RAM |
 
 The selected allocator charges an additional two-byte header and even rounding
@@ -105,6 +106,12 @@ if a more fragmented starting heap needs more, setup rolls back safely.
 The Lab owns tiles 96–100 and 112–115 and uses PAL0 plus the SDK font. It does
 not initialize the Sprite engine. Normal padded ROM size is 128 KiB. No source
 or asset needs downloading beyond the toolchain.
+
+Text and indicators are composed in the retained tilemap and queued during
+VBlank, avoiding active-display CPU redraws while testing the heap. A screen
+update transfers 2,240 bytes, plus at most 128 staging bytes, within a configured
+4,096-byte DMA allowance. The tilemap stays unchanged until the queue drains;
+it is a fixed Lab UI cost, not an allocator requirement for other games.
 
 ## Validation boundaries
 
