@@ -99,6 +99,8 @@ jobs:
             build/asterfall-integration/*.log
             build/rpg-integration/rpg-report.json
             build/rpg-integration/*.log
+            build/collision-integration/collision-report.json
+            build/collision-integration/*.log
             build/animation-integration/animation-report.json
             build/animation-integration/*.log
             build/memory-integration/memory-report.json
@@ -237,6 +239,12 @@ jobs:
           assert all(report["passed"] for report in effects.values())
           for field in ["hashes", "geometry", "trace_digest", "selection_instructions", "budgets"]:
               assert effects["amd64"][field] == effects["arm64"][field], (field, effects)
+          collision_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("collision-report.json"))
+                               for arch in ("arm64", "amd64")}
+          assert all(len(paths) == 1 for paths in collision_reports.values()), collision_reports
+          collisions = {arch: json.loads(paths[0].read_text()) for arch, paths in collision_reports.items()}
+          assert all(report["passed"] for report in collisions.values())
+          assert collisions["arm64"] == collisions["amd64"], collisions
           animation_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("animation-report.json"))
                                for arch in ("arm64", "amd64")}
           assert all(len(paths) == 1 for paths in animation_reports.values()), animation_reports

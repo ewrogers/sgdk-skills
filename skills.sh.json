@@ -28,6 +28,7 @@
         "sgdk-levels",
         "sgdk-streaming",
         "sgdk-gameplay",
+        "sgdk-collision",
         "sgdk-math",
         "sgdk-ai",
         "sgdk-scenes",

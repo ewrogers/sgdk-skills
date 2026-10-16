@@ -714,3 +714,19 @@ Container checks build release/debug, execute base-M68000 contracts, compare a
 palette from the target resource data. Reports are in `build/animation-integration`.
 Native ARM64/AMD64 CI compares hashes, geometry and budgets. These are model and
 resource checks; visible alignment, audio and actual frame timing need playtests.
+
+## Collision queries
+
+`tests/test_collision.py` compares 12,000 deterministic box/segment queries with
+an independent Python rational oracle at O0/O3 (UBSan where supported). Executable
+contracts cover touching, parallel motion, finite endpoints, relative target
+motion, grazing, simultaneous corners, nearest hits, static sliding, invalid
+input and candidate limits. PAL/NTSC schedules and pause preserve logical state.
+
+With `SGDK_SKILLS_INTEGRATION=1`, the selected container builds standalone
+Collision Lab release/debug and PAL/NTSC region variants. The base-M68000 probe
+executes the contracts and a 1,000-query trace digest, compared to host C. CI
+compares `build/collision-integration/collision-report.json` across native ARM64
+and AMD64, including hashes, type sizes and budgets. This does not emulate VDP
+or audio timing, prove frame rate, or implement moving-wall response. Record
+emulator/hardware observations separately in the Lab README.
