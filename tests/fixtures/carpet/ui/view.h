@@ -1,5 +1,9 @@
 #ifndef CARPET_UI_TEST_H
 #define CARPET_UI_TEST_H
+/* Match SGDK's ISO C string API; Microsoft's *_s extensions are not SDK APIs. */
+#if defined(_WIN32) && !defined(_CRT_SECURE_NO_WARNINGS)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include "game.h"
 #include <stdio.h>
 #include <string.h>
