@@ -730,3 +730,22 @@ compares `build/collision-integration/collision-report.json` across native ARM64
 and AMD64, including hashes, type sizes and budgets. This does not emulate VDP
 or audio timing, prove frame rate, or implement moving-wall response. Record
 emulator/hardware observations separately in the Lab README.
+
+## Isometric scenes
+
+`tests/test_isometric.py` compares 6,000 projected-box pairs to an independent
+convex-hull oracle. Host O0/O3 contracts cover negative projection rounding,
+known-height inverse projection, bridge occlusion, stable topological order,
+support links, full capacity, cycles and invalid input. Movement tests exercise
+stairs, lower/upper surfaces, ground collision, camera bounds and a 20,000-step
+soak; a 1,000-step route compares cached and full ordering. PAL/NTSC schedules
+and pause preserve nominal logical time.
+
+Opt-in container checks execute the same contracts at bounded smaller route/soak
+counts on a base M68000, compare a 128-step host/target trace, and inspect compiled
+sprite geometry/palettes, opaque font data and authored placements. Scanline
+bounds conservatively include every static rectangle plus hero and marker.
+Release/debug and PAL/NTSC-region ROM hashes, target type sizes and budgets are
+compared across native ARM64/AMD64 in `isometric-report.json`. These checks do
+not emulate VDP/audio timing or certify real hardware; record actual ares tests
+separately in the Isometric Lab README.
