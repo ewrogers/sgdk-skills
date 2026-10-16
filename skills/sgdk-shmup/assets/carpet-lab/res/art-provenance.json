@@ -1,0 +1,147 @@
+{
+  "generator": "PixelLab pixflux / pixen",
+  "native_resolution": true,
+  "images": [
+    {
+      "name": "hero",
+      "job_id": "20a73b44-715c-47a5-afa4-6839febb7d68",
+      "prompt": "A delightful 16-bit side-scrolling game hero: young smiling airborne courier riding a burgundy magic carpet with golden tassels, teal jacket and cream scarf streaming behind. Full side profile facing RIGHT. Entire rider and carpet within a 32x32 native pixel canvas, readable face, large clean color clusters, charming hand-drawn Mega Drive pixel art. One isolated character, no floor, no text, no shadow under sprite. Crisp deliberate single-pixel details, dark purple outlines, never pure black outlines. High-contrast gold trim. Not isometric, no realistic texture.",
+      "batch": "carpet_jobs"
+    },
+    {
+      "name": "boss_scarab",
+      "job_id": "7c2cf121-3cd6-4b2e-912e-2f779078cbbe",
+      "prompt": "Boss sprite for charming 16-bit flying-carpet sidescroller: BRASSWING, a giant clockwork scarab beetle airship facing LEFT. Elegant rounded brass shell, turquoise jewel eyes, two broad articulated wing shields, wind-turbine abdomen, warm gold rivets. Endearing but imposing silhouette. 64x64 native pixel art, single isolated complete boss, transparent background. Dark purple outlines, clean pixel clusters, decorative readable motifs, no text, no floor. Side view suitable for horizontal combat.",
+      "batch": "carpet_jobs"
+    },
+    {
+      "name": "boss_serpent",
+      "job_id": "ec23a843-ee57-40e1-b6bd-9470b4ac3410",
+      "prompt": "Boss sprite for charming Arabian-storybook 16-bit sidescroller: RIBBON ORACLE, a magical flying serpent facing LEFT, graceful curved turquoise ribbon body, cream belly, warm brass jeweled head ornaments and huge expressive eyes. Coiled S-shaped body contained entirely within 64x64 native pixels. No wings, no ground, transparent background. Crisp pixel clusters, dark purple outlines, golden highlights, no gradients or dithering, intricate but readable Sega Mega Drive pixel art.",
+      "batch": "carpet_jobs"
+    },
+    {
+      "name": "boss_lantern",
+      "job_id": "fdb3c33d-5340-4330-a6fa-0fa9c79c479c",
+      "prompt": "Boss sprite for original Arabian-storybook flying-carpet sidescroller: LANTERN VIZIER, an imposing ornate floating brass lantern prison containing a teal storm spirit with bright eyes, curled smoke arms and a gold crown-like finial. Strong expressive face, no human stereotypes. Complete 64x64 native pixel sprite facing LEFT. Transparent background, dark purple outlines, chunky polished 16-bit pixel clusters, readable gold filigree and turquoise glass, no floor, no text, no blurry texture.",
+      "batch": "carpet_jobs"
+    },
+    {
+      "name": "far1",
+      "job_id": "6f661480-05e5-4beb-8492-db2442f2a111",
+      "prompt": "Sunlit desert sky and distant domed city for a charming Arabian-storybook flying carpet game. Broad peach/golden sky, a few huge soft cream cloud silhouettes, hazy sand mountains and tiny domes along only the lowest 55 pixels. Open uncluttered sky through center. Distant slow parallax layer, seamless horizontal repeat: matching left and right edges. Side view, native 256x192 Sega Mega Drive pixel art, deliberate crisp pixel clusters, no noisy dithering, no foreground objects, no characters or words.",
+      "batch": "carpet_background_jobs"
+    },
+    {
+      "name": "near1",
+      "job_id": "516d520b-e497-4b5c-9b51-5a7017fc8225",
+      "prompt": "ISOLATED SCENERY CUTOUT, one continuous row of golden sandstone bazaar rooftops and domes with turquoise awnings and a few palms. STRICT ORTHOGRAPHIC SIDE ELEVATION like a horizontal platform game, no perspective street, no vanishing point, no ground road. All buildings sit on same horizontal baseline. Transparent empty sky above skyline, no sky painted anywhere. Native 256x96 Sega Mega Drive pixel art, beautiful dark-purple contours, warm gold highlights, charming decorative arches. Row fills bottom 70 pixels, left/right edges match for scrolling.",
+      "batch": "carpet_near_v2"
+    },
+    {
+      "name": "far2",
+      "job_id": "77e0c528-514b-40db-937c-09141d40399e",
+      "prompt": "Moonlit lilac sky over far-off hanging gardens and pale floating palace islands, silver crescent moon near upper center, lavender clouds and a distant aqueduct along bottom 50 pixels. Elegant enchanted Arabian-storybook setting. Huge quiet empty sky for the player, slow parallax layer, seamless horizontal repeat matching edges. Native 256x192 16-bit pixel art, very clean color clusters, no dithering or realistic noise, no foreground plants, no people or words.",
+      "batch": "carpet_background_jobs"
+    },
+    {
+      "name": "near2",
+      "job_id": "47c790ee-98ff-44cf-a4b3-96190852611d",
+      "prompt": "ISOLATED SCENERY CUTOUT, a continuous row of floating lilac stone garden terraces, graceful aqueduct arches, hanging jade vines and golden lamps. STRICT ORTHOGRAPHIC SIDE ELEVATION like horizontal platform game scenery, no perspective, no road or vanishing point. All platforms along bottom horizontal baseline, upper30 pixels transparent sky, no background painted. Native256x96 crisp 16bit storybook pixel art, decorative readable foliage clusters, dark purple outlines. Matching left/right edges for parallax scrolling.",
+      "batch": "carpet_near_v2"
+    },
+    {
+      "name": "far3",
+      "job_id": "fda10de6-f4dc-4ece-b2f9-3f6fa471b961",
+      "prompt": "Dramatic stormbound celestial sky, layered dark indigo cloud banks, huge distant pale moon partly obscured, tiny isolated gold stars, muted violet sunset glow near horizon. Background slow parallax layer for a charming Arabian flying-carpet adventure finale, mysterious and magical rather than horror. Wide open center for combat. Seamless horizontal repeat, matching left/right edges. 256x192 native Mega Drive pixel art, few broad colors, no noise or dithering, no characters, no words.",
+      "batch": "carpet_background_jobs"
+    },
+    {
+      "name": "near3",
+      "job_id": "c987fa22-efc4-44a7-bf03-1035beeeb5ec",
+      "prompt": "ISOLATED SCENERY CUTOUT, a continuous low row of stormglass observatory domes, brass celestial spheres and crescent instruments atop dark floating rocks. STRICT ORTHOGRAPHIC SIDE ELEVATION for horizontal platform scenery, no perspective, no vanishing point. Transparent sky above low skyline, no background. Native256x96 storybook16bit pixelart, slatepurple stone, silver glass and golden apparatus, crisp large clusters and intricate readable outlines. Matching left/right edges, bottom baseline.",
+      "batch": "carpet_near_v2"
+    },
+    {
+      "name": "title",
+      "job_id": "1a13de71-74cc-4374-a6e9-422c3c3e8d3b",
+      "prompt": "Title-screen illustration without any text for CARPET OF THE CRESCENT: a young scarf-wearing courier on a magic carpet soaring rightward over a breathtaking domed sandstone city at golden sunrise, crescent and windmills, luminous drifting clouds, warm storybook charm. Rich wide composition with main rider at lower left, distant fantastical palace at right. Full 256x144 NATIVE 16-bit Sega Mega Drive pixel art, beautiful deliberate clusters and readable forms, no tiny noisy texture, no blur, no lettering, no logos.",
+      "batch": "carpet_background_jobs"
+    },
+    {
+      "name": "enemy_teapot",
+      "job_id": "a108d15e-ec3a-453d-9e88-6bb50514e8e6",
+      "prompt": "Enchanted flying brass teapot enemy, expressive turquoise jewel eye, spout pointing left, little curled steam wings. Storybook magic, friendly but mischievous. Native24x24 sprite, side view LEFT, full isolated object, transparent background. Colors only dark purple #240024, brass #b69249, gold #ffdb49, cream #ffffdb, teal #246d92. Crisp readable shapes and one-pixel highlights, no noisy texture.",
+      "batch": "carpet_small_jobs"
+    },
+    {
+      "name": "enemy_kite",
+      "job_id": "069c7e7e-1aeb-42a4-b173-d36847ec5d04",
+      "prompt": "Enchanted diamond-shaped Persian wind kite enemy with gold curling tail and two tiny dark eyes, vivid burgundy fabric and turquoise trim, floating in side view LEFT. Entire isolated native24x24 pixel sprite, transparent background, dark purple outlines, clean readable color clusters. Palette dark purple #240024, burgundy #6d2449, coral #b64949, cream #ffffdb, teal #246d92, gold #ffdb49. No floor, text or shadow.",
+      "batch": "carpet_small_jobs"
+    },
+    {
+      "name": "enemy_beetle",
+      "job_id": "76dce591-0112-4800-84a3-844f6674b5c5",
+      "prompt": "Small magical clockwork scarab beetle enemy flying LEFT, brass gold rounded shell, turquoise jewel core, tiny fluttering wings, cute chunky silhouette. Native24x24 pixel sprite side view, transparent background, only dark purple #240024, brass #b69249, gold #ffdb49, cream #ffffdb and teal #246d92. Clean polished 16bit pixel clusters and readable face, no floor or words.",
+      "batch": "carpet_small_jobs"
+    },
+    {
+      "name": "spell_sun",
+      "job_id": "f4379e5a-76b9-4113-925a-84a94f7bb428",
+      "prompt": "Single magical fireball projectile flying RIGHT, compact brilliant cream core, orange gold curling flame tail to LEFT, little crescent ornament silhouette. Native16x16 crisp polished pixel art, transparent background. Only cream #ffffdb, white #ffffff, gold #ffff49, peach #ff926d, red #db4949 and dark purple #240024. Bright readable projectile for 16bit magic carpet shooter, no gray box, no text.",
+      "batch": "carpet_small_jobs"
+    },
+    {
+      "name": "spell_moon",
+      "job_id": "a235c07e-e1a1-44c9-af15-4dc688d2d2b8",
+      "prompt": "Single magical luminous silver crescent blade projectile flying RIGHT, hooked moon silhouette with two trailing tiny twinkles to LEFT. Native16x16 crisp deliberate pixel art, transparent background. Only white #ffffff, pale blue #92dbff, blue #4992db, deep purple #492449 and cream #ffffdb. Strong beautiful readable silhouette for 16bit magic carpet shooter, no backdrop, text or floor.",
+      "batch": "carpet_small_jobs"
+    },
+    {
+      "name": "spell_storm",
+      "job_id": "dbfc55a1-d7bf-42d4-bf6e-83f6534cdced",
+      "prompt": "Native16x16 lightning spark projectile with white diamond core, blue hooks and mint afterglow, transparent background.",
+      "model": "pixen"
+    }
+  ],
+  "animations": [
+    {
+      "name": "hero_flight",
+      "action": "Gentle looping flight in place, carpet corners ripple like cloth and scarf flutters in the wind. Courier stays seated and facing right. Keep the entire figure in exactly the same position and scale. Four subtle frames, no camera motion or added effects.",
+      "job_id": "505926e2-c6eb-43e9-847a-07f320e63a8f",
+      "frames": 5
+    },
+    {
+      "name": "scarab_flight",
+      "action": "Clockwork flying beetle hovering in place, broad shield wings slowly open and close and its jewel core pulses. Keep body scale and location fixed; no rotation, no camera movement, no added objects.",
+      "job_id": "2e9b5385-2c95-4731-99f6-4cd7736c83db",
+      "frames": 5
+    },
+    {
+      "name": "serpent_flight",
+      "action": "Magical ribbon serpent gently undulates and its fins ripple in place. Same body scale, stationary head, smooth repeating hovering cycle. No rotation, no camera motion, no new objects.",
+      "job_id": "c4a31e8c-53dd-4071-bc91-053cd1ebade3",
+      "frames": 5
+    },
+    {
+      "name": "lantern_flight",
+      "action": "Ornate magical lantern hovering in place while its storm spirit glows and curling smoke arms slowly ripple. Fixed lantern scale and position, subtle loop, no camera motion or new objects.",
+      "job_id": "6cf70564-4723-4589-b177-4fc720d653af",
+      "frames": 5
+    }
+  ],
+  "sky_dithering": {
+    "far2.png": {
+      "job_id": "ab3fc1ad-eb0d-4ac9-b1cc-76742d128003",
+      "model": "pixen edit",
+      "note": "Native-size sky band dithering; requantized to the unchanged FAR2 palette."
+    }
+  },
+  "moon_crescent_revision": {
+    "drawing_id": "739bec14-6a49-4cf5-ae8b-ba809549b0bc",
+    "tool": "PixelLab pixelart_workbench",
+    "recipe": "moon-crescent.pixelart.json",
+    "note": "Exact native 16px bold crescent, palette-normalized without resizing. Pixen edit 79868b8f-5d09-499b-af6a-dec00b6eb328 was too small and was not used."
+  }
+}

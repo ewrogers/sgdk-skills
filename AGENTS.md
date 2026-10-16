@@ -16,6 +16,10 @@
 - Separate Mega Drive hardware limits, SGDK behavior and optional game design
   conventions. Budget CPU, main RAM, VRAM, DMA and scanline rendering separately.
   Do not inherit AGES engine restrictions or impose a new game framework.
+- Genre skills provide patterns and solutions to Mega Drive development problems:
+  mechanics, code, structure and behavior. Lab art, audio, mood and tuning are
+  illustrative, never requirements for another game. Follow the project’s
+  creative direction rather than copying a lab’s style.
 - Prefer optimized release builds for performance comparisons. Explain what a
   counter measures and distinguish build checks from emulator/hardware testing.
 - Use portable Python with the standard library for small helpers when useful.
