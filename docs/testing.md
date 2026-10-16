@@ -3,6 +3,25 @@
 The tests exercise the helpers and compile actual SGDK code. They do not ask a
 language model to judge whether the instructions sound right.
 
+## Memory accounting and lifetimes
+
+`tests/test_memory.py` executes Memory Lab's ownership module at `-O0`/`-O3`,
+with Unix undefined-behavior checks and an independent first-fit heap oracle.
+Checks cover fragmentation with sufficient total free bytes, pointer/content
+preservation, failure rollback at every construction step, delayed DMA ownership,
+idempotent cleanup and 500 complete allocation/room cycles. ELF accounting tests
+reject missing symbols and overlapping reservations and account for exactly
+65,536 bytes without charging ROM/debug sections to RAM.
+
+Opt-in container tests build release/debug and execute the actual linked SGDK
+allocator on base M68000, including zero/odd requests, existing free holes,
+packing, payload preservation and 32 cleanup cycles. CI compares both architecture
+reports, ROM hashes and linked accounting. The probe bypasses SDK startup and
+initializes the heap explicitly; the interactive Lab uses normal startup.
+Run the focused check with `python -m unittest discover -s tests -p test_memory.py`.
+Reports/logs are in `build/memory-integration`. These are allocator and ownership
+checks, not VDP timing, stack-peak measurement or physical-hardware validation.
+
 ## Quick checks
 
 Run the Python tests from the repository root:

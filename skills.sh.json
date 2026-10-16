@@ -50,7 +50,8 @@
       "skills": [
         "sgdk-testing",
         "sgdk-debug",
-        "sgdk-performance"
+        "sgdk-performance",
+        "sgdk-memory"
       ]
     },
     {
