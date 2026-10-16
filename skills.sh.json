@@ -52,6 +52,7 @@
       "description": "Catch regressions, find problems and measure performance.",
       "skills": [
         "sgdk-testing",
+        "sgdk-hardware",
         "sgdk-debug",
         "sgdk-performance",
         "sgdk-memory"
