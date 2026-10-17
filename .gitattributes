@@ -1,0 +1,2 @@
+# Preserve the first agent handoff byte-for-byte, including its license line endings.
+tests/fixtures/design-adaptation/submission/** -text
