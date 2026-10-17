@@ -980,5 +980,7 @@ The Lab now labels that sample as intentional, names the next picture before
 loading, and checks decoded bytes against the original in the running ROM.
 Benchmark verification runs outside the timed batch. The target probe also flips
 one decoded bit and requires that comparison to reject it. This separates an
-expected noisy image from a genuine decoder/output error without treating noisy
+expected noisy image from a genuine decoder/output error. The user confirmed
+that the clarified labels explain the noise and the aqueduct renders correctly
+through RAW, APLIB and LZ4W in ares. This does not treat noisy
 assets as a universal game-art convention.
