@@ -29,6 +29,7 @@
         "sgdk-levels",
         "sgdk-isometric",
         "sgdk-streaming",
+        "sgdk-compression",
         "sgdk-gameplay",
         "sgdk-collision",
         "sgdk-combat",

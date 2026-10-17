@@ -950,3 +950,27 @@ checks bounded layouts, paged help/hold restoration and a RAM-staged presenter:
 borrowed rows cannot change before drain; unchanged rows are not republished.
 Real SDK builds validate the API use, while ares/hardware remain necessary to
 check actual flicker and readability. CI compares revised PAL/NTSC ROM hashes too.
+
+
+## Compression
+
+`tests/test_compression.py` checks the standalone generator, native 128x64 art,
+independent packet concatenation and loader ownership at O0/O3 with UBSan where
+supported. Rejected uploads retain their decoded buffer; pending transfers block
+reuse/cancellation; no picture is ready before all eight transfers complete.
+The checks include failure and 1,000 repeated cancellation cycles.
+
+Opt-in integration builds release PAL/NTSC and debug NTSC ROMs, then runs actual
+SGDK RAW/APLIB/LZ4W decoding in release/debug base-M68000 probes. Every output byte
+must match the raw source, undersized destinations must be rejected before writes,
+and guards must stay intact. The low-redundancy control is deliberately allowed
+to grow when an explicit codec is forced. CI compares native ARM64/AMD64 resource
+sizes, loader layout and all five ROM hashes, retaining reports/logs under
+`build/compression-integration/`.
+
+The comparison ROM measures wall time with the SDK timer across 16 operations;
+its VBlank quantization and interrupts make this an estimate, not a cycle count.
+Host/target contracts do not validate screen fades, VDP timing, audio contention
+or console performance. The Load page demonstrates synchronous decode while
+covered; Preload uses independent chunks, not a resumable SGDK decoder. Real
+hardware checks should include worst-case foreground work and other DMA producers.
