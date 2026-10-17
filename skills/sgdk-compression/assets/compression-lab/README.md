@@ -30,8 +30,8 @@ Left/Right changes page:
   asynchronous SGDK decoder or the multitasking API.
 
 The loader owns a 4,096-byte staging payload throughout its operation, including
-queued transfers. Two VRAM slots occupy 8,192 bytes. Chunking caps *input work per
-step*, not elapsed CPU time: different blocks decode at different speeds. The
+queued transfers. Two VRAM slots occupy 8,192 bytes. Chunking caps decoded bytes per
+step, not elapsed CPU time: different blocks decode at different speeds. The
 model cannot publish early, overwrite borrowed data, or cancel a pending transfer.
 
 Timing uses `getSubTick()` with interrupts enabled across 16 operations, including
