@@ -46,6 +46,7 @@ class AudioBehaviorTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(result.stdout.strip(), name)
 
+    def test_page_entry_seeds_held_input_without_phantom_commands(self): self.check_case("seed_input")
     def test_load_before_setters(self): self.check_case("init")
     def test_play_pending_is_not_completion_and_held_does_not_restart(self): self.check_case("start_pending")
     def test_completion_once_after_observed_playback(self): self.check_case("completion")
@@ -61,6 +62,7 @@ class AudioBehaviorTests(unittest.TestCase):
     def test_stop_wins_simultaneous_transport_requests(self): self.check_case("transport_conflict")
     def test_one_second_fades_use_detected_pal_ntsc_refresh(self): self.check_case("regions")
     def test_contention_and_dma_chords_consume_their_inputs(self): self.check_case("test_switches")
+    def test_measurement_uses_vint_time_despite_slow_main_loop_and_wrap(self): self.check_case("timing_stalls")
     def test_four_second_measurement_in_both_regions_and_counter_wrap(self): self.check_case("timing")
 
 
@@ -215,7 +217,12 @@ class AudioContainerTests(unittest.TestCase):
         (ROOT / "build").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="sgdk audio container ", dir=ROOT / "build") as folder:
             project = Path(folder) / "sound lab"
-            shutil.copytree(LAB, project)
+            spec=importlib.util.spec_from_file_location("sound_desk_prepare",LAB/"tools/prepare.py")
+            helper=importlib.util.module_from_spec(spec);sys.path.insert(0,str(LAB/"tools"))
+            try:spec.loader.exec_module(helper);helper.prepare(project)
+            finally:sys.path.pop(0)
+            # Keep this existing SDK-header helper check on its documented SDK template.
+            (project/"src/boot/rom_head.c").unlink()
             base = ["docker", "run", "--rm"]
             if os.environ.get("SGDK_PLATFORM"):
                 base += ["--platform", os.environ["SGDK_PLATFORM"]]

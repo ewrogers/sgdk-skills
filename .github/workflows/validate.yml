@@ -99,6 +99,8 @@ jobs:
             build/asterfall-integration/*.log
             build/rpg-integration/rpg-report.json
             build/rpg-integration/*.log
+            build/audio-workshop-integration/audio-workshop-report.json
+            build/audio-workshop-integration/*.log
             build/puzzle-integration/puzzle-report.json
             build/puzzle-integration/*.log
             build/combat-integration/combat-report.json
@@ -304,4 +306,10 @@ jobs:
           puzzles = {arch: json.loads(paths[0].read_text()) for arch, paths in puzzle_reports.items()}
           assert all(report["passed"] for report in puzzles.values())
           assert puzzles["arm64"] == puzzles["amd64"], puzzles
+          audio_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("audio-workshop-report.json"))
+                           for arch in ("arm64", "amd64")}
+          assert all(len(paths) == 1 for paths in audio_reports.values()), audio_reports
+          audio = {arch: json.loads(paths[0].read_text()) for arch, paths in audio_reports.items()}
+          assert all(report["passed"] for report in audio.values())
+          assert audio["arm64"] == audio["amd64"], audio
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")

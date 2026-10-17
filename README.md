@@ -44,7 +44,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-math](skills/sgdk-math/SKILL.md) | Use fixed-point numbers, angles, aiming, interpolation and perspective effects without guessing at precision or range. |
 | [sgdk-ai](skills/sgdk-ai/SKILL.md) | Build enemy states, sight/detection, target selection and bounded navigation with predictable search work. |
 | [sgdk-scenes](skills/sgdk-scenes/SKILL.md) | Build game flow, character selection, pause, Continue and safe resource handoffs between screens. |
-| [sgdk-audio](skills/sgdk-audio/SKILL.md) | Choose a sound driver, play music and effects, and manage priorities and transitions. |
+| [sgdk-audio](skills/sgdk-audio/SKILL.md) | Author FM/PSG music and sampled effects, improve sound quality, and manage priorities, jingles and transitions. Includes Sound Desk. |
 | [sgdk-save](skills/sgdk-save/SKILL.md) | Save progress to SRAM, recover damaged saves and add controller-friendly passwords. |
 | [sgdk-cartridge](skills/sgdk-cartridge/SKILL.md) | Bank large ROMs, keep shared content and audio reachable, and save without disturbing mappings. |
 

@@ -1,12 +1,34 @@
 ---
 name: sgdk-audio
-description: Implement SGDK music playback, sound effects, channel priorities and audio transitions, and choose a suitable sound driver. Use for runtime audio behavior and driver integration rather than source-art preparation or general build debugging.
+description: Author and integrate SGDK FM/PSG music and sampled effects, improve audio quality, and manage channel priorities, jingles and music transitions. Use for tracker/VGM workflows, audible sample problems, runtime audio ownership and driver integration.
 ---
 
 # SGDK Audio
 
 Help games play music and sound effects without losing track of driver, channel
 or bus ownership. Keep the project's existing loop and audio architecture.
+
+Follow the game's requested sound direction. Lab instrumentation, melodies,
+visuals, loudness and timing are examples, not a required genre or aesthetic.
+Read [boundaries](references/boundaries.md) when crossing asset importing,
+scene flow, banking or hardware testing. Reuse the game's input, scene and clock
+systems rather than introducing another framework.
+
+## Author for the target
+
+Keep editable tracker/session sources alongside exports. Start with a short
+phrase that exercises the intended FM instruments, PSG and percussion; compile
+it through the selected converter before producing a full soundtrack. Check
+loop boundaries, held/released notes, register range and sample needs. A tracker
+preview and exported VGM may not use identical mixing behavior.
+
+- [Authoring and export](references/authoring.md): FM patch decisions, PSG,
+  percussion, tracker export and instrument/layer auditions.
+- [Sound quality](references/quality.md): headroom, edge clicks, sample rate,
+  DC offset and a non-destructive WAV inspection/preparation helper.
+
+Reserve channels according to converted content, not only a planned chart.
+Audition music alone, effects alone and their combined mix before blaming DMA.
 
 ## Choose the driver first
 
@@ -19,8 +41,8 @@ switch Z80 drivers just to play an effect.
   alternatives, FM/PSG/DAC sharing, Z80 ownership and performance.
 - [Music and effects](references/playback.md): playback, pause, completion,
   looping, priorities, volume, fades and resource lifetime.
-- [Sound Lab](assets/sound-lab/README.md): a standalone sound-test ROM with
-  original FM/PSG music, sampled drums and PCM effects, plus region and DMA checks.
+- [Sound Lab / Sound Desk](assets/sound-lab/README.md): arrangements, instrument
+  auditions, sample-edge comparisons, a scene conductor and region/DMA checks.
   The optional [audio generator](scripts/make_lab_audio.py) recreates its assets
   in a new folder using only Python's standard library.
 - [Music fixtures and region checks](references/music-and-regions.md): the
@@ -52,6 +74,19 @@ alignment, size and rate requirements through ResComp. Preserve normal
 Keep game-side state for requested playback and pause. Driver commands can be
 pending when status is queried. Do not announce completion merely because
 `XGM2_isPlaying()` is false immediately after requesting play.
+
+## Manage requests, not just API calls
+
+Use one owner for music transitions. Queue/coalesce scene requests while a fade
+owns its deferred stop. Recognize a jingle finishing only after observed playback,
+then restore the latest requested scene track. State whether restoration restarts
+or resumes; XGM2 does not provide arbitrary playback-position seeking here.
+
+Bound effect bursts and queues, coalesce duplicate events, apply retrigger
+cooldowns and define channel-stealing priorities. Treat a rejected optional cue
+as a normal result. Do not replay stale sounds later just because a channel freed.
+[Runtime management](references/management.md) explains the tested conductor,
+its timeout, channel leases, pause rules and deliberately small scope.
 
 ## Validate what matters
 

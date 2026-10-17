@@ -13,11 +13,12 @@ typedef struct
     u16 refresh_hz;
     bool music_channel, graphics_dma;
     bool timing_ready;
-    u16 measured_frames;
+    u16 measured_frames, measured_vblanks;
 } AudioStatus;
 
 void audio_init(const u8 *music, const u8 *click, u32 click_size,
                 const u8 *alarm, u32 alarm_size);
 void audio_step(u16 held);
+void audio_seed_input(u16 held);
 const AudioStatus *audio_status(void);
 #endif
