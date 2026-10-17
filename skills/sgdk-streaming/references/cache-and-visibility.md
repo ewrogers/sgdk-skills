@@ -84,6 +84,18 @@ Include the 128-byte full-palette transfer in the frame's shared DMA allowance.
 The Lab holds its RAM palette buffer until the queue drains. The fade improves
 presentation but does not reduce load time; a cold cache still needs a black hold.
 
+Queue rejection is different from a pending transfer. If the final black-palette
+upload is rejected, keep the old fade step; do not begin recycling visible art
+on the next frame. Advance only after an accepted upload has drained. The same
+rule applies when revealing a completed destination.
+
+When reusing palette banks across areas, admit entering map columns before
+replacing the old area's palette, and publish the scroll only if both succeed.
+If palette admission fails, preserve the old RAM palette too: a later fade must
+not use colors for a view that was never published. A covered redraw can keep
+partial progress hidden. The stream/audio composition check injects these
+failures while checking old-view validity and borrowed-buffer lifetime.
+
 Window geometry and plane addresses come from the selected SDK:
 [VDP layout and Window API](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp.h).
 If integrating with another renderer, reconcile its plane, Window and tile

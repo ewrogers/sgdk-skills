@@ -114,8 +114,8 @@ tested; matching builds cannot establish its runtime behavior.
 
 ## Next cases
 
-Retain this small case as a regression. Later evaluations can combine bounded
-map uploads with audio handoff, or joining/respawns with two-pad input and
-scene cleanup. A fresh-agent pass should receive the request and installed
-skills without this report's suspected failures or desired fixes. Amend
+Retain this small case as a regression. The [second validation case](validation-streaming-audio.md)
+combines bounded map uploads with audio handoff. A later case can exercise
+joining/respawns with two-pad input and scene cleanup. A fresh-agent pass
+should receive the request and installed skills without this report's suspected failures or desired fixes. Amend
 specialist guidance only when an observed failure supports it.

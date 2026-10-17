@@ -911,3 +911,18 @@ and compares native ARM64/AMD64 results. This is integration coverage, not a
 blind evaluation of an independent agent or proof of all skills working together.
 The regression also checks that the copied SDK header builds without GCC 16
 terminator warnings while preserving its fixed-width metadata bytes.
+
+## Streaming and audio composition
+
+The [second validation report](validation-streaming-audio.md) records the
+installed components, shared budgets, failure injection and ares checks.
+`tests/test_stream_audio.py` composes the installed cache/world, DMA adapter and
+audio director with a new route coordinator. Host O0/O3 contracts check every
+visible map cell, palette ownership, borrowed RAM, bounded uploads, queue/read
+rejection, rapid reversal, fanfare/warp overlap, deferred pause and startup
+timeouts. The base-M68000 probe runs those contracts with sampled map checks,
+real SDK button constants and an explicit 200-million-instruction ceiling.
+It does not emulate VDP/Z80/audio timing. CI compares all six region/build/probe
+ROMs and the reports from native ARM64/AMD64 runners. The original Streaming Lab
+is still covered by its existing build and cache/adapter tests; the new fake
+backend does not execute that Lab's entire main loop.
