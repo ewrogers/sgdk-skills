@@ -116,6 +116,8 @@ tested; matching builds cannot establish its runtime behavior.
 
 Retain this small case as a regression. The [second validation case](validation-streaming-audio.md)
 combines bounded map uploads with audio handoff. A later case can exercise
-joining/respawns with two-pad input and scene cleanup. A fresh-agent pass
-should receive the request and installed skills without this report's suspected failures or desired fixes. Amend
+joining/respawns with two-pad input and scene cleanup. The
+[design-adaptation pass](validation-design-adaptation.md) gives an independent
+agent a contrasting brief and installed skills without the assessment rubric.
+Amend
 specialist guidance only when an observed failure supports it.

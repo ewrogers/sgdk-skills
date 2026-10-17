@@ -48,3 +48,70 @@ The workspace restrictions are instructions, not an OS isolation boundary. All
 installed resources are available; the run does not force the agent to read
 every Lab. Having examples installed is different from exposing their complete
 source in the model's context.
+
+## First-submission assessment
+
+The first submission preserves the requested design in the reviewed source and
+visible title. No design leakage was found. The source was frozen before review;
+the 13 retained files in `submission/` are byte-identical to that handoff. The
+reviewer added separate checks without rewriting the submitted game.
+
+| Gate | Finding | Evidence |
+| --- | --- | --- |
+| Identity | Pass for source/title; live desk presentation awaiting playtest | `submission/src/main.c` draws a paper/ink/amber schematic with original tram/interlock tiles and the SDK bitmap font. The title displayed correctly in ares. |
+| Flow | Pass in source | `main.c` has title, desk and report states, with a help overlay. Begin enters the desk directly; retry resets the same shift. No character selection, stages, combat or reward economy. |
+| Controls | Pass in source and target execution | `main.c:103–112` maps actual SDK masks to desk actions; `desk.c:38–54` implements C dispatch, B clear, A hold and Start help. A temporary C-to-A mutation is rejected by the target probe. |
+| Dispatch | Pass | The submitted test checks 144 ordered route pairs, capacity, backlog and release. Reviewer checks independently specify the X/Y route table, rejected-state preservation and release. |
+| Clock/retry | Pass in model | Exactly 4,500 PAL frames or 5,400 NTSC frames complete the shift; matching second-boundary actions produce equal state. Help preserves both running and held states. Retry restores the initial timetable. |
+| Technique transfer | Pass in reviewed implementation | Fixed service storage, admission before mutation, stable service IDs, press edges, a regional phase accumulator and exclusive PSG ownership serve this game's rules. |
+| Provenance | No evidence of Lab game copying | No exact matches for the three submitted game C/H files against installed assets; comparison covered 257 asset C/H files. Longest shared sequences were 16 tokens in the clock, 15 in the renderer and 5 in the header: ordinary loop/clock/VDP idioms. Manual review found no imported Lab game flow or incidental content. |
+| Evidence limits | Partial runtime confirmation | Release builds, host contracts and base-M68000 checks are automated. The ares title is visible. Interactive gameplay, audio balance, frame cost and physical hardware are not certified by those checks. |
+
+The agent's engineering handoff reports using `sgdk-project`, `sgdk-input`,
+`sgdk-ui`, `sgdk-audio`, `sgdk-testing` and `sgdk-release`, with specific supporting
+references. The code is consistent with those contracts. It did not report
+consulting genre Labs, planning or best-practices, so this does not establish
+that every safeguard or example was read. Correctly avoiding an irrelevant
+genre template is itself useful behavior; it is not an example-exposure stress
+test. The project skill's new guidance was among the selected entry points.
+
+There are no imported game images or songs: ten small tile patterns are written
+in `main.c`, and audio is three short PSG cues. The SDK Hello World initializer
+supplies boot/runtime scaffolding and the default font, with SGDK's MIT notice
+retained. That is appropriate toolchain reuse, not a renamed Lab.
+
+## Reproduction and limits
+
+[The fixture notes](../tests/fixtures/design-adaptation/README.md) explain the
+retained source and how to run `tests/test_design_adaptation.py`. Portable tests
+run both the submitted suite and reviewer-owned contracts at O0/O3, with UBSan
+where supported. Docker checks reconstruct a fresh project and build JUE, US
+and European release headers. The base-M68000 probe includes the actual
+submitted SDK adapter and checks its button masks alongside the model contracts.
+Its wrong-mapping negative control must fail. This does not emulate VDP, PSG,
+Z80 service, controller polling or display timing.
+
+The initial submitted ROM's SHA-256 is
+`dd761f9c079423a7c49d9a150046e2e2875049a0554a33806944a80ab4b5df35`.
+It rebuilt byte-for-byte with the selected SGDK 2.11 / GCC 16.2.0 container.
+CI compares current ARM64/AMD64 output rather than permanently pinning that hash:
+a future legitimate toolchain update can change the ROM bytes.
+
+The local ARM64 run and AMD64 run both passed all three case tests; their three
+release hashes, model trace and target layout match. ARM64 ran natively on the
+Mac and AMD64 through Docker emulation. The target model occupies 122 bytes,
+excluding SDK, renderer and stack state. The full portable suite passed 502
+tests with 46 opt-in integration skips. CI now retains this case's reports/logs
+and compares native Linux runners for both architectures.
+
+The 90-second duration assumes the display loop meets each VBlank; the tests
+verify regional scheduling, not load-independent elapsed-time compensation.
+The reviewer target wrapper needed a retained entry point because release LTO
+can eliminate a constant-return negative-control main. That harness change did
+not alter the frozen game or skill instructions.
+
+This is a strongly specified counter-example brief and one independent run.
+It supports adaptation under these conditions, not a guarantee of originality
+with a vague brief or after reading a whole genre Lab. A useful later evaluation
+would use a nearby genre with different rules and deliberate example exposure.
+No additional skill rule was warranted by this submission.

@@ -105,6 +105,8 @@ jobs:
             build/composition-integration/*.log
             build/stream-audio-integration/stream-audio-report.json
             build/stream-audio-integration/*.log
+            build/design-adaptation-integration/design-adaptation-report.json
+            build/design-adaptation-integration/*.log
             build/puzzle-integration/puzzle-report.json
             build/puzzle-integration/*.log
             build/combat-integration/combat-report.json
@@ -328,4 +330,10 @@ jobs:
           stream_audio = {arch: json.loads(paths[0].read_text()) for arch, paths in stream_audio_reports.items()}
           assert all(report["passed"] for report in stream_audio.values())
           assert stream_audio["arm64"] == stream_audio["amd64"], stream_audio
+          adaptation_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("design-adaptation-report.json"))
+                                for arch in ("arm64", "amd64")}
+          assert all(len(paths) == 1 for paths in adaptation_reports.values()), adaptation_reports
+          adaptation = {arch: json.loads(paths[0].read_text()) for arch, paths in adaptation_reports.items()}
+          assert all(report["passed"] for report in adaptation.values())
+          assert adaptation["arm64"] == adaptation["amd64"], adaptation
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")

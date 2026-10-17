@@ -926,3 +926,19 @@ It does not emulate VDP/Z80/audio timing. CI compares all six region/build/probe
 ROMs and the reports from native ARM64/AMD64 runners. The original Streaming Lab
 is still covered by its existing build and cache/adapter tests; the new fake
 backend does not execute that Lab's entire main loop.
+
+## Design adaptation
+
+The [design-adaptation report](validation-design-adaptation.md) records a frozen
+municipal tram-dispatch brief, a hidden prewritten rubric and one independent
+agent submission using project-local copies of all 36 skills. Manual review
+checks whether the requested design survived; source similarity is a review aid,
+not an automated originality score.
+
+`tests/test_design_adaptation.py` preserves behavior coverage for that exact
+submission: the agent's tests and independent route/hold/retry/regional contracts
+run at O0/O3. Container checks rebuild the release with JUE/U/E headers and
+execute a base-M68000 probe including the submitted SDK button adapter. Deliberately
+mapping C to A must be detected. CI retains logs/reports and compares native
+ARM64/AMD64 results. Those tests do not run a fresh agent in CI or establish
+visual quality, audible quality, controller feel or originality for future games.

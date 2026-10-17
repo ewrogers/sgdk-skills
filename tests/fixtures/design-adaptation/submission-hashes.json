@@ -1,0 +1,19 @@
+{
+  "files": {
+    "ENGINEERING.md": "e3d54b7d24165c6b2c6f8a2eb4394623ec88c19ee0acd9eefe080acce4d52e7f",
+    "LICENSE": "46f3462348ee9062e8e8f0406435d50def9f542d1380e42018d5475e4d674a96",
+    "LICENSE-SGDK.txt": "991fa8411c28f7aa81d522dc44ad5dec40a5d84ee158f3455d5f09e33c04a8d6",
+    "README.md": "1504a08e05ff6522f2215a642530467809a10fa8f6fa9c87964442340189f1bb",
+    "build.sh": "0bd3fde8c9458032b2301f832ec75bd429404fe6e7bfa7ed31dc09a198e55fcc",
+    "inc/desk.h": "7db80ce90323c37feb3e72c4e5e665fa3a7974ebc3e44a8071663749159d5395",
+    "src/boot/rom_head.c": "1714aea9b4d37f9366e519849dab85ac9aa299dff6553a175b2b34abbc0aa73b",
+    "src/desk.c": "de101374b15161860e78d822bb80ebe1ef078708a5c3db55f2f682a6d2627a94",
+    "src/main.c": "d9213b165b8eb56bdaadd47b89259e5a1fb770d458b1d068f48a18756134494d",
+    "tests/run.sh": "6ea91038bdb60a4005acddbb1230fbe801193c7355092d48a96b98b0808104fe",
+    "tests/test_desk.c": "6ea0f53152d12535bd4599dca122ff9ea9324ea26e0a8daf0e395a06a038c297",
+    "tools/package.py": "d3f3ea7e87a4446d759c8ccc5f73caf00acd8285caa0bc8fe4b8c5a804210e5a",
+    "tools/verify_rom.py": "63dfcc1d5889fc6c28e10a8dfff47a0ab078085d3da3e1b0470d52f2630394aa"
+  },
+  "submitted_rom_sha256": "dd761f9c079423a7c49d9a150046e2e2875049a0554a33806944a80ab4b5df35",
+  "omitted": "Generated output/logs/package/editor settings and SDK stock src/boot/sega.s. The project helper restores SDK boot source for regression builds."
+}
