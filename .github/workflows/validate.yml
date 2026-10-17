@@ -123,6 +123,8 @@ jobs:
             build/collision-integration/*.log
             build/animation-integration/animation-report.json
             build/animation-integration/*.log
+            build/multitasking-integration/multitasking-report.json
+            build/multitasking-integration/*.log
             build/compression-integration/compression-report.json
             build/compression-integration/*.log
             build/memory-integration/memory-report.json
@@ -352,4 +354,10 @@ jobs:
           compression = {arch: json.loads(paths[0].read_text()) for arch, paths in compression_reports.items()}
           assert all(report["passed"] for report in compression.values())
           assert compression["arm64"] == compression["amd64"], compression
+          task_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("multitasking-report.json"))
+                          for arch in ("arm64", "amd64")}
+          assert all(len(paths) == 1 for paths in task_reports.values()), task_reports
+          tasks = {arch: json.loads(paths[0].read_text()) for arch, paths in task_reports.items()}
+          assert all(report["passed"] for report in tasks.values())
+          assert tasks["arm64"] == tasks["amd64"], tasks
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")

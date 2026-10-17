@@ -984,3 +984,21 @@ expected noisy image from a genuine decoder/output error. The user confirmed
 that the clarified labels explain the noise and the aqueduct renders correctly
 through RAW, APLIB and LZ4W in ares. This does not treat noisy
 assets as a universal game-art convention.
+
+## Multitasking / Spare Time Lab
+
+`test_multitasking.py` checks cancellation acknowledgement, job reuse, immutable
+DMA loans, rejection/retry, stack guard detection and exact weather output at O0/O3.
+Its Docker opt-in builds standalone NTSC/PAL release and debug ROMs, executes real
+APLIB decoding and worker steps on base M68000, and compares every output byte.
+CI compares ROM hashes, static RAM and output digests across ARM64/AMD64.
+These automated tests do not emulate task interrupts, VDP/audio or cycle timing.
+
+In ares, the reviewer confirmed foreground movement, decompression, hold/resume,
+cancellation and completed image publication. The original fractal was replaced
+with a coastline/weather map after feedback; that revision was confirmed readable
+and smooth. Runtime PAL and real-console interrupt timing remain separate checks.
+
+Run locally with `SGDK_SKILLS_INTEGRATION=1 SGDK_PLATFORM=linux/arm64` (or
+`linux/amd64`) and `python -m unittest discover -s tests -p test_multitasking.py -v`.
+The report is `build/multitasking-integration/multitasking-report.json`.
