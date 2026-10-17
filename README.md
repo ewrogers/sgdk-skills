@@ -42,6 +42,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-levels](skills/sgdk-levels/SKILL.md) | Import Tiled levels, stream large maps, and keep collision and cameras aligned. |
 | [sgdk-isometric](skills/sgdk-isometric/SKILL.md) | Project diamond maps, sort elevated scenery and handle bridges, stairs and occlusion. Includes Isometric Lab. |
 | [sgdk-streaming](skills/sgdk-streaming/SKILL.md) | Stream area art through tile caches, keep shared art resident and budget uploads. Includes Streaming Lab. |
+| [sgdk-compression](skills/sgdk-compression/SKILL.md) | Compare packed asset sizes, decode time and staging RAM, with loading and preloading examples. Includes Compression Lab. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
 | [sgdk-collision](skills/sgdk-collision/SKILL.md) | Add swept boxes, finite rays and bounded wall sliding, with explicit contact rules. Includes Collision Lab. |
 | [sgdk-combat](skills/sgdk-combat/SKILL.md) | Resolve damage, guarding, knockback, invulnerability and simultaneous attacks. Includes optional co-op Combat Lab. |
@@ -120,6 +121,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-levels to import a Tiled level with scrolling, walls and camera limits."
 - "Use sgdk-isometric to build an elevated courtyard with correct above/below bridge ordering."
 - "Use sgdk-streaming to preload area art with a bounded tile cache while keeping the hero and HUD resident."
+- "Use sgdk-compression to compare RAW, APLIB and LZ4W for room art and preload it before use."
 - "Use sgdk-gameplay to add a scrolling player, wall collision and reusable bullets."
 - "Use sgdk-shmup to build a scrolling shooter with readable bullet patterns, upgrades and a boss."
 - "Use sgdk-platformer to build a responsive scrolling course with wall jumps, stomps and secrets."
