@@ -2,7 +2,9 @@
 
 A small diagnostic gallery for SGDK's RAW, APLIB and LZ4W paths. The aqueduct is
 original procedural pixel art; the entropy image is a deliberate poor-compression
-control. Neither is a required game style.
+control. **The random dots are intentional, not broken graphics.** The on-screen
+byte check compares decoded data with the original outside the timed batch.
+Neither sample is a required game style.
 
 Prepare a **new** directory, then build through the container:
 
@@ -18,7 +20,7 @@ Use an absolute source path in PowerShell. Add `--platform linux/arm64` or
 
 Left/Right changes page:
 
-- **Compare:** A measures again; B changes sample. The table shows each stored
+- **Compare:** A measures again (controls wait for the synchronous batch); B changes sample. The table shows each stored
   BIN array's bytes, approximate microseconds per decode/copy and staging payload.
   RAW can upload directly from mapped ROM with zero decode staging; its measured
   operation here is a copy into the same 4,096-byte buffer as the codecs.

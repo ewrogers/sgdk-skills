@@ -15,6 +15,10 @@ int main(bool hard_reset) {
             if(!cl_decode(sample,codec,0,0,(u8 *)buf.data,4096,0))return 3;
             for(u16 i=0;i<4096;i++)if(((u8 *)buf.data)[i]!=cl_assets[sample][0].data[i])return 4;
             for(u16 i=0;i<8;i++)if(buf.before[i]!=0xA55A || buf.after[i]!=0xA55A)return 5;
+            if(!cl_matches_original(sample,buf.data))return 13;
+            buf.data[2047]^=1;
+            if(cl_matches_original(sample,buf.data))return 14;
+            buf.data[2047]^=1;
             emit(a->stored);
         }
         for(u16 part=0;part<8;part++) {

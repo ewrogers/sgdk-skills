@@ -9,6 +9,7 @@ static u16 previous,page,sample,codec=2,active_sample,active_slot=ART_A;
 static u16 target_slot=ART_B,fade,phase,motion,seconds,frames;
 static u32 times[2][3];
 static bool measured[2],measure=TRUE,redraw=TRUE;
+static bool verified;
 static const char *const codecs[]={"RAW","APLIB","LZ4W"};
 static const char *status="MEASURING / 16 DECODES EACH";
 static const u16 ink[16]={0x0200,0x0442,0x0664,0x0886,0x0AA8,0x0CCA,0x0EEC,0,0,0,0,0,0,0,0,0x0EEE};
@@ -60,7 +61,7 @@ static void draw(void) {
     put("COMPRESSION LAB",2,1,PAL0);put(SYS_isPAL()?"PAL 50":"NTSC 60",30,1,PAL2);
     const char *tabs[]={"COMPARE","LOAD","PRELOAD"};
     for(u16 i=0;i<3;i++){fill(2+i*13,3,10,1,97,i==page?PAL2:PAL0);put(tabs[i],3+i*13,3,i==page?PAL2:PAL0);}
-    put(active_sample?"ENTROPY / POOR COMPRESSION":"AQUEDUCT / REPEATED ART",6,5,PAL0);
+    put(active_sample?"RANDOM NOISE / INTENTIONAL TEST":"AQUEDUCT / REPEATED ART",6,5,PAL0);
     picture();
     if(!page) {
         put("FORMAT   ROM B     EST US   RAM B",2,15,PAL2);
@@ -69,6 +70,7 @@ static void draw(void) {
             if(measured[sample])number(times[sample][i],21,16+i,PAL0);else put("--",21,16+i,PAL0);
             put(i?"4096":"0/4096",29,16+i,PAL0);
         }
+        put(measured[sample]?"RAW/APLIB/LZ4W: IDENTICAL OUTPUT":"MEASUREMENT CHECKS OUTPUT BYTES",2,19,PAL2);
         put("RAW RAM: DIRECT ROM / COPY BUFFER",2,20,PAL0);
         put("EST US = 16 DECODES / WALL TIME",2,21,PAL0);
         put("VRAM: SAME 4096 BYTES PER PICTURE",2,22,PAL0);
@@ -76,9 +78,11 @@ static void draw(void) {
         put("A MEASURE   B SAMPLE   L/R PAGE",2,26,PAL0);
     } else {
         put(page==1?"FADE, DECODE, UPLOAD, FADE IN":"DECODE ONE INDEPENDENT CHUNK/FRAME",2,15,PAL2);
+        put((active_sample^1)?"NEXT: RANDOM NOISE (TEST IMAGE)":"NEXT: AQUEDUCT PICTURE",2,16,PAL0);
         put("FORMAT:",2,17,PAL0);put(page==1?codecs[codec]:"LZ4W CHUNKS",10,17,PAL0);
         put("STORED:",2,18,PAL0);number(page==1?cl_assets[active_sample^1][codec].stored:chunk_bytes(active_sample^1),10,18,PAL0);
         put("BUFFER: 4096 B",23,18,PAL0);
+        put(active_sample?"NOISE IS EXPECTED / NOT CORRUPTION":"LOADED PICTURE MATCHES ORIGINAL",2,19,PAL2);
         fill(4,20,32,1,98,PAL0);fill(4,20,loader.sent*4,1,97,PAL2);
         put("512 B/FRAME   TWO VRAM SLOTS: 8192 B",2,22,PAL0);
         put("TICKS:",2,24,PAL0);number(seconds,9,24,PAL0);
@@ -90,12 +94,17 @@ static void draw(void) {
     for(u16 y=0;y<28;y++)VDP_setTileMapDataRow(BG_A,screen[y],y,0,40,DMA_QUEUE);
 }
 static void benchmark(void) {
+    measured[sample]=FALSE;
     for(u16 c=0;c<3;c++) {
         u32 start=getSubTick();
         for(u16 n=0;n<16;n++)if(!cl_decode(sample,c,0,0,(u8 *)loader.data,CL_BYTES,0)) {
-            status="DECODE SIZE CHECK FAILED";measure=FALSE;return;
+            status="DECODE SIZE CHECK FAILED";measure=FALSE;redraw=TRUE;return;
         }
         times[sample][c]=((getSubTick()-start)*625+384)/768;
+        /* Validation is outside the timed batch. */
+        if(!cl_matches_original(sample,loader.data)) {
+            status="OUTPUT MISMATCH / RESET THE ROM";measure=FALSE;redraw=TRUE;return;
+        }
     }
     measured[sample]=TRUE;measure=FALSE;
     /* The measured sample also becomes the visible one. */
@@ -131,12 +140,12 @@ int main(bool hard_reset) {
         }
         if(page==1 && !phase && pressed&BUTTON_C){codec=(codec+1)%3;redraw=TRUE;}
         if(page && pressed&BUTTON_A) {
-            if(page==2 && cl_take(&loader)) {
+            if(page==2 && verified && cl_take(&loader)) {
                 active_sample^=1;active_slot=target_slot;status="READY CACHE SHOWN / NO DECODE NOW";redraw=TRUE;
             } else if(!loader.active && !phase) {
                 target_slot=active_slot==ART_A?ART_B:ART_A;
                 if(cl_begin(&loader,active_sample^1,page==1?codec:2,page==2)) {
-                    phase=page==1?1:0;fade=8;
+                    phase=page==1?1:0;fade=8;verified=FALSE;
                     status=page==1?"FADING OUT":"PRELOADING / OLD ART STAYS VISIBLE";redraw=TRUE;
                 }
             }
@@ -159,6 +168,10 @@ int main(bool hard_reset) {
         SYS_doVBlankProcess();
         while(DMA_getQueueSize())SYS_doVBlankProcess();
         cl_complete(&loader);
+        if(loader.ready && !verified) {
+            verified=cl_matches_original(loader.sample,loader.data);
+            if(!verified){loader.ready=0;loader.failed=1;status="OUTPUT MISMATCH / CHANGE PAGE";redraw=TRUE;}
+        }
         palette(page==1 && phase ? fade : 8);
         if(!page && measure)benchmark();
     }

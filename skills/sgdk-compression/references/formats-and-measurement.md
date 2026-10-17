@@ -67,6 +67,8 @@ changing resource layout or switching toolchain versions.
    allocator/stack overhead. Codec output size does not shrink VRAM usage. The
    final decoded bytes still need their normal DMA budget.
 
+The Lab checks output byte equality outside its timed batch, and labels its random
+noise image as an intentional control rather than a warning or damaged art.
 The Lab estimates microseconds using `getSubTick()` (nominal 1/76,800 second),
 averaged across 16 calls. SGDK's timer holds a fixed value through VBlank; endpoints
 there introduce quantization. Interrupts stay enabled, so wall-time includes them.

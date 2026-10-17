@@ -974,3 +974,11 @@ Host/target contracts do not validate screen fades, VDP timing, audio contention
 or console performance. The Load page demonstrates synchronous decode while
 covered; Preload uses independent chunks, not a resumable SGDK decoder. Real
 hardware checks should include worst-case foreground work and other DMA producers.
+
+The first playtest mistook the random-noise control for broken APLIB output.
+The Lab now labels that sample as intentional, names the next picture before
+loading, and checks decoded bytes against the original in the running ROM.
+Benchmark verification runs outside the timed batch. The target probe also flips
+one decoded bit and requires that comparison to reject it. This separates an
+expected noisy image from a genuine decoder/output error without treating noisy
+assets as a universal game-art convention.
