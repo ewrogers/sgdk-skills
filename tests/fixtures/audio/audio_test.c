@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+volatile u32 vtimer;
 static const u8 music[256], click[256], alarm[512];
 static bool loaded, playing, fading, accept = true;
 static int plays, pauses, resumes, stops, pcm_stops, effects, fades;
@@ -40,9 +41,10 @@ void XGM2_pause(void) { ++pauses; }
 void XGM2_resume(void) { ++resumes; }
 void XGM2_fadeOutAndStop(u16 frames) { fade_frames = frames; ++fades; fading = true; }
 
-static void press(u16 button) { audio_step(0); audio_step(button); }
+static void frame_step(u16 held) { ++vtimer; audio_step(held); }
+static void press(u16 button) { frame_step(0); frame_step(button); }
 static void begin(void)
-{ press(BUTTON_A); playing = true; audio_step(0); assert(audio_status()->state == AUDIO_PLAYING); }
+{ press(BUTTON_A); playing = true; frame_step(0); assert(audio_status()->state == AUDIO_PLAYING); }
 
 int main(int argc, char **argv)
 {
@@ -55,29 +57,36 @@ int main(int argc, char **argv)
         assert(dma_delay);
         assert(audio_status()->state == AUDIO_IDLE && plays == 0);
     }
+    else if (!strcmp(test, "seed_input"))
+    {
+        audio_seed_input(BUTTON_RIGHT | BUTTON_A | BUTTON_C);
+        frame_step(BUTTON_RIGHT | BUTTON_A | BUTTON_C);
+        assert(plays == 0 && effects == 0 && fm == 100 && !audio_status()->graphics_dma);
+        frame_step(0); frame_step(BUTTON_A); assert(plays == 1);
+    }
     else if (!strcmp(test, "start_pending"))
     {
         press(BUTTON_A);
-        for (int i = 0; i < 10; ++i) audio_step(BUTTON_A);
+        for (int i = 0; i < 10; ++i) frame_step(BUTTON_A);
         assert(plays == 1 && audio_status()->state == AUDIO_STARTING);
         assert(audio_status()->completed == 0);
-        playing = true; audio_step(0); assert(audio_status()->state == AUDIO_PLAYING);
+        playing = true; frame_step(0); assert(audio_status()->state == AUDIO_PLAYING);
     }
     else if (!strcmp(test, "completion"))
     {
         begin(); playing = false;
-        for (int i = 0; i < 10; ++i) audio_step(0);
+        for (int i = 0; i < 10; ++i) frame_step(0);
         assert(audio_status()->completed == 1 && audio_status()->state == AUDIO_IDLE);
-        begin(); playing = false; audio_step(0); assert(audio_status()->completed == 2);
+        begin(); playing = false; frame_step(0); assert(audio_status()->completed == 2);
     }
     else if (!strcmp(test, "pause_resume"))
     {
         begin(); press(BUTTON_B); assert(pauses == 1 && audio_status()->state == AUDIO_PAUSING);
-        audio_step(0); assert(audio_status()->state == AUDIO_PAUSING);
-        playing = false; audio_step(0); assert(audio_status()->state == AUDIO_PAUSED);
+        frame_step(0); assert(audio_status()->state == AUDIO_PAUSING);
+        playing = false; frame_step(0); assert(audio_status()->state == AUDIO_PAUSED);
         press(BUTTON_B); assert(resumes == 1 && audio_status()->state == AUDIO_RESUMING);
-        audio_step(0); assert(audio_status()->completed == 0);
-        playing = true; audio_step(0); assert(audio_status()->state == AUDIO_PLAYING);
+        frame_step(0); assert(audio_status()->completed == 0);
+        playing = true; frame_step(0); assert(audio_status()->state == AUDIO_PLAYING);
     }
     else if (!strcmp(test, "idle_pause"))
     {
@@ -87,25 +96,25 @@ int main(int argc, char **argv)
     else if (!strcmp(test, "stop"))
     {
         begin(); press(BUTTON_START); assert(stops == 1 && pcm_stops == 2);
-        playing = false; audio_step(0);
+        playing = false; frame_step(0);
         assert(audio_status()->state == AUDIO_IDLE && audio_status()->completed == 0);
         press(BUTTON_B); assert(resumes == 0);
     }
     else if (!strcmp(test, "loop"))
     {
         press(BUTTON_LEFT); assert(loop_value == 0 && !audio_status()->loop);
-        audio_step(BUTTON_LEFT); assert(loop_value == 0);
+        frame_step(BUTTON_LEFT); assert(loop_value == 0);
         press(BUTTON_LEFT); assert(loop_value == -1 && audio_status()->loop);
     }
     else if (!strcmp(test, "volume"))
     {
         press(BUTTON_RIGHT); assert(fm == 50 && psg == 50);
-        audio_step(BUTTON_RIGHT); assert(fm == 50);
+        frame_step(BUTTON_RIGHT); assert(fm == 50);
         press(BUTTON_RIGHT); assert(fm == 100 && psg == 100 && effects == 0);
     }
     else if (!strcmp(test, "effects"))
     {
-        press(BUTTON_C); audio_step(BUTTON_C);
+        press(BUTTON_C); frame_step(BUTTON_C);
         assert(effects == 1 && effect_sample == click && effect_size == sizeof click && priority == 1);
         assert(audio_status()->accepted == 1);
         press(BUTTON_UP); assert(effects == 2 && effect_sample == alarm && effect_size == sizeof alarm && priority == 15);
@@ -113,7 +122,7 @@ int main(int argc, char **argv)
     else if (!strcmp(test, "rejection"))
     {
         accept = false; press(BUTTON_C);
-        for (int i = 0; i < 20; ++i) audio_step(BUTTON_C);
+        for (int i = 0; i < 20; ++i) frame_step(BUTTON_C);
         assert(effects == 1 && audio_status()->accepted == 0 && audio_status()->rejected == 1);
     }
     else if (!strcmp(test, "effect_conflict"))
@@ -127,7 +136,7 @@ int main(int argc, char **argv)
         assert(plays == 1 && stops == 1 && pcm_stops == 2 && fm == 100 && loop_value == -1);
         assert(audio_status()->state == AUDIO_FADING);
         press(BUTTON_C); assert(effects == 1);
-        fading = false; playing = false; audio_step(0);
+        fading = false; playing = false; frame_step(0);
         assert(audio_status()->state == AUDIO_IDLE && audio_status()->completed == 0);
         press(BUTTON_A); assert(plays == 2);
     }
@@ -149,7 +158,7 @@ int main(int argc, char **argv)
     {
         press(BUTTON_C | BUTTON_LEFT);
         assert(audio_status()->music_channel && effects == 0 && loop_value == -1);
-        audio_step(BUTTON_C | BUTTON_LEFT); assert(audio_status()->music_channel);
+        frame_step(BUTTON_C | BUTTON_LEFT); assert(audio_status()->music_channel);
         press(BUTTON_C); assert(effect_channel == SOUND_PCM_CH1 && priority == 1);
         press(BUTTON_C | BUTTON_RIGHT);
         assert(audio_status()->graphics_dma && fm == 100 && psg == 100 && effects == 1);
@@ -158,6 +167,14 @@ int main(int argc, char **argv)
         press(BUTTON_C | BUTTON_RIGHT); assert(!audio_status()->graphics_dma);
         press(BUTTON_START | BUTTON_C | BUTTON_LEFT);
         assert(!audio_status()->music_channel && stops == 1 && pcm_stops == 2);
+    }
+    else if (!strcmp(test, "timing_stalls"))
+    {
+        pal = true; elapsed = 0; vtimer = 0xFFFFFF80;
+        audio_init(music, click, sizeof click, alarm, sizeof alarm); begin();
+        for (int i = 0; i < 40; ++i) { vtimer += 4; elapsed += 6; frame_step(0); }
+        assert(audio_status()->timing_ready && audio_status()->measured_frames == 240);
+        assert(audio_status()->measured_vblanks == 200);
     }
     else if (!strcmp(test, "timing"))
     {
@@ -171,12 +188,12 @@ int main(int argc, char **argv)
                 phase += 60;
                 elapsed = (elapsed + phase / hz) & 0xFFFFFF;
                 phase %= hz;
-                audio_step(0);
+                frame_step(0);
                 if (frame + 1 < hz * 4) assert(!audio_status()->timing_ready);
             }
             assert(audio_status()->timing_ready && audio_status()->measured_frames == 240);
-            press(BUTTON_B); playing = false; audio_step(0);
-            for (int i = 0; i < 300; i++) audio_step(0);
+            press(BUTTON_B); playing = false; frame_step(0);
+            for (int i = 0; i < 300; i++) frame_step(0);
             assert(audio_status()->measured_frames == 240);
             press(BUTTON_A); assert(!audio_status()->timing_ready);
         }

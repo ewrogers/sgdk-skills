@@ -87,7 +87,7 @@ channels make important sounds and music percussion easier to protect.
 
 The bool return means the request was accepted, not that the user has heard it
 or that its entire duration is guaranteed. A later accepted request can replace
-it. The lab normally sends its low-priority click and high-priority alarm to CH2.
+it. The CHECK page sends its low-priority click and high-priority alarm to CH2.
 Its optional contention mode uses CH1, alongside the track's sampled drums.
 This is deliberately disruptive, not the recommended default channel policy.
 
@@ -107,10 +107,11 @@ audio and leave mixing headroom; the XGM2 API is not a per-effect volume mixer.
 independent per-track envelopes or a fade of all PCM output.
 
 Let one system own transitions. A pending fade's final stop can otherwise stop
-music started by another caller. The lab blocks new music requests and volume
+music started by another caller. The CHECK transport blocks new music requests and volume
 changes during its fade, but still allows effects and an immediate stop. That
 stop does not cancel the fade's pending final action; new music remains blocked
-until it finishes. A game can instead queue its next track until then.
+until it finishes. The MIX conductor demonstrates queuing/coalescing its next track until then;
+see [runtime management](management.md).
 
 Fade steps run through system VBlank processing. Sixty steps takes about one
 second at 60 Hz and 1.2 seconds at 50 Hz. This is separate from music tempo

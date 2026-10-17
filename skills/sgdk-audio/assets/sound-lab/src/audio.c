@@ -4,7 +4,7 @@ static const u8 *song, *soft_sample, *loud_sample;
 static u32 soft_size, loud_size;
 static u16 previous;
 static AudioStatus status;
-static u16 measure_frames;
+static u32 measure_vblank_start;
 static u32 measure_start;
 static bool measuring;
 
@@ -30,20 +30,24 @@ void audio_init(const u8 *music, const u8 *click, u32 click_size,
     XGM2_setLoopNumber(-1);
 }
 
+void audio_seed_input(u16 held) { previous = held; }
+
 static void measure_tempo(void)
 {
     if (status.state != AUDIO_PLAYING) { measuring = FALSE; return; }
     if (!measuring) {
         measure_start = XGM2_getElapsed();
-        measure_frames = 0;
+        measure_vblank_start = vtimer;
         measuring = TRUE;
-    } else if (++measure_frames == status.refresh_hz * 4) {
+    } else if ((u32)(vtimer - measure_vblank_start) >= status.refresh_hz * 4) {
         u32 elapsed = XGM2_getElapsed();
         u32 delta = (elapsed - measure_start) & 0xFFFFFF;
         status.measured_frames = delta > 65535 ? 65535 : (u16)delta;
+        u32 span = vtimer - measure_vblank_start;
+        status.measured_vblanks = span > 65535 ? 65535 : (u16)span;
         status.timing_ready = TRUE;
         measure_start = elapsed;
-        measure_frames = 0;
+        measure_vblank_start = vtimer;
     }
 }
 

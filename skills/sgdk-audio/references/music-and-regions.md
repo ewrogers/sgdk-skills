@@ -1,5 +1,11 @@
 # Music fixtures and region checks
 
+The CHECK page preserves the original four-second diagnostic phrase and its
+measurements. MUSIC/PATCH/MIX add separate authored arrangements and auditions,
+all with a 60-Hz source. Do not assume every arrangement is a four-second loop.
+The fanfare is a finite one-shot. [Sound Desk controls](../assets/sound-lab/README.md)
+explain the updated page navigation and CHECK chords.
+
 ## Prove all three sound paths
 
 A PSG-only tune cannot demonstrate an FM instrument or sampled percussion.
@@ -106,3 +112,5 @@ VBlank service rather than masking problems with a custom bus/reset wrapper.
 - [Z80 music PCM priority](https://github.com/Stephane-D/SGDK/blob/v2.11/src/snd/xgm2/drv_xgm2_ym_fct.i80).
 - [Optional DMA delay and its bandwidth cost](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/z80_ctrl.h).
 - [VBlank and DMA bus handling](https://github.com/Stephane-D/SGDK/blob/v2.11/src/sys.c).
+
+VInt time source: [SGDK timer.h](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/timer.h), [VInt handler](https://github.com/Stephane-D/SGDK/blob/v2.11/src/boot/sega.s).

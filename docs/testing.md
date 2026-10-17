@@ -862,3 +862,39 @@ python skills/sgdk-puzzle/assets/puzzle-lab/tools/build.py --lab blocks --output
 The user confirmed both ROMs work in ares, including the revised Garden title and
 Block Lab's controls/preview/clear/restart. Emulator playtests remain separate
 from deterministic CPU tests; physical hardware has not been tested.
+
+
+## Expanded audio authoring and Sound Desk
+
+`tests/test_audio.py` preserves the transport/SDK resource checks and adds input
+seeding on page entry and VInt-based measurement despite skipped updates or
+timer wrap. `tests/test_audio_workshop.py` adds O0/O3 C conductor
+contracts and a 20,000-frame trace: pending starts, coalesced scene requests,
+fade ownership, jingle return, stop, timeout recovery, pause, duplicate/cooldown
+suppression, channel admission and driver rejection. WAV tests check gain/DC
+removal/edge ramps, preserved rate/frame count, malformed input and refusal to
+overwrite. VGM tests independently decode command boundaries, wait totals, loops,
+one-shot release, FM/PSG/DAC layers and reproducible source assets.
+
+The new standalone export is generated in paths with spaces and exported again
+without the repository. Tests inspect native indexed art, RGB3 palette and font.
+Container checks build real release/debug plus PAL/NTSC ROMs through the selected
+`ewrogers/sgdk:latest`; a base-M68000 probe runs the conductor and reads compiled
+art/font. Existing audio checks still inspect XGM2 alignment, embedded drums,
+PCM padding and actual API signatures. CI compares both architectures' six new
+ROM hashes and reports in `build/audio-workshop-integration/`.
+
+Sound Desk's five pages separate music, instrument auditions, clean/abrupt sample
+pairs, runtime mixing and the original diagnostics. Listening checks must cover
+both detected video regions, fanfare restoration, held input, loop seams and
+music/effects with controlled DMA. Building a region header or running C rules
+is not evidence of Z80 audio quality or physical hardware compatibility. Tracker
+workflow references are sourced, but the generated fixtures do not certify an
+arbitrary Furnace project/export.
+
+The 2026-10-16 ares check showed 240 source music frames over 200 VBlanks
+in PAL and 240 over 240 in NTSC, with no missed music frames. The PAL
+measurement, held-button fix and MIX fanfare return were confirmed by the
+user. ARM64 and
+AMD64 builds produced matching audio reports. These checks do not replace
+listening on real hardware, especially when testing PCM with graphics DMA.
