@@ -774,3 +774,28 @@ The [console checklist](../skills/sgdk-hardware/references/checklist.md) separat
 emulator observations from real hardware checks. Physical cold boot/reset,
 video output, DMA/audio bus timing, peripheral compatibility and power-loss save
 retention remain unverified until tested on a console/flashcart.
+
+
+## Co-op Lab
+
+`tests/test_multiplayer.py` executes the actual portable C session model at O0
+and O3 with undefined-behavior checks. It covers adapter route plans, input-edge
+seeding, eight logical devices mapped into four participant slots, capacity,
+simultaneous pause requests, joins during pause, consumed Leave edges, shared
+pickups, independent and all-down returns, wall/dash movement and joint camera
+constraints. A 20,000-frame seeded soak checks invariants. One thousand camera
+cases are compared with an independent Python bounding-box oracle. PAL/NTSC
+schedules must produce the same idle simulation duration and state.
+
+Container tests compile the real Lab in release/debug, plus PAL/NTSC header
+variants, and run model contracts in a base-M68000 probe. Compiled checks inspect
+map dimensions, sprite animations, palette words, glyphs, hardware pieces and
+VRAM reservations. Both native architectures must match ROM hashes and
+`build/multiplayer-integration/multiplayer-report.json`. Standalone copying and
+native indexed asset generation run on Windows, macOS and Linux host jobs.
+
+These checks do not run SDK startup, the VDP, audio or controller protocols.
+The CPU tour supplies synthetic pads to demonstrate four participants; it cannot
+validate a Team Player or EA adapter. Actual presentation, timing, direct pads,
+adapter combinations and unplug/replug behavior need emulator and physical
+hardware observations. Read the Lab checklist before claiming compatibility.

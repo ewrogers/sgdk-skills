@@ -31,6 +31,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-effects](skills/sgdk-effects/SKILL.md) | Add particles, explosions, trails, weather and screen shake with bounded rendering. Includes Effects Lab. |
 | [sgdk-raster](skills/sgdk-raster/SKILL.md) | Add per-line waves, waterline palette effects and split-screen cameras with explicit timing budgets. |
 | [sgdk-input](skills/sgdk-input/SKILL.md) | Add pad, Mega Mouse or multitap controls, action bindings and reliable frame snapshots. |
+| [sgdk-multiplayer](skills/sgdk-multiplayer/SKILL.md) | Add drop-in co-op, multitap player ownership, shared cameras and independent respawns. Includes Co-op Lab. |
 | [sgdk-ui](skills/sgdk-ui/SKILL.md) | Add fonts, readable text, controller menus, pause screens and fixed score HUDs. |
 | [sgdk-localization](skills/sgdk-localization/SKILL.md) | Add translated text, accents, bounded substitutions and font/layout budgets. Includes Language Lab. |
 | [sgdk-dialogue](skills/sgdk-dialogue/SKILL.md) | Add text boxes, animated portraits, gradual styled text, choices and branching. |
@@ -106,6 +107,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-raster to add underwater ripples and a palette switch below a moving waterline."
 - "Use sgdk-audio to add music, prioritized effects and a pause-menu transition."
 - "Use sgdk-input to add 3/6-button pad and mouse controls, with Team Player support."
+- "Use sgdk-multiplayer to add four-player co-op with joining, shared framing and independent respawns."
 - "Use sgdk-ui to add a title screen, options, pause menu and fixed score display."
 - "Use sgdk-localization to add French and Spanish menus with accented glyphs and translated layout checks."
 - "Use sgdk-dialogue to add a portrait conversation with gradual text and branching choices."
