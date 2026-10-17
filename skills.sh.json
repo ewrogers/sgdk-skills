@@ -22,6 +22,7 @@
         "sgdk-effects",
         "sgdk-raster",
         "sgdk-input",
+        "sgdk-multiplayer",
         "sgdk-ui",
         "sgdk-localization",
         "sgdk-dialogue",
