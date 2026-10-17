@@ -19,6 +19,7 @@ The prompt names the blocking line and wait; the guide includes the full route
 table. Host tests cover all 144 candidate/active pairs and staggered releases.
 The user confirmed the panelled desk was clearer and no longer flashed; route
 hints follow their subsequent feedback about the misleading linked-bay wording.
+The user then confirmed that these route conflicts are clear in ares.
 
 Screen contents are composed in RAM. Changed complete rows are queued for
 VBlank; `view_complete` runs only after the queue drains. At most 56 operations /

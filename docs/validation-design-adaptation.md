@@ -168,7 +168,7 @@ Host checks independently enumerate all 144 candidate/active route pairs and
 verify the displayed requirements, blocking colors, rail previews and occupied
 bays. They also check staggered release of two conflicting trams and the wait
 countdown. This adds presentation coverage to the unchanged dispatch checks;
-fresh player confirmation of these route hints remains pending.
+the user confirmed that the route conflicts are now clear in ares.
 
 The UI skill references now explain the observed clear/redraw failure and the
 need to teach an unfamiliar game's goal/first action. They do not require paneling,
