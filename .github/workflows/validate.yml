@@ -99,6 +99,8 @@ jobs:
             build/asterfall-integration/*.log
             build/rpg-integration/rpg-report.json
             build/rpg-integration/*.log
+            build/puzzle-integration/puzzle-report.json
+            build/puzzle-integration/*.log
             build/combat-integration/combat-report.json
             build/combat-integration/*.log
             build/multiplayer-integration/multiplayer-report.json
@@ -296,4 +298,10 @@ jobs:
           combat = {arch: json.loads(paths[0].read_text()) for arch, paths in combat_reports.items()}
           assert all(report["passed"] for report in combat.values())
           assert combat["arm64"] == combat["amd64"], combat
+          puzzle_reports = {arch: list(Path(f"reports/integration-{arch}").rglob("puzzle-report.json"))
+                            for arch in ("arm64", "amd64")}
+          assert all(len(paths) == 1 for paths in puzzle_reports.values()), puzzle_reports
+          puzzles = {arch: json.loads(paths[0].read_text()) for arch, paths in puzzle_reports.items()}
+          assert all(report["passed"] for report in puzzles.values())
+          assert puzzles["arm64"] == puzzles["amd64"], puzzles
           print("All standard and Lab release/debug ROMs match across native ARM64 and AMD64.")
