@@ -827,3 +827,38 @@ against a mathematical maximum of 34; core sprites fit 16 pieces / 320 pixels
 per scanline before cosmetic admission. This does not measure CPU deadlines or
 emulate VDP, Z80/audio, controllers or SDK startup. Optional two-pad co-op,
 actual PAL/NTSC presentation and physical-hardware behavior need playtests.
+
+
+## Puzzle rules and the two Puzzle Labs
+
+`tests/test_puzzle.py` compiles the actual portable C rules at O0/O3 with strict
+warnings and UB checks where available. Clockwork Garden checks rejected moves
+leave board/history unchanged, one-crate pushes, gap filling and undo, pressure
+plates and occupied-gate holds, malformed boards, ring eviction and restart.
+An independent set-based Python BFS finds a solution for each authored room;
+7,200 seeded commands compare C state with that oracle, including undo/restart.
+A further 20,000-step C soak checks invariants.
+
+Falling Lanterns checks four-cell rotation footprints, seven-piece bag uniqueness,
+blocked movement/rotation, simultaneous four-row compaction/scoring, lock delay
+under floor movement, top-out and equal PAL/NTSC logic counts. A 20,000-tick C soak
+checks bounded state while dropping and rotating pieces across restarted rounds.
+The Lab's art, music, custom kick policy and tuning are examples, not genre rules.
+
+With `SGDK_SKILLS_INTEGRATION=1`, both Labs build release/debug and PAL/NTSC ROMs
+through `ewrogers/sgdk:latest`. A base-M68000 probe executes both C contracts and
+shorter traces, checks their host digest, and reads real compiled art geometry,
+palettes and font. CI compares all ten ROM hashes and reports across native
+ARM64/AMD64. Logs and `build/puzzle-integration/puzzle-report.json` are artifacts.
+The standard installation test copies the full skill, including both variants.
+
+Build either fresh review project:
+
+```sh
+python skills/sgdk-puzzle/assets/puzzle-lab/tools/build.py --output build/garden-review
+python skills/sgdk-puzzle/assets/puzzle-lab/tools/build.py --lab blocks --output build/blocks-review
+```
+
+The user confirmed both ROMs work in ares, including the revised Garden title and
+Block Lab's controls/preview/clear/restart. Emulator playtests remain separate
+from deterministic CPU tests; physical hardware has not been tested.

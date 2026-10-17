@@ -55,6 +55,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-platformer](skills/sgdk-platformer/SKILL.md) | Tune jumps, slopes, moving platforms, enemy stomps, powers and hidden passages. |
 | [sgdk-shmup](skills/sgdk-shmup/SKILL.md) | Build vertical or horizontal shooters. Includes [Shooter Lab](skills/sgdk-shmup/assets/shooter-lab/README.md) and [Carpet Lab](skills/sgdk-shmup/assets/carpet-lab/README.md). |
 | [sgdk-rpg](skills/sgdk-rpg/SKILL.md) | Build party stats, equipment, inventory, abilities, turn-based encounters and checkpoint recovery. Includes Adventure Lab. |
+| [sgdk-puzzle](skills/sgdk-puzzle/SKILL.md) | Build atomic grid rules, undo and falling-block rotation/clears. Includes Clockwork Garden and Block Lab. |
 
 ### Test, debug and optimize
 
@@ -118,6 +119,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-gameplay to add a scrolling player, wall collision and reusable bullets."
 - "Use sgdk-shmup to build a scrolling shooter with readable bullet patterns, upgrades and a boss."
 - "Use sgdk-platformer to build a responsive scrolling course with wall jumps, stomps and secrets."
+- "Use sgdk-puzzle to build a push-and-switch board with undo, or a falling-block game with tested rotation and row clearing."
 - "Use sgdk-rpg to add a party, validated combat actions, status effects, equipment and battle rewards."
 - "Use sgdk-collision to stop fast bullets tunnelling through walls and slide a player along obstacles."
 - "Use sgdk-combat to connect attack contacts to fair damage, guard and hit reactions."
