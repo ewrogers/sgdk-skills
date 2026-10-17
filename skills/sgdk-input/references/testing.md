@@ -11,6 +11,14 @@ port. Every button should change `HELD`; the latest press and release masks
 should remain visible in `DOWN` and `UP`. Holding a button should not create
 new press edges. The on-screen Confirm indicator follows A.
 
+If the game uses its own action bits, translate raw input with SGDK's
+`BUTTON_*` constants instead of passing the raw mask straight into that model.
+A host test that supplies only logical Confirm cannot verify the physical
+binding. Exercise the adapter against the actual
+[SGDK joypad declarations](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/joy.h),
+including non-confirm buttons, then check the emulator's configured keys
+separately. The courier composition test caught exactly this boundary error.
+
 Repeat with a 6-button pad, including X/Y/Z/Mode. Hold A, press X, release A,
 then release X. In a game action test this should produce one Confirm press
 and one release, not a second press while the alternate binding is added.

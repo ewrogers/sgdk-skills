@@ -898,3 +898,16 @@ measurement, held-button fix and MIX fanfare return were confirmed by the
 user. ARM64 and
 AMD64 builds produced matching audio reports. These checks do not replace
 listening on real hardware, especially when testing PCM with graphics DMA.
+
+## Cross-skill composition milestone
+
+The [validation report](validation-milestone.md) records the request, installed
+skills, findings and evidence limits for a new two-room courier fixture.
+`tests/test_composition.py` exercises input, collision, pause, regional schedules,
+installed project/planning/release helpers, real assets and release packaging.
+Host contracts run at O0/O3; integration builds PAL/NTSC release/debug ROMs and
+executes the model on a base M68000. CI retains the composition report and logs,
+and compares native ARM64/AMD64 results. This is integration coverage, not a
+blind evaluation of an independent agent or proof of all skills working together.
+The regression also checks that the copied SDK header builds without GCC 16
+terminator warnings while preserving its fixed-width metadata bytes.

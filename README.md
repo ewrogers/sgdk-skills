@@ -163,6 +163,8 @@ Build tests check API compatibility, resources and diagnostics. They do not
 prove correct visuals, sound or frame timing. Those need emulator or console
 testing. See [testing and maintenance](docs/testing.md) for checks, image updates
 and the exact validation boundaries.
+The [composition milestone](docs/validation-milestone.md) also checks several
+skills together in a new disposable game, rather than only rebuilding the Labs.
 
 The skills and original examples are MIT licensed. SGDK and the bundled
 toolchain retain their own licenses.
