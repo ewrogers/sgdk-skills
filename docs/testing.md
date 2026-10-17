@@ -800,3 +800,30 @@ The CPU tour supplies synthetic pads to demonstrate four participants; it cannot
 validate a Team Player or EA adapter. Actual presentation, timing, direct pads,
 adapter combinations and unplug/replug behavior need emulator and physical
 hardware observations. Read the Lab checklist before claiming compatibility.
+
+
+## Combat Lab
+
+`tests/test_combat.py` executes the actual C resolver at O0/O3 with
+undefined-behavior checks and 20,000 seeded frames. Contracts cover damage and
+immunity, team filtering, front/back/side guard, unblockable attacks, simultaneous
+killing blows, damage aggregation and stable knockback ties, repeated contacts,
+reused targets and bolt owners, action interruption, input-buffer expiry,
+shot-pool exhaustion, pause/hit-stop and nominal PAL/NTSC schedules. Extended
+sword reach is exercised in all four directions. Enemy guard tests require both
+attempts and misses, an actual reaction delay, and cooldown gaps.
+
+A separate art/geometry check compares leading sword pixels with the C damage
+box for every pose/direction. It verifies native quarter-turns and their world
+orientation; it does not claim pixel-perfect collision. Standalone asset
+creation/copying, indexed palettes and native sheet dimensions are tested on
+Windows, macOS and Linux. Lab art and combat balance remain illustrative.
+
+Native ARM64/AMD64 container builds compile release/debug and region variants,
+execute the same contracts on a base-M68000 CPU, and inspect actual linked sprite
+shapes, pieces, frames, palettes and font data. CI compares all six ROM hashes
+and `build/combat-integration/combat-report.json`. The 40-contact batch is checked
+against a mathematical maximum of 34; core sprites fit 16 pieces / 320 pixels
+per scanline before cosmetic admission. This does not measure CPU deadlines or
+emulate VDP, Z80/audio, controllers or SDK startup. Optional two-pad co-op,
+actual PAL/NTSC presentation and physical-hardware behavior need playtests.

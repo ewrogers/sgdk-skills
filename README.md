@@ -40,6 +40,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-streaming](skills/sgdk-streaming/SKILL.md) | Stream area art through tile caches, keep shared art resident and budget uploads. Includes Streaming Lab. |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
 | [sgdk-collision](skills/sgdk-collision/SKILL.md) | Add swept boxes, finite rays and bounded wall sliding, with explicit contact rules. Includes Collision Lab. |
+| [sgdk-combat](skills/sgdk-combat/SKILL.md) | Resolve damage, guarding, knockback, invulnerability and simultaneous attacks. Includes optional co-op Combat Lab. |
 | [sgdk-math](skills/sgdk-math/SKILL.md) | Use fixed-point numbers, angles, aiming, interpolation and perspective effects without guessing at precision or range. |
 | [sgdk-ai](skills/sgdk-ai/SKILL.md) | Build enemy states, sight/detection, target selection and bounded navigation with predictable search work. |
 | [sgdk-scenes](skills/sgdk-scenes/SKILL.md) | Build game flow, character selection, pause, Continue and safe resource handoffs between screens. |
@@ -119,6 +120,7 @@ Ask your agent to use a skill for a concrete task. For example:
 - "Use sgdk-platformer to build a responsive scrolling course with wall jumps, stomps and secrets."
 - "Use sgdk-rpg to add a party, validated combat actions, status effects, equipment and battle rewards."
 - "Use sgdk-collision to stop fast bullets tunnelling through walls and slide a player along obstacles."
+- "Use sgdk-combat to connect attack contacts to fair damage, guard and hit reactions."
 - "Use sgdk-math to build a fixed-point starfield and orbiting formations."
 - "Use sgdk-cartridge to load stage graphics and music from separate ROM banks while keeping shared assets pinned."
 - "Use sgdk-save to add checkpoint saves, a backup slot and password entry."

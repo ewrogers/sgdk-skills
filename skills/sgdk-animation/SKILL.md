@@ -56,3 +56,7 @@ pose readability, audio cues, hitbox alignment and frame-time headroom.
 `sgdk-graphics` covers basic sprite rendering, `sgdk-gameplay` broader collision
 and movement, and `sgdk-audio` sound-driver policy. They are optional complements;
 this skill and its Lab install independently.
+
+For team/immunity checks, guard, damage batches and reactions after a hit
+window produces contacts, use sgdk-combat when available. Keep the action clock
+and per-attack hit identity authoritative rather than duplicating them.
