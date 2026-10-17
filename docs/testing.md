@@ -894,6 +894,7 @@ arbitrary Furnace project/export.
 
 The 2026-10-16 ares check showed 240 source music frames over 200 VBlanks
 in PAL and 240 over 240 in NTSC, with no missed music frames. The PAL
-measurement and held-button fix were also confirmed by the user. ARM64 and
+measurement, held-button fix and MIX fanfare return were confirmed by the
+user. ARM64 and
 AMD64 builds produced matching audio reports. These checks do not replace
 listening on real hardware, especially when testing PCM with graphics DMA.
