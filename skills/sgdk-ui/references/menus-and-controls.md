@@ -18,6 +18,12 @@ action visible. If a guide becomes a wall of text, short pages or an in-context
 example may be easier to follow. Check with a first-time player: correct input
 handling and a successful build do not establish that the game is understandable.
 
+When a choice depends on several inputs, show its consequence for the current
+selection and the reason it is unavailable. For example, a route may depend on
+both origin and destination; describing only destination groups can teach the
+wrong rule. Keep hints tied to the same state used for admission, and test the
+combinations and release cases that change what the player sees.
+
 ## Press once, repeat deliberately
 
 `JOY_readJoypad(JOY_1)` returns SGDK's cached state. Normal

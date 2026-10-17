@@ -13,6 +13,13 @@ prompt and a three-page guide. All original gameplay controls remain:
 - Start: guide. In the guide, Left/Right changes page, C advances/returns,
   and Start closes. Help restores the prior held/running state.
 
+Bay rows show the selected tram's required upper/lower lines (U/L). Red letters
+mark conflicts, blue dotted rails preview its route, and amber rails show traffic.
+The prompt names the blocking line and wait; the guide includes the full route
+table. Host tests cover all 144 candidate/active pairs and staggered releases.
+The user confirmed the panelled desk was clearer and no longer flashed; route
+hints follow their subsequent feedback about the misleading linked-bay wording.
+
 Screen contents are composed in RAM. Changed complete rows are queued for
 VBlank; `view_complete` runs only after the queue drains. At most 56 operations /
 4,480 bytes are queued, within the selected SDK defaults. This small ROM has no

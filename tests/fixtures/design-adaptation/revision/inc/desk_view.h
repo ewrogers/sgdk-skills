@@ -5,7 +5,7 @@ enum { VIEW_W = 40, VIEW_H = 28, VIEW_CELLS = VIEW_W * VIEW_H,
        VIEW_PLANES = 2, VIEW_MAX_ROWS = VIEW_PLANES * VIEW_H,
        VIEW_MAX_BYTES = VIEW_MAX_ROWS * VIEW_W * 2 };
 /* Pattern offsets: solid, rail, busy rail, tram, horizontal/vertical border. */
-enum { ART_SOLID, ART_RAIL, ART_BUSY, ART_TRAM, ART_H, ART_V, ART_COUNT };
+enum { ART_SOLID, ART_RAIL, ART_BUSY, ART_TRAM, ART_H, ART_V, ART_PLANNED, ART_COUNT };
 typedef struct {
     unsigned short next[VIEW_PLANES][VIEW_CELLS];
     unsigned short shown[VIEW_PLANES][VIEW_CELLS];

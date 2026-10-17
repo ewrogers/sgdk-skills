@@ -118,11 +118,64 @@ static void help_and_actions(void) {
     assert(desk_count(&ui.desk, TRANSIT) == 0);
 }
 
+static void route_hints(void) {
+    static const unsigned char oracle[3][4] = {
+        {1, 1, 3, 3}, {3, 3, 3, 3}, {3, 3, 2, 2}
+    };
+    DeskUI ui;
+    unsigned char origin, bay, other, destination, lane;
+    view_init(&view);
+    for (origin = 0; origin < 3; ++origin) for (bay = 0; bay < 4; ++bay)
+        for (other = 0; other < 3; ++other) for (destination = 0; destination < 4; ++destination) {
+            UIRoute info;
+            unsigned char needed = oracle[origin][bay];
+            unsigned char busy = oracle[other][destination];
+            ui_init(&ui); ui.screen = UI_DESK;
+            ui.desk.service[0].origin = origin;
+            ui.desk.bay = bay;
+            ui.desk.service[1].state = TRANSIT;
+            ui.desk.service[1].origin = other;
+            ui.desk.service[1].bay = destination;
+            ui.desk.service[1].remaining = 61;
+            info = ui_route(&ui.desk, bay);
+            assert(info.required == needed && info.blocked == (needed & busy));
+            assert(info.occupied == (bay == destination));
+            assert(info.wait_seconds == (((needed & busy) || bay == destination) ? 2 : 0));
+            compose(&ui);
+            for (lane = 0; lane < 2; ++lane) {
+                unsigned char mask = (unsigned char)(1 << lane);
+                unsigned char glyph = (needed & mask) ? (lane ? 'L' : 'U') : '-';
+                unsigned short word = view.next[0][(7 + bay) * VIEW_W + 35 + lane];
+                unsigned short tile = (busy & mask) ? ART_BUSY :
+                                      (needed & mask) ? ART_PLANNED : ART_RAIL;
+                assert((word & 0x7FF) == 1400 + glyph - 32);
+                assert(((word >> 13) & 3) == ((needed & busy & mask) ? 3 : (needed & mask) ? 0 : 1));
+                assert(view.next[0][(17 + 3 * lane) * VIEW_W + 10] == 16 + tile);
+            }
+        }
+    ui_init(&ui);
+    ui.desk.service[0].origin = 1; /* Canal route needs both lines. */
+    ui.desk.service[1].state = TRANSIT; ui.desk.service[1].origin = 0;
+    ui.desk.service[1].bay = 0; ui.desk.service[1].remaining = 1;
+    ui.desk.service[2].state = TRANSIT; ui.desk.service[2].origin = 2;
+    ui.desk.service[2].bay = 2; ui.desk.service[2].remaining = 121;
+    assert(ui_route(&ui.desk, 1).blocked == 3);
+    assert(ui_route(&ui.desk, 1).wait_seconds == 3);
+    desk_tick(&ui.desk);
+    assert(ui_route(&ui.desk, 1).blocked == 2);
+    assert(ui_route(&ui.desk, 1).wait_seconds == 2);
+    ui.desk.selected = NONE;
+    assert(ui_route(&ui.desk, 2).required == 0);
+    assert(ui_route(&ui.desk, 2).occupied);
+    assert(ui_route(&ui.desk, NONE).required == 0);
+}
+
 int main(void) {
     DeskUI ui;
     unsigned short i;
     unsigned char page;
     help_and_actions();
+    route_hints();
     ui_init(&ui); view_init(&view);
     layout(&ui);
     ui.choice = 1; layout(&ui);

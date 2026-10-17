@@ -1,5 +1,24 @@
 #include "desk_ui.h"
 
+UIRoute ui_route(const Desk *d, unsigned char bay) {
+    UIRoute route = {0, 0, 0, 0};
+    unsigned char i;
+    if (bay > 3) return route;
+    if (d->selected < SERVICES && d->service[d->selected].state == WAITING)
+        route.required = desk_mask(d->service[d->selected].origin, bay);
+    for (i = 0; i < SERVICES; ++i) if (d->service[i].state == TRANSIT) {
+        const Service *s = &d->service[i];
+        unsigned char overlap = route.required & desk_mask(s->origin, s->bay);
+        if (s->bay == bay) route.occupied = 1;
+        if (overlap || s->bay == bay) {
+            unsigned char seconds = (unsigned char)((s->remaining + 59) / 60);
+            route.blocked |= overlap;
+            if (seconds > route.wait_seconds) route.wait_seconds = seconds;
+        }
+    }
+    return route;
+}
+
 void ui_init(DeskUI *ui) {
     desk_reset(&ui->desk);
     ui->screen = UI_TITLE;

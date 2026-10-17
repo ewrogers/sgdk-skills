@@ -90,13 +90,13 @@ static void guide(DeskView *v, const DeskUI *ui) {
         text(v, 4, 18, "A holds or resumes the clock.", 0);
         text(v, 4, 20, "Take a breath. Choose while held.", 1);
     } else {
-        text(v, 4, 6, "WHY DOES A BAY SAY WAIT?", 0);
-        text(v, 4, 9, "Some bays share the same track.", 0);
-        text(v, 4, 11, "An amber line has a tram on it.", 0);
-        text(v, 4, 13, "Wait for it, or pick an OPEN bay.", 0);
-        text(v, 4, 16, "Nothing crashes if you choose", 1);
-        text(v, 4, 17, "a blocked route. Try another bay.", 1);
-        text(v, 4, 20, "Close help to return as you were.", 1);
+        text(v, 4, 6, "WHICH LINE DOES MY TRAM NEED?", 0);
+        text(v, 4, 9, "FROM       BAY 1/2    BAY 3/4", 1);
+        text(v, 4, 11, "NORTH      UPPER      BOTH", 0);
+        text(v, 4, 13, "CANAL      BOTH       BOTH", 0);
+        text(v, 4, 15, "MARKET     BOTH       LOWER", 0);
+        text(v, 4, 18, "U = upper line. L = lower line.", 1);
+        text(v, 4, 20, "Crossing uses both: all bays wait.", 0);
     }
     text(v, 3, 24, "LEFT/RIGHT", 0);
     number(v, 21, 24, ui->guide_page + 1, 1);
@@ -107,6 +107,7 @@ static void guide(DeskView *v, const DeskUI *ui) {
 
 static void desk(DeskView *v, const DeskUI *ui) {
     const Desk *d = &ui->desk;
+    UIRoute selected = ui_route(d, d->bay);
     unsigned char i, row = 0, lane, busy = desk_busy(d);
     unsigned short seconds = (SHIFT_TICKS - d->tick + 59) / 60;
     header(v, "Get each tram into an open bay.");
@@ -116,6 +117,8 @@ static void desk(DeskView *v, const DeskUI *ui) {
     panel(v, 1, 4, 18, 10); panel(v, 21, 4, 18, 10);
     text(v, 3, 5, "1 WAITING TRAMS", 0);
     text(v, 23, 5, "2 CHOOSE A BAY", 0);
+    text(v, 23, 6, "BAY", 1); text(v, 28, 6, "STATE", 1);
+    text(v, 35, 6, "U", 1); text(v, 36, 6, "L", 1);
     for (i = 0; i < SERVICES; ++i) if (d->service[i].state == WAITING) {
         unsigned short y = 7 + 2 * row++;
         if (i == d->selected) fill(v, 2, y, 16, 1, 2);
@@ -126,33 +129,37 @@ static void desk(DeskView *v, const DeskUI *ui) {
     }
     if (!row) text(v, 3, 8, "No waiting tram", 1);
     for (i = 0; i < 4; ++i) {
-        unsigned char j, occupied = 0, ok = desk_route_ok(d, d->selected, i);
+        UIRoute route = ui_route(d, i);
+        unsigned char ok = desk_route_ok(d, d->selected, i);
         unsigned short y = 7 + i;
-        for (j = 0; j < SERVICES; ++j)
-            if (d->service[j].state == TRANSIT && d->service[j].bay == i)
-                occupied = (unsigned char)((d->service[j].remaining + 59) / 60);
         if (d->bay == i) fill(v, 22, y, 16, 1, 2);
         text(v, 23, y, d->bay == i ? ">" : " ", 0);
         number(v, 25, y, i + 1, 1);
-        text(v, 28, y, occupied ? "IN USE" : ok ? "OPEN" : "WAIT", ok ? 0 : 3);
-        if (occupied) { number(v, 35, y, occupied, 1); text(v, 36, y, "s", 0); }
+        text(v, 28, y, route.occupied ? "IN USE" : ok ? "OPEN" : "WAIT", ok ? 0 : 3);
+        text(v, 35, y, (route.required & 1) ? "U" : "-",
+             (route.blocked & 1) ? 3 : (route.required & 1) ? 0 : 1);
+        text(v, 36, y, (route.required & 2) ? "L" : "-",
+             (route.blocked & 2) ? 3 : (route.required & 2) ? 0 : 1);
     }
     text(v, 3, 12, "UP/DOWN: tram", 1);
     text(v, 23, 12, "LEFT/RIGHT: bay", 1);
     panel(v, 1, 14, 38, 9);
-    text(v, 3, 15, "3 TRAMS MOVING", 0);
+    text(v, 3, 15, "3 TRACKS", 0);
+    text(v, 13, 15, "DOTS: ROUTE", 2);
     text(v, 27, 15, "HOME", 1);
     number(v, 33, 15, desk_count(d, DELIVERED), 2);
     for (lane = 0; lane < 2; ++lane) {
         unsigned short x, y = 17 + 3 * lane;
+        unsigned char mask = (unsigned char)(1 << lane), wait = 0;
         text(v, 3, y, lane ? "LOWER" : "UPPER", 1);
         for (x = 10; x < 27; ++x)
-            cell(v, 0, x, y, attr(v->art + ((busy & (1 << lane)) ? ART_BUSY : ART_RAIL), 0));
-        text(v, 29, y, lane ? "BAYS 3/4" : "BAYS 1/2", 1);
+            cell(v, 0, x, y, attr(v->art + ((busy & mask) ? ART_BUSY :
+                                          (selected.required & mask) ? ART_PLANNED : ART_RAIL), 0));
         for (i = 0; i < SERVICES; ++i)
             if (d->service[i].state == TRANSIT &&
                 (desk_mask(d->service[i].origin, d->service[i].bay) & (1 << lane))) {
                 unsigned short progress = JOURNEY_TICKS - d->service[i].remaining;
+                wait = (unsigned char)((d->service[i].remaining + 59) / 60);
                 unsigned short tx = 10 + (progress * 15) / JOURNEY_TICKS;
                 number(v, 12, y - 1, i + 101, 3);
                 text(v, 16, y - 1, "TO BAY", 1);
@@ -160,6 +167,8 @@ static void desk(DeskView *v, const DeskUI *ui) {
                 cell(v, 0, tx, y, attr(v->art + ART_TRAM, 0));
                 cell(v, 0, tx + 1, y, attr(v->art + ART_TRAM, 0));
             }
+        text(v, 29, y, wait ? "BUSY" : "FREE", wait ? 3 : 1);
+        if (wait) { number(v, 35, y, wait, 1); text(v, 36, y, "s", 0); }
     }
     fill(v, 1, 23, 38, 2, 2);
     if (d->held) text(v, 3, 23, "Clock held. Press A when ready.", 0);
@@ -168,7 +177,21 @@ static void desk(DeskView *v, const DeskUI *ui) {
     else if (desk_route_ok(d, d->selected, d->bay)) {
         text(v, 3, 23, "C SEND TRAM", 0); number(v, 15, 23, d->selected + 101, 3);
         text(v, 19, 23, "TO BAY", 0); number(v, 26, 23, d->bay + 1, 1);
-    } else text(v, 3, 23, "Track busy. Pick an OPEN bay.", 3);
+    } else {
+        text(v, 3, 23, selected.blocked == 3 ? "Both lines busy." :
+                      selected.blocked == 1 ? "Upper line busy." : "Lower line busy.", 3);
+        text(v, 21, 23, "Wait", 0); number(v, 26, 23, selected.wait_seconds, 1);
+        text(v, 27, 23, "s.", 0);
+    }
+    if (!selected.required) text(v, 3, 24, "Choose a tram and bay to see a route.", 0);
+    else {
+        unsigned char origin = d->service[d->selected].origin;
+        text(v, 3, 24, origin == 0 ? "NORTH" : origin == 1 ? "CANAL" : "MARKET", 0);
+        text(v, 10, 24, "-> BAY", 1); number(v, 17, 24, d->bay + 1, 1);
+        text(v, 19, 24, "USES", 1);
+        text(v, 24, 24, selected.required == 3 ? "BOTH LINES" :
+                       selected.required == 1 ? "UPPER LINE" : "LOWER LINE", 0);
+    }
     text(v, 3, 26, "A Hold   B Clear   START Guide", 0);
 }
 

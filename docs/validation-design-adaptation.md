@@ -141,7 +141,7 @@ It has no active-display clears or text writes. Maximum publication is 56 row
 operations and 4,480 bytes per frame, below the selected SDK's defaults of 80
 operations and 7,200 bytes in NTSC. This is the sole queue producer. Two staged /
 displayed plane maps consume 8,960 bytes plus small metadata; no runtime heap is
-needed. The SDK font slots are retained and six 8x8 patterns are used for panels,
+needed. The SDK font slots are retained and seven 8x8 patterns are used for panels,
 rails and trams. These are choices for this desk, not a prescribed UI framework.
 
 `tests/test_design_adaptation_ui.py` covers the paged guide, hold restoration,
@@ -150,9 +150,25 @@ row ownership. Its fake VRAM never receives an intermediate blank frame, and an
 unchanged final screen publishes no rows. The real ROM builds against the selected
 SDK for PAL/NTSC on ARM64 and AMD64 with matching hashes. Those tests do not
 certify physical scanout or whether a new player finds it understandable; the
-updated title was checked in ares, with fresh desk/flicker confirmation pending.
+user confirmed the panelled desk was clearer and no longer flashed. They then
+found the guide's “linked bays” explanation misleading: a route depends on both
+its origin and destination, so a bay alone cannot predict which track it occupies.
 The full host suite now runs 504 tests with 47 opt-in integration skips; the
 revised UI's affected contracts also pass after the final guide-close check.
+
+A further informed correction exposes that dependency without changing the model.
+Each bay shows the selected tram's U/L requirements; blocked letters turn red.
+Blue dotted rails preview the proposed route, while amber rails show traffic
+already in motion. The action panel names the blocking line and remaining wait.
+The guide gives the exact North/Canal/Market route table instead of grouping bays
+as though their dependencies were fixed. Any Canal or cross-over route needs both
+lines; North to bays 1/2 and Market to bays 3/4 can run concurrently.
+
+Host checks independently enumerate all 144 candidate/active route pairs and
+verify the displayed requirements, blocking colors, rail previews and occupied
+bays. They also check staggered release of two conflicting trams and the wait
+countdown. This adds presentation coverage to the unchanged dispatch checks;
+fresh player confirmation of these route hints remains pending.
 
 The UI skill references now explain the observed clear/redraw failure and the
 need to teach an unfamiliar game's goal/first action. They do not require paneling,
