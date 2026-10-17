@@ -117,6 +117,17 @@ simulating physical bus contention. Original Streaming Lab changes are built
 by its existing integration tests; its complete main loop is not run by the
 new fault-injection backend.
 
+## Example independence
+
+This case deliberately reuses Lab art and music to isolate integration behavior.
+That is a test fixture choice, not a recommended starting design for a new game.
+An entry-point audit found existing protections for art and tuning, but less
+explicit guidance about inheriting controls, progression or game flow. Project,
+planning and implementation guidance now makes Labs optional technical evidence
+and asks agents to adapt focused techniques to the developer's brief. This
+validation does not establish that an agent will avoid creative anchoring in
+every new project; that would require a separate design-adaptation evaluation.
+
 ## Repeat the automated check
 
 ```sh

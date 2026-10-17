@@ -21,8 +21,11 @@
   Do not inherit AGES engine restrictions or impose a new game framework.
 - Genre skills provide patterns and solutions to Mega Drive development problems:
   mechanics, code, structure and behavior. Lab art, audio, mood and tuning are
-  illustrative, never requirements for another game. Follow the project’s
-  creative direction rather than copying a lab’s style.
+  illustrative, never requirements for another game. Start from the user's
+  brief and existing game, including its controls, progression and flow. Labs
+  are optional executable evidence, not default game templates. Reuse a focused
+  technique when it fits; do not transplant a Lab's design or architecture just
+  because its implementation is available.
 - Prefer optimized release builds for performance comparisons. Explain what a
   counter measures and distinguish build checks from emulator/hardware testing.
 - Use portable Python with the standard library for small helpers when useful.

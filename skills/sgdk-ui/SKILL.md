@@ -49,8 +49,9 @@ movement gets an explicit delay and repeat interval. Base menu repeat and
 countdowns on the project's region/timing policy, not assumed 60 Hz frames.
 Consume the action that opens a screen so it cannot also select its first item.
 
-Use bounded buffers and field widths. Pad or clear a field when its new value
-is shorter; avoid formatting and rewriting unchanged HUD text every frame.
+Use bounded buffers and field widths. Replace shorter text with a padded field
+so old glyphs do not remain; avoid visibly clearing it before drawing its
+replacement. Avoid formatting and rewriting unchanged HUD text every frame.
 The SDK's string conversion calls do not receive destination capacity. Check
 the selected implementation before choosing a convenience helper.
 

@@ -65,6 +65,13 @@ Consult the selected helper implementation: SGDK 2.11's `VDP_drawTextEx`
 uses a row helper with temporary-buffer handling. That does not make arbitrary
 queued tile/palette calls copy their source data.
 
+Do not repeatedly clear a visible field and then redraw it: the scanout can
+show the empty interval as flashing, even when the final text is correct.
+Prepare the replacement before publishing it. For a larger changing interface,
+a RAM tilemap with changed rows queued for VBlank is one option; count the
+operations and bytes, and keep its source immutable until the queue drains.
+There is no need to transfer rows whose final contents did not change.
+
 Menu Lab uses immediate CPU text and blocking font DMA while blanked. Its
 recording tests check field writes and ownership, not bus contention or frame
 time. Measure a busy game with its actual art, audio and transfers before

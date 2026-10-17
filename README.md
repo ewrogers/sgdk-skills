@@ -7,6 +7,10 @@ Practical agent skills for making Sega Mega Drive and Genesis games with
 [SGDK Docker toolchain](https://github.com/ewrogers/sgdk-docker), keep your project
 on your computer, and use an agent to help with setup, assets and debugging.
 
+The playable Labs demonstrate techniques, not designs to copy. Your game's
+rules, flow, controls, art and music come from your brief. Use a Lab to examine
+a specific solution; building a new game does not mean starting from its code.
+
 For Sega CD development, see [Megadev Docker](https://github.com/ewrogers/megadev-docker)
 and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development).
 
@@ -167,6 +171,9 @@ The [composition milestone](docs/validation-milestone.md) also checks several
 skills together in a new disposable game, rather than only rebuilding the Labs.
 Its [streaming/audio follow-up](docs/validation-streaming-audio.md) checks bounded
 uploads, palette publication and asynchronous music handoffs together.
+The [design-adaptation test](docs/validation-design-adaptation.md) gives an
+independent agent a contrasting game brief, then reviews technique reuse and
+whether the Labs' designs carried over.
 
 The skills and original examples are MIT licensed. SGDK and the bundled
 toolchain retain their own licenses.
