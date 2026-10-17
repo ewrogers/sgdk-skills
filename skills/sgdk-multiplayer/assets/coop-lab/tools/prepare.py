@@ -21,7 +21,7 @@ def prepare(output):
     (output/'res').mkdir()
     for name,data in generated.items():(output/('inc' if name.endswith('.h') else 'res')/name).write_bytes(data)
     text='IMAGE world "world.png" NONE ALL\nIMAGE title "title.png" NONE ALL\nXGM2 courtyard_music "courtyard.vgm"\n'
-    for name,w,h in [('hero',2,3),('moth',2,2),('mote',1,1),('beacon',2,3)]:text+=f'SPRITE {name} "{name}.png" {w} {h} NONE 0 NONE NONE\n'
+    for name,w,h in [('hero',2,3),('moth',2,2),('mote',1,1),('beacon',2,3),('pulse',4,4)]:text+=f'SPRITE {name} "{name}.png" {w} {h} NONE 0 NONE NONE\n'
     for name,(seconds,lo,hi) in SOUNDS.items():
         length=int(seconds*13300);phase=0;samples=[]
         for i in range(length):

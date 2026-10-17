@@ -108,6 +108,29 @@ static u32 digest(const CpGame *g)
 #undef MIX
     return h;
 }
+static int check_stun(void)
+{
+    CpGame g;cp_init(&g);CpInput in=empty_input();in.held[0]=CP_START;cp_frame(&g,&in,60);
+    in=empty_input();cp_frame(&g,&in,60);
+    CpPoint q=cp_enemy(&g,0);g.player[0].x=q.x;g.player[0].y=q.y;g.player[0].invulnerable=0;
+    cp_camera(&g);in.held[0]=CP_A;cp_frame(&g,&in,60);
+    CHECK(g.enemy_stun[0]==120 && g.player[0].hp==3 && g.player[0].stun_cd==90);
+    CHECK(cp_stun_charge(&g.player[0])==0);q=cp_enemy(&g,0);
+    for(u16 n=0;n<45;n++)cp_frame(&g,&in,60);
+    CHECK(cp_enemy(&g,0).x==q.x && g.player[0].hp==3 && g.player[0].stun_cd==45);
+    CHECK(cp_stun_charge(&g.player[0])==24 && g.enemy_stun[0]==75);
+    g.paused=true;for(u16 n=0;n<10;n++)cp_frame(&g,&in,60);
+    CHECK(g.player[0].stun_cd==45 && g.enemy_stun[0]==75 && cp_enemy(&g,0).x==q.x);
+    g.paused=false;for(u16 n=0;n<45;n++)cp_frame(&g,&in,60);
+    CHECK(g.player[0].stun_cd==0 && cp_stun_charge(&g.player[0])==48);
+    CHECK(g.enemy_stun[0]==30); /* Holding A never auto-casts after recharge. */
+    in.held[0]=0;cp_frame(&g,&in,60);in.held[0]=CP_A;cp_frame(&g,&in,60);
+    CHECK(g.enemy_stun[0]==120 && g.player[0].stun_cd==90);
+    in.held[0]=0;for(u16 n=0;n<120;n++)cp_frame(&g,&in,60);
+    CHECK(g.enemy_stun[0]==0 && cp_enemy(&g,0).x==q.x);
+    cp_frame(&g,&in,60);CHECK(cp_enemy(&g,0).x!=q.x);
+    return 0;
+}
 static int check_timing(void)
 {
     CpGame a,b;join_four(&a);b=a;CpInput in=empty_input();

@@ -17,6 +17,7 @@ int main(int argc,char **argv)
     }
     int e=check_routes();if(!e)e=check_session();if(!e)e=check_respawn();if(!e)e=check_camera();
     if(!e)e=check_pickups_and_pause();
+    if(!e)e=check_stun();
     if(!e)e=check_timing();
     u32 trace=0;
     if(!e)e=check_soak(argc>1 && !strcmp(argv[1],"trace") ? 256 : 20000,&trace);

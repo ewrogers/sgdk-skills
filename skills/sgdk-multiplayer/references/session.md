@@ -41,6 +41,16 @@ Make the distinction between preference and guarantee explicit: avoiding moths
 is a penalty in this example, not a promise of an entirely empty spawn area.
 Other games may require a hard exclusion radius or a protected checkpoint.
 
+## Visible cooldown and stun feedback
+
+Keep effect state distinct from the global clock: a stunned enemy’s patrol
+clock stops while its recovery counter ticks. Resuming uses the same patrol
+phase, not a jump to wherever the global clock has advanced. The Lab displays
+a dazed pose and a short cast pulse instead of hiding stunned enemies. Its A
+meter fills over 90 simulation ticks, pauses with the game, and needs a fresh
+button edge to cast again. Health meters share each keeper’s identifying color; the recharge bar is white.
+These are feedback examples, not required art or combat design.
+
 ## Verification checklist
 
 - Join from either direct port and non-consecutive adapter IDs. Try a mixed
@@ -56,7 +66,9 @@ Other games may require a hard exclusion radius or a protected checkpoint.
   reader behavior. Record emulator region/version and physical adapter models.
 
 Host tests execute the actual model at O0/O3 with undefined-behavior checks and
-20,000 seeded frames. A separate Python bounding-box oracle checks camera
+20,000 seeded frames. Stun regressions cover frozen patrol position, damage
+prevention, half/full recharge, paused recovery, held-button suppression and
+movement resuming after the effect ends. A separate Python bounding-box oracle checks camera
 results. Container tests compile actual sprite/font/map resources and execute
 the model contracts on a base-M68000 CPU emulator. These do not emulate VDP,
 audio, SDK startup or peripheral polling. They cannot certify physical adapters,

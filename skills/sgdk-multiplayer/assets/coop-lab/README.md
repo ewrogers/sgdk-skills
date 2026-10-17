@@ -2,6 +2,11 @@
 
 Join a small lantern patrol, collect eight drifting motes and restore the four
 garden lamps. Each keeper has three hearts, a short-range moth stun and a dash.
+The upper health bar matches each keeper’s color. The white A bar
+recharges stun. Empty panels show Start to Join on separate lines. Stun stops
+nearby moths for two seconds, gives them a starry dazed pose, and emits a brief
+cast pulse. It requires a fresh press after its 1.5-second recharge.
+
 A downed keeper returns after two seconds while the others keep playing. The
 camera follows the group; an amber message asks you to regroup at its limits.
 
@@ -65,10 +70,14 @@ once. Team progress survives an individual Leave. Starting a fresh session after
 everyone leaves resets the round. These are explicit Lab policies, not SGDK
 engine behavior or required rules for another game.
 
-The renderer reserves 128 sprite tiles. The maximum is 20 logical sprites,
-each one hardware piece: four keepers, four moths, eight motes and four lamps.
-Even a conservative same-line arrangement uses 20 pieces / 256 sprite pixels.
-Four palettes are shared by roles, not allocated one per player. HUD transfers
+The renderer reserves 160 sprite tiles. The maximum is 24 logical sprites,
+each one hardware piece: four keepers, four moths, eight motes, four lamps and
+four temporary cast pulses (136 live tiles). Before showing a pulse, the renderer
+checks visible scanline occupancy, including earlier accepted pulses, against
+H40’s 20 pieces / 320 sprite pixels. Cosmetic pulses are omitted when they would
+overload a line. Gameplay sprites retain priority.
+Four palettes are shared by roles, not allocated one per player. Health/recharge meters use 45 shared partial-fill tiles; they do not create
+extra sprites. HUD transfers
 use retained buffers, drained before rebuilding; sprite/scroll work is separate.
 Automated target probes validate model contracts and compiled assets, not VDP
 timing, sound quality or adapter electronics. Check both PAL and NTSC in an

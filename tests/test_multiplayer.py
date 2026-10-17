@@ -55,7 +55,7 @@ class MultiplayerAssetsTests(unittest.TestCase):
     def test_native_role_palettes_sheets_and_standalone_copy(self):
         from test_localization import pixels
         art=load('coop_asset_art',LAB/'tools/coop_art.py');assets=art.assets();self.assertEqual(assets,art.assets())
-        specs={'hero':(192,96),'moth':(64,16),'mote':(32,8),'beacon':(64,24),'world':(512,384),'title':(320,224)}
+        specs={'hero':(192,96),'moth':(96,16),'pulse':(128,32),'mote':(32,8),'beacon':(64,24),'world':(512,384),'title':(320,224)}
         for name,shape in specs.items():
             w,h,rows=pixels(assets[name+'.png']);self.assertEqual((w,h),shape);self.assertLess(max(v for row in rows for v in row),16)
         for pal in [art.WORLD,art.HERO,art.PROPS,art.UI]:self.assertEqual(len(pal),16);self.assertTrue(all(0<=v<=7 for rgb in pal for v in rgb))
@@ -102,15 +102,15 @@ class MultiplayerContainerTests(unittest.TestCase):
                     if kind=='probe':
                         code,values=execute(rom,run('m68k-elf-nm','--defined-only','out/rom.out'));self.assertEqual(code,0,f'Target contract failed at {code}')
                         geometry=values[:2];self.assertEqual(values[2]<<16|values[3],trace)
-                        tiles=values[4:6];self.assertEqual(values[6:8],[64,48]);self.assertLess(sum(tiles)+5+128+96,1024)
+                        tiles=values[4:6];self.assertEqual(values[6:8],[64,48]);self.assertLess(sum(tiles)+50+160+96,1024)
                         at=8
-                        for name,w,h,pieces,count,pal in [('hero',16,24,1,4,art.HERO),('moth',16,16,1,1,art.PROPS),('mote',8,8,1,1,art.PROPS),('beacon',16,24,1,1,art.PROPS)]:
+                        for name,w,h,pieces,count,pal in [('hero',16,24,1,4,art.HERO),('moth',16,16,1,1,art.PROPS),('mote',8,8,1,1,art.PROPS),('beacon',16,24,1,1,art.PROPS),('pulse',32,32,1,1,art.PROPS)]:
                             self.assertEqual(values[at:at+5],[w,h,pieces,w*h//64,count]);at+=5
-                            self.assertEqual(values[at:at+count],[12]*4 if name=='hero'else[4]);at+=count
+                            self.assertEqual(values[at:at+count],[12]*4 if name=='hero'else[6] if name=='moth'else[4]);at+=count
                             self.assertEqual(values[at:at+16],[(b<<9)|(g<<5)|(r<<1)for r,g,b in pal]);at+=16
                         self.assertEqual(values[at:at+1536],[half for v in art.font_words()for half in(v>>16,v&65535)]);at+=1536
                         self.assertEqual(values[at:],list(range(8)))
             (out/'multiplayer-report.json').write_text(json.dumps({'passed':True,'hashes':hashes,'geometry':geometry,'trace_digest':trace,
-                'budgets':{'world_title_tiles':tiles,'live_sprite_tiles':72,'sprite_reservation':128,'hardware_sprites':20,'conservative_scanline_pieces':20,'conservative_scanline_pixels':256,'palettes':4,'hud_ram_bytes':400},
+                'budgets':{'world_title_tiles':tiles,'live_sprite_tiles':136,'sprite_reservation':160,'hardware_sprites':24,'admitted_scanline_pieces':20,'admitted_scanline_pixels':320,'palettes':4,'hud_ram_bytes':400},
                 'execution':'Base M68000 model and compiled resources; no VDP/audio/peripheral protocol emulation','physical_multitaps':'not tested'},indent=2)+'\n')
 if __name__=='__main__':unittest.main()

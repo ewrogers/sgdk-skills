@@ -783,7 +783,8 @@ and O3 with undefined-behavior checks. It covers adapter route plans, input-edge
 seeding, eight logical devices mapped into four participant slots, capacity,
 simultaneous pause requests, joins during pause, consumed Leave edges, shared
 pickups, independent and all-down returns, wall/dash movement and joint camera
-constraints. A 20,000-frame seeded soak checks invariants. One thousand camera
+constraints. Stun tests verify stopped patrols, damage prevention, pause,
+recharge boundaries, fresh-press behavior and recovery. A 20,000-frame seeded soak checks invariants. One thousand camera
 cases are compared with an independent Python bounding-box oracle. PAL/NTSC
 schedules must produce the same idle simulation duration and state.
 

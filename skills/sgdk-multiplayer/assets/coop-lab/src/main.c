@@ -4,8 +4,9 @@
 #include "font.h"
 #include "ui.h"
 static CpGame game;
-static Sprite *keepers[4],*moths[4],*motes[8],*lamps[4];
-static u16 panel[5][40],title_base,bar_tile,markers,frame,topology,last_layout;
+static Sprite *keepers[4],*moths[4],*motes[8],*lamps[4],*waves[4];
+static u16 panel[5][40],title_base,bar_tile,markers,meter_base,frame,topology,last_layout;
+static s16 drawn_y[24];static u16 drawn_w[24],drawn_h[24],drawn_count;
 static bool demo;static u32 demo_frame;
 static u16 port_kind(u16 p)
 {
@@ -79,7 +80,7 @@ static void layout(u16 kind)
             for(u16 i=0;i<4;i++)if(game.player[i].device!=CP_NONE) {
                 char text[32]="P1  MOTES 00  RETURNS 00";text[1]=(char)('1'+i);
                 u16 n=game.player[i].gems; text[10]=(char)('0'+n/10);text[11]=(char)('0'+n%10);
-                n=game.player[i].deaths;if(n>99)n=99;text[21]=(char)('0'+n/10);text[22]=(char)('0'+n%10);
+                n=game.player[i].deaths;if(n>99)n=99;text[22]=(char)('0'+n/10);text[23]=(char)('0'+n%10);
                 label(text,11+i*2);
             }
             label(demo ? "START: LEAVE CPU TOUR" : "START: ANOTHER ROUND",23);
@@ -95,12 +96,16 @@ static void hud(void)
         u16 x=i*10;CpPlayer *p=&game.player[i];
         panel[0][x]=TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,markers+i);
         char who[3]={'P',(char)('1'+i),0};put(who,x+1,0);
-        if(p->device==CP_NONE){put("START JOIN",x,1);continue;}
-        put("PAD",x+4,0);char slot[2]={(char)('1'+p->device),0};put(slot,x+7,0);
-        if(p->respawn){put("BACK",x,1);value((p->respawn+59)/60,x+5,1);}
-        else {put("HP",x,1);for(u16 h=0;h<p->hp;h++)put("*",x+3+h,1);}
-        put("MOTES",x,2);value(p->gems,x+6,2);
-        put(p->stun_cd ? "STUN ..." : "STUN OK",x,3);
+        if(p->device==CP_NONE){put("START",x+2,1);put("TO JOIN",x+1,2);continue;}
+        u16 charge=cp_stun_charge(p);
+        put("A",x+1,1);
+        for(u16 t=0;t<6;t++) {
+            u16 hp=p->hp*16,amount=charge>t*8 ? charge-t*8 : 0;if(amount>8)amount=8;
+            panel[0][x+3+t]=TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,meter_base+i*9+(hp>t*8 ? 8 : 0));
+            panel[1][x+3+t]=TILE_ATTR_FULL(PAL3,TRUE,FALSE,FALSE,meter_base+4*9+amount);
+        }
+        if(p->respawn){put("BACK",x+1,2);value((p->respawn+59)/60,x+6,2);}
+        else {put("MOTES",x+1,2);value(p->gems,x+7,2);}
     }
     if(game.paused)put("PAUSED - ANY JOINED START RESUMES",2,4);
     else if(demo)put("CPU TOUR - START RETURNS TO TITLE",2,4);
@@ -118,9 +123,21 @@ static void place(Sprite *s,s16 x,s16 y,u16 w,u16 h,bool show)
     s16 xx=x-game.camera_x-(s16)w/2,yy=y-game.camera_y+40-(s16)h+3;
     show=show && game.running && !game.won && xx+(s16)w>0 && xx<320 && yy+(s16)h>40 && yy<224;
     SPR_setPosition(s,xx,yy);SPR_setVisibility(s,show ? VISIBLE : HIDDEN);SPR_setDepth(s,-y);
+    if(show && drawn_count<24){drawn_y[drawn_count]=yy;drawn_w[drawn_count]=w;drawn_h[drawn_count++]=h;}
+}
+static bool wave_fits(s16 y)
+{
+    /* Cosmetic arcs never displace gameplay sprites at the H40 line limit. */
+    for(s16 line=y;line<y+32;line++)if(line>=40 && line<224) {
+        u16 count=1,pixels=32;
+        for(u16 n=0;n<drawn_count;n++)if(line>=drawn_y[n] && line<drawn_y[n]+(s16)drawn_h[n]){count++;pixels+=drawn_w[n];}
+        if(count>20 || pixels>320)return FALSE;
+    }
+    return TRUE;
 }
 static void render(void)
 {
+    drawn_count=0;
     bool playing=game.running && !game.won;
     VDP_setHorizontalScrollVSync(BG_B,playing ? -game.camera_x : 0);VDP_setVerticalScrollVSync(BG_B,playing ? game.camera_y-40 : 0);
     for(u16 i=0;i<4;i++) {
@@ -128,10 +145,16 @@ static void render(void)
         place(keepers[i],p->x,p->y,16,24,show);SPR_setAnim(keepers[i],i);
         u16 step=p->moving ? (p->walk/6)%4 : 0;step=step==3 ? 1 : step;
         SPR_setFrame(keepers[i],p->facing*3+step);
-        CpPoint q=cp_enemy(&game,i);place(moths[i],q.x,q.y,16,16,!game.enemy_stun[i] || (game.ticks&8));SPR_setFrame(moths[i],(game.ticks/10)%4);
+        CpPoint q=cp_enemy(&game,i);place(moths[i],q.x,q.y,16,16,TRUE);SPR_setFrame(moths[i],game.enemy_stun[i] ? 4+(game.ticks/12)%2 : (game.ticks/10)%4);
         place(lamps[i],cp_beacons[i].x,cp_beacons[i].y,16,24,TRUE);SPR_setFrame(lamps[i],game.score/2>i ? 1+(game.ticks/12)%3 : 0);
     }
     for(u16 i=0;i<8;i++){place(motes[i],cp_coins[i].x,cp_coins[i].y,8,8,!(game.coin_mask&(1u<<i)));SPR_setFrame(motes[i],(game.ticks/10+i)%4);}
+    for(u16 i=0;i<4;i++) {
+        CpPlayer *p=&game.player[i];bool show=p->device!=CP_NONE && !p->respawn && p->stun_cd>66;
+        show=show && wave_fits(p->y-game.camera_y+40-32+3);
+        place(waves[i],p->x,p->y,32,32,show);SPR_setDepth(waves[i],32700);
+        SPR_setFrame(waves[i],p->stun_cd>66 ? (90-p->stun_cd)/6 : 0);
+    }
 }
 static void sound(u16 events)
 {
@@ -148,9 +171,9 @@ int main(bool hard_reset)
 {
     (void)hard_reset;demo=FALSE;demo_frame=0;frame=0;last_layout=CP_NONE;cp_init(&game);
     SYS_disableInts();VDP_setEnable(FALSE);VDP_setScreenWidth320();VDP_setScreenHeight224();VDP_setPlaneSize(64,64,TRUE);
-    VDP_clearPlane(BG_A,TRUE);VDP_clearPlane(BG_B,TRUE);VDP_clearPlane(WINDOW,TRUE);SPR_initEx(128);DMA_setMaxTransferSize(4096);
-    title_base=TILE_USER_INDEX+world.tileset->numTile;bar_tile=title_base+title.tileset->numTile;markers=bar_tile+1;
-    if(markers+4>TILE_SPRITE_INDEX) {
+    VDP_clearPlane(BG_A,TRUE);VDP_clearPlane(BG_B,TRUE);VDP_clearPlane(WINDOW,TRUE);SPR_initEx(160);DMA_setMaxTransferSize(4096);
+    title_base=TILE_USER_INDEX+world.tileset->numTile;bar_tile=title_base+title.tileset->numTile;markers=bar_tile+1;meter_base=markers+4;
+    if(meter_base+45>TILE_SPRITE_INDEX) {
         VDP_drawText("ART EXCEEDS VRAM RESERVATION",2,10);SYS_enableInts();VDP_setEnable(TRUE);
         while(TRUE)SYS_doVBlankProcess();
     }
@@ -161,9 +184,16 @@ int main(bool hard_reset)
         patterns[t*8+y]=word;
     }
     VDP_loadTileData(patterns,bar_tile,5,CPU);
+    u32 meter[45*8];
+    for(u16 role=0;role<5;role++)for(u16 fill=0;fill<=8;fill++)for(u16 y=0;y<8;y++) {
+        u32 word=0;
+        for(u16 x=0;x<8;x++)word=word<<4|(y==1 || y==6 ? 6 : y>=2 && y<=5 ? (x<fill ? (role==4 ? 15 : role+2) : 12) : 1);
+        meter[(role*9+fill)*8+y]=word;
+    }
+    VDP_loadTileData(meter,meter_base,45,CPU);
     PAL_setPalette(PAL0,world.palette->data,CPU);PAL_setPalette(PAL1,hero.palette->data,CPU);PAL_setPalette(PAL2,moth.palette->data,CPU);PAL_setPalette(PAL3,ui_colors,CPU);
     VDP_setBackgroundColor(1);bool ok=TRUE;
-    for(u16 i=0;i<4;i++){keepers[i]=add(&hero,PAL1);moths[i]=add(&moth,PAL2);lamps[i]=add(&beacon,PAL2);ok=ok && keepers[i] && moths[i] && lamps[i];}
+    for(u16 i=0;i<4;i++){keepers[i]=add(&hero,PAL1);moths[i]=add(&moth,PAL2);lamps[i]=add(&beacon,PAL2);waves[i]=add(&pulse,PAL2);ok=ok && keepers[i] && moths[i] && lamps[i] && waves[i];}
     for(u16 i=0;i<8;i++){motes[i]=add(&mote,PAL2);ok=ok && motes[i];}
     if(!ok) {
         VDP_drawText("SPRITE RESERVATION FAILED",2,10);SYS_enableInts();VDP_setEnable(TRUE);while(TRUE)SYS_doVBlankProcess();

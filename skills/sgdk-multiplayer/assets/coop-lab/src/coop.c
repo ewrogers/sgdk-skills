@@ -28,6 +28,7 @@ bool cp_walkable(s16 x,s16 y)
     return true;
 }
 u16 cp_count(const CpGame *g){u16 n=0;for(u16 i=0;i<CP_PLAYERS;i++)if(g->player[i].device!=CP_NONE)n++;return n;}
+u16 cp_stun_charge(const CpPlayer *p){return p->stun_cd>=90 ? 0 : (90-p->stun_cd)*48/90;}
 static bool bounds(const CpGame *g,s16 *l,s16 *r,s16 *t,s16 *b)
 {
     bool found=false;
@@ -78,7 +79,7 @@ void cp_seed_inputs(CpGame *g,const CpInput *input)
 CpPoint cp_enemy(const CpGame *g,u16 index)
 {
     static const CpPoint base[4]={{88,144},{408,144},{144,288},{368,288}};
-    u16 p=(u16)((g->ticks+index*53)%128);s16 offset=(p<64 ? p : 127-p)-32;
+    u16 p=(u16)((g->enemy_clock[index%4]+index*53)%128);s16 offset=(p<64 ? p : 127-p)-32;
     return (CpPoint){base[index%4].x+offset,base[index%4].y};
 }
 bool cp_damage(CpGame *g,u16 i)
@@ -107,7 +108,7 @@ static void controls(CpGame *g,const CpInput *in,u16 *held,u16 *pressed)
         for(u16 i=0;i<CP_PLAYERS;i++)if(g->player[i].device==CP_NONE) {
             if(!g->running) {
                 g->score=g->coin_mask=g->phase=g->tie=0;g->ticks=0;g->won=false;
-                for(u16 e=0;e<CP_ENEMIES;e++)g->enemy_stun[e]=0;
+                for(u16 e=0;e<CP_ENEMIES;e++)g->enemy_stun[e]=g->enemy_clock[e]=0;
             }
             g->player[i]=(CpPlayer){0};g->player[i].device=(u8)d;spawn(g,i);used|=1u<<d;consumed|=1u<<d;
             g->running=true;g->events|=CP_JOIN;break;
@@ -125,7 +126,7 @@ static void controls(CpGame *g,const CpInput *in,u16 *held,u16 *pressed)
         if(g->won) {
             /* Keep assignments and input history, replace only round state. */
             g->ticks=0;g->score=g->coin_mask=g->phase=0;g->won=g->paused=false;
-            for(u16 e=0;e<CP_ENEMIES;e++)g->enemy_stun[e]=0;
+            for(u16 e=0;e<CP_ENEMIES;e++)g->enemy_stun[e]=g->enemy_clock[e]=0;
             for(u16 i=0;i<CP_PLAYERS;i++)if(g->player[i].device!=CP_NONE) {
                 g->player[i].hp=0;g->player[i].respawn=1;
             }
@@ -181,7 +182,10 @@ static void move(CpGame *g,const u16 *held,const u16 *pressed)
 static void tick(CpGame *g,const u16 *held,const u16 *pressed)
 {
     g->ticks++;g->tethered=false;
-    for(u16 e=0;e<CP_ENEMIES;e++)if(g->enemy_stun[e])g->enemy_stun[e]--;
+    for(u16 e=0;e<CP_ENEMIES;e++) {
+        if(g->enemy_stun[e])g->enemy_stun[e]--;
+        else g->enemy_clock[e]=(g->enemy_clock[e]+1)%128;
+    }
     for(u16 i=0;i<CP_PLAYERS;i++) {
         CpPlayer *p=&g->player[i];if(p->device==CP_NONE)continue;
         if(p->respawn){if(!--p->respawn && spawn(g,i))g->events|=CP_RESPAWN;continue;}

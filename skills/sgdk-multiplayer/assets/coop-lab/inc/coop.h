@@ -31,7 +31,7 @@ typedef struct {
 } CpPlayer;
 typedef struct {
     CpPlayer player[CP_PLAYERS];u16 previous[CP_DEVICES];
-    u16 enemy_stun[CP_ENEMIES],phase,score,tie,events,pause_owner;
+    u16 enemy_stun[CP_ENEMIES],enemy_clock[CP_ENEMIES],phase,score,tie,events,pause_owner;
     s16 camera_x,camera_y;u32 ticks;u16 coin_mask;
     bool running,paused,won,tethered;
 } CpGame;
@@ -42,6 +42,7 @@ bool cp_walkable(s16 x,s16 y);
 void cp_init(CpGame *g);
 void cp_seed_inputs(CpGame *g,const CpInput *input);
 u16 cp_count(const CpGame *g);
+u16 cp_stun_charge(const CpPlayer *player);
 CpPoint cp_enemy(const CpGame *g,u16 index);
 bool cp_damage(CpGame *g,u16 player);
 void cp_camera(CpGame *g);

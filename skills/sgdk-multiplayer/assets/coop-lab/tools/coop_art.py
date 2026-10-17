@@ -48,49 +48,96 @@ def world_rows():
     return [ast.literal_eval(line.rstrip(',')) for line in (Path(__file__).resolve().parents[1]/'inc/world_rows.inc').read_text().splitlines()]
 
 def world():
-    c=Canvas(512,384)
-    for y,row in enumerate(world_rows()):
+    c=Canvas(512,384);c.rect(0,0,512,384,2)
+    # Broad, low-contrast flagstones keep small moving characters readable.
+    for y in range(0,384,16):
+        shift=16 if (y//16)%2 else 0
+        for x in range(-shift,512,32):
+            c.rect(x,y,31,15,2);c.line(x+2,y+1,x+28,y+1,3)
+            c.line(x+1,y+2,x+1,y+12,3);c.line(x+2,y+14,x+30,y+14,1)
+            if (x//32+y//16)%7==0:c.line(x+23,y+10,x+25,y+11,3)
+    grid=world_rows()
+    for y,row in enumerate(grid):
         for x,ch in enumerate(row):
+            if ch!='#':continue
             px,py=x*16,y*16
-            if ch=='#':
-                c.rect(px,py,16,16,1);c.rect(px+1,py+1,14,12,5);c.line(px+1,py+1,px+14,py+1,7)
-                c.rect(px+2,py+3,12,6,9);c.rect(px+4,py+2,3,4,10);c.rect(px+8,py+5,4,4,11)
-                c.line(px+1,py+13,px+14,py+13,3);c.line(px+3,py+15,px+14,py+15,2)
-                if (x+y)%4==0:c.dot(px+9,py+3,13);c.dot(px+10,py+3,14)
-            else:
-                base=2 if (x+y)%3 else 3;c.rect(px,py,16,16,base)
-                c.line(px,py+15,px+15,py+15,1);c.line(px+15,py,px+15,py+15,1)
-                c.line(px+1,py+1,px+12,py+1,4);c.line(px+1,py+2,px+1,py+12,3)
-                c.dot(px+5,py+9,3);c.dot(px+10,py+6,4 if (x+y)%2 else 2)
-                if y in (3,20) and x%3==0:c.poly([(px+8,py+3),(px+11,py+7),(px+8,py+11),(px+5,py+7)],12);c.dot(px+8,py+5,14)
+            c.rect(px,py,16,16,5)
+            # Stone edging follows the actual collision boundary, not every cell.
+            top=y==0 or grid[y-1][x]!='#';bottom=y==23 or grid[y+1][x]!='#'
+            left=x==0 or row[x-1]!='#';right=x==31 or row[x+1]!='#'
+            if top:c.rect(px,py,16,3,7);c.line(px,py,px+15,py,8)
+            if bottom:c.rect(px,py+11,16,5,1);c.line(px,py+11,px+15,py+11,6)
+            if left:c.rect(px,py,3,12,6);c.line(px,py,px,py+11,7)
+            if right:c.rect(px+13,py,3,13,1)
+            c.ellipse(px+7,py+6,5,4,9);c.ellipse(px+6,py+4,4,3,10)
+            c.line(px+4,py+3,px+7,py+3,11)
+            if (x*3+y)%5==0:
+                for dx,dy in [(0,-1),(-1,0),(1,0),(0,1)]:c.dot(px+8+dx,py+5+dy,13)
+                c.dot(px+8,py+5,15)
+    # Inlaid compass dais beneath each lantern; these remain walkable.
+    for x,y in [(40,40),(472,40),(472,344),(40,344)]:
+        c.ellipse(x,y,14,9,1);c.ellipse(x,y-1,13,8,5);c.ellipse(x,y-2,10,5,3)
+        c.line(x-9,y-2,x+9,y-2,12);c.line(x,y-7,x,y+3,12)
     return c
 
 def hero(variant,frame):
-    c=Canvas(16,24);face=frame//3;step=frame%3;bob=1 if step else 0;accent=3+variant
-    c.ellipse(8,22,6,1,2)
-    for x,dy in [(4,1 if step==1 else 0),(9,1 if step==2 else 0)]:c.rect(x,18,3,4+dy,1);c.rect(x,19,2,2+dy,9)
-    c.poly([(4,9+bob),(11,9+bob),(13,20),(2,20)],1)
-    c.poly([(5,10+bob),(10,10+bob),(11,18),(4,18)],accent)
-    c.line(5,11+bob,4,17,11);c.line(11,12+bob,11,18,2);c.rect(4,17,8,2,12);c.dot(8,17,14)
-    c.ellipse(8,6+bob,6,6,1);c.ellipse(8,5+bob,5,4,accent)
-    if face==2:
-        c.line(5,6+bob,11,6+bob,11);c.rect(6,8+bob,4,2,2)
+    c=Canvas(16,24);face=frame//3;step=frame%3;bob=1 if step==1 else 0;accent=3+variant
+    c.ellipse(8,22,5,1,2)
+    c.rect(4,18,3,4 if step!=2 else 3,1);c.rect(9,18,3,4 if step!=1 else 3,1)
+    c.line(4,21 if step!=2 else 20,6,21 if step!=2 else 20,9)
+    c.line(9,21 if step!=1 else 20,11,21 if step!=1 else 20,9)
+    c.poly([(4,10+bob),(11,10+bob),(13,19),(2,19)],1)
+    c.poly([(5,10+bob),(10,10+bob),(11,17),(4,17)],accent)
+    c.line(4,12+bob,4,17,11);c.line(11,12+bob,11,17,2)
+    c.rect(4,17,8,2,9);c.rect(7,17,2,2,14)
+    c.poly([(4,1+bob),(10,1+bob),(13,5+bob),(12,10+bob),(3,10+bob),(2,5+bob)],1)
+    c.poly([(5,2+bob),(9,2+bob),(11,5+bob),(11,8+bob),(4,8+bob),(3,5+bob)],accent)
+    c.line(5,2+bob,8,2+bob,11)
+    if face==2:c.line(5,8+bob,10,8+bob,2)
     else:
-        fx=4 if face==3 else 7 if face==1 else 5
-        c.rect(fx,6+bob,5,4,8);c.rect(fx+1,6+bob,3,3,7)
-        c.dot(fx+(3 if face==1 else 0),7+bob,1)
-        if face==0:c.dot(fx+3,7+bob,1)
-    c.rect(2 if face==3 else 12,12+bob,2,4,1);c.dot(2 if face==3 else 13,13+bob,14)
+        fx=3 if face==3 else 8 if face==1 else 5
+        c.rect(fx,6+bob,4,4,8);c.rect(fx,6+bob,4,2,7)
+        c.dot(fx+(0 if face==3 else 3),7+bob,1)
+        if face==0:c.dot(fx,7+bob,1)
+    # A bright hand lantern gives every keeper a readable silhouette.
+    lx=1 if face==3 else 12
+    c.rect(lx,12+bob,3,6,1);c.rect(lx+1,13+bob,1,3,14);c.dot(lx+1,13+bob,15)
+    c.line(lx,12+bob,lx+2,12+bob,6)
     return c
 
 def moth(frame):
-    c=Canvas(16,16);spread=2 if frame%2 else 0
-    for mirror in (False,True):
-        points=[(8,7),(2-spread,2),(1,8),(5,11),(8,10)]
-        if mirror:points=[(15-x,y) for x,y in points]
-        c.poly(points,2,1)
-    c.ellipse(8,8,4,6,1);c.ellipse(8,7,3,4,3);c.rect(6,5,2,2,6);c.rect(9,5,2,2,6)
-    c.line(7,1,5,0,4);c.line(9,1,11,0,4);c.rect(7,12,2,2,5)
+    c=Canvas(16,16);dazed=frame>=4;spread=1 if frame%2 else 0
+    if dazed:
+        c.poly([(2,7),(5,8),(6,12),(2,11)],5,1);c.poly([(13,7),(10,8),(9,12),(13,11)],5,1)
+    else:
+        c.poly([(7,7),(2,2+spread),(0,5),(1,10),(6,12)],5,1)
+        c.poly([(8,7),(13,2+spread),(15,5),(14,10),(9,12)],5,1)
+        c.line(2,5,5,8,6);c.line(13,5,10,8,6)
+    c.ellipse(8,10,3,4,1);c.rect(6,7,4,5,3)
+    if dazed:
+        c.line(6,8,7,9,7);c.line(7,8,6,9,7);c.line(9,8,10,9,7);c.line(10,8,9,9,7)
+        for x,y in ([(3,2),(11,3)] if frame==4 else [(5,3),(13,1)]):
+            c.line(x-1,y,x+1,y,6);c.line(x,y-1,x,y+1,7)
+    else:c.dot(6,8,7);c.dot(9,8,7)
+    c.rect(7,12,2,2,5)
+    return c
+
+def pulse(frame):
+    c=Canvas(32,32);r=(7,11,14,15)[frame]
+    # Broad white/cyan arcs, with gaps that keep the keeper readable.
+    for dx,dy in [(r,0),(-r,0),(0,r),(0,-r)]:
+        x,y=16+dx,16+dy
+        if dx:
+            c.rect(x-(1 if dx>0 else 0),y-4,2,9,12)
+            c.line(x-(1 if dx>0 else -1),y-3,x-(1 if dx>0 else -1),y+3,7)
+            c.line(x-(2 if dx>0 else -2),y-2,x-(2 if dx>0 else -2),y+2,13)
+        else:
+            c.rect(x-4,y-(1 if dy>0 else 0),9,2,12)
+            c.line(x-3,y-(1 if dy>0 else -1),x+3,y-(1 if dy>0 else -1),7)
+            c.line(x-2,y-(2 if dy>0 else -2),x+2,y-(2 if dy>0 else -2),13)
+    for sx,sy in [(-1,-1),(1,-1),(-1,1),(1,1)]:
+        x,y=16+sx*(r*3//4),16+sy*(r*3//4)
+        c.line(x-1,y,x+1,y,7);c.line(x,y-1,x,y+1,7)
     return c
 
 def mote(frame):
@@ -147,7 +194,8 @@ def assets():
     out={}
     for name,c,pal,opaque in [('world',world(),WORLD,True),('title',title(),WORLD,True),
         ('hero',sheets([hero(v,f) for v in range(4) for f in range(12)],12),HERO,False),
-        ('moth',sheets([moth(f) for f in range(4)],4),PROPS,False),('mote',sheets([mote(f) for f in range(4)],4),PROPS,False),
+        ('moth',sheets([moth(f) for f in range(6)],6),PROPS,False),('mote',sheets([mote(f) for f in range(4)],4),PROPS,False),
+        ('pulse',sheets([pulse(f) for f in range(4)],4),PROPS,False),
         ('beacon',sheets([beacon(f) for f in range(4)],4),PROPS,False)]:out[name+'.png']=png(c.w,c.h,c.p,pal,not opaque)
     out['font.h']=('static const u32 font_tiles[768]={'+','.join(hex(v) for v in font_words())+'};\n').encode()
     out['ui.h']=('static const u16 ui_colors[16]={'+','.join(hex((b<<9)|(g<<5)|(r<<1))for r,g,b in UI)+'};\n').encode()
