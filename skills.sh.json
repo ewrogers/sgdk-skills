@@ -30,6 +30,7 @@
         "sgdk-isometric",
         "sgdk-streaming",
         "sgdk-compression",
+        "sgdk-multitasking",
         "sgdk-gameplay",
         "sgdk-collision",
         "sgdk-combat",

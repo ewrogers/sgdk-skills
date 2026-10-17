@@ -9,7 +9,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ["sgdk-compression", "sgdk-puzzle", "sgdk-combat", "sgdk-multiplayer", "sgdk-hardware", "sgdk-isometric", "sgdk-collision", "sgdk-animation", "sgdk-memory", "sgdk-best-practices", "sgdk-planning", "sgdk-project", "sgdk-assets", "sgdk-pixellab", "sgdk-graphics", "sgdk-effects", "sgdk-raster", "sgdk-audio", "sgdk-input", "sgdk-ui", "sgdk-localization", "sgdk-dialogue", "sgdk-levels", "sgdk-streaming", "sgdk-gameplay", "sgdk-platformer", "sgdk-shmup", "sgdk-rpg", "sgdk-math", "sgdk-ai", "sgdk-scenes", "sgdk-save", "sgdk-performance", "sgdk-debug", "sgdk-testing", "sgdk-release", "sgdk-cartridge"]
+SKILLS = ["sgdk-multitasking", "sgdk-compression", "sgdk-puzzle", "sgdk-combat", "sgdk-multiplayer", "sgdk-hardware", "sgdk-isometric", "sgdk-collision", "sgdk-animation", "sgdk-memory", "sgdk-best-practices", "sgdk-planning", "sgdk-project", "sgdk-assets", "sgdk-pixellab", "sgdk-graphics", "sgdk-effects", "sgdk-raster", "sgdk-audio", "sgdk-input", "sgdk-ui", "sgdk-localization", "sgdk-dialogue", "sgdk-levels", "sgdk-streaming", "sgdk-gameplay", "sgdk-platformer", "sgdk-shmup", "sgdk-rpg", "sgdk-math", "sgdk-ai", "sgdk-scenes", "sgdk-save", "sgdk-performance", "sgdk-debug", "sgdk-testing", "sgdk-release", "sgdk-cartridge"]
 
 
 def main():

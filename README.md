@@ -43,6 +43,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 | [sgdk-isometric](skills/sgdk-isometric/SKILL.md) | Project diamond maps, sort elevated scenery and handle bridges, stairs and occlusion. Includes Isometric Lab. |
 | [sgdk-streaming](skills/sgdk-streaming/SKILL.md) | Stream area art through tile caches, keep shared art resident and budget uploads. Includes Streaming Lab. |
 | [sgdk-compression](skills/sgdk-compression/SKILL.md) | Compare packed asset sizes, decode time and staging RAM, with loading and preloading examples. Includes Compression Lab. |
+| [sgdk-multitasking](skills/sgdk-multitasking/SKILL.md) | Spare-time CPU jobs, background decoding and safe result handoff |
 | [sgdk-gameplay](skills/sgdk-gameplay/SKILL.md) | Add movement, collision, camera following and reusable object pools with consistent timing. |
 | [sgdk-collision](skills/sgdk-collision/SKILL.md) | Add swept boxes, finite rays and bounded wall sliding, with explicit contact rules. Includes Collision Lab. |
 | [sgdk-combat](skills/sgdk-combat/SKILL.md) | Resolve damage, guarding, knockback, invulnerability and simultaneous attacks. Includes optional co-op Combat Lab. |
