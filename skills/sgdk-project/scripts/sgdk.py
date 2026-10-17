@@ -55,6 +55,20 @@ def initialize(destination, image, platform):
             return result
         if not (staging / "src" / "main.c").is_file():
             raise ValueError("The container did not provide the expected SGDK example")
+        header = staging / "src" / "boot" / "rom_head.c"
+        if header.is_file():
+            # ROM fields are fixed-width, space-padded bytes, not C strings.
+            # Keep those bytes intact; GCC 16 warns only about the absent NUL.
+            # Do not suppress oversized fields or warnings in game code.
+            header.write_text(
+                '/* Fixed-width cartridge metadata intentionally has no trailing NUL. */\n'
+                '#if defined(__GNUC__) && __GNUC__ >= 16\n'
+                '#pragma GCC diagnostic push\n'
+                '#pragma GCC diagnostic ignored "-Wunterminated-string-initialization"\n'
+                '#endif\n' + header.read_text(encoding="utf-8") +
+                '\n#if defined(__GNUC__) && __GNUC__ >= 16\n'
+                '#pragma GCC diagnostic pop\n'
+                '#endif\n', encoding="utf-8")
         ignore = staging / ".gitignore"
         if not ignore.exists():
             ignore.write_text("out/\n", encoding="utf-8")

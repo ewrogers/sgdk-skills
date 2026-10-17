@@ -18,6 +18,16 @@ convention, not automatic power-of-two cartridge sizing. Distinguish meaningful
 ROM data, final padded file size and the capacity of the chosen physical cart.
 Do not confuse SGDK's XOR-folded checksum with a generic Sega word-sum checksum.
 
+The SDK sample's ROM header contains fixed-width, space-padded fields. They are
+cartridge bytes, not NUL-terminated C strings. GCC 16 warns about the deliberately
+absent terminators. The project initializer scopes that one diagnostic to the
+copied `rom_head.c`; it preserves the header bytes and leaves other warnings on.
+Keep names within their field widths. Do not silence warnings across the project
+or shorten valid metadata just to remove its space padding. Review the stock
+header's ROM range, region and SRAM declaration for the actual game before release.
+See [GCC's warning options](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunterminated-string-initialization)
+and [SGDK's header definition](https://github.com/Stephane-D/SGDK/blob/v2.11/src/boot/rom_head.c).
+
 ## SGDK banking is a deliberate configuration
 
 The SGDK 2.11 implementation sets `ENABLE_BANK_SWITCH` to `0`. Its supported automatic binary
