@@ -9,6 +9,11 @@ Make the important contracts visible: ranges, units, ownership, lifetime and
 failure behavior. Preserve the game's existing architecture and creative
 direction. These are implementation patterns, not a new engine or style guide.
 
+Treat Labs as optional evidence for a specific technique. Explain the contract
+being reused and adapt it to the game; do not inherit a Lab's controls,
+progression, scene flow or module layout merely because working code exists.
+Whole-game copying is appropriate only when the developer asks for it.
+
 ## Choose the relevant check
 
 - [C correctness](references/c-correctness.md): promotions, overflow, shifts,

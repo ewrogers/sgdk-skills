@@ -16,6 +16,11 @@ that materially change the initial proof, such as the core mechanic, target
 region, simultaneous players or a required cartridge. Record reversible
 assumptions and proceed instead of making the developer answer a fixed survey.
 
+Choose mechanics, controls and progression from that brief, not from the nearest
+Lab. Examples can reveal a technical risk or a useful solution; their game loop,
+content and tuning are not defaults for the plan. If creative direction is open,
+offer choices suited to the request rather than silently reproducing an example.
+
 Describe what the player will see and do in the first milestone, including how
 to tell whether it works. Keep the intended game recognizable while reducing
 content. A scrolling game needs an early scrolling proof; a busy shooter needs

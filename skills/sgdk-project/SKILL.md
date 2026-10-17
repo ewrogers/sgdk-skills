@@ -9,6 +9,11 @@ Help the developer get a normal SGDK project building. Use the container for
 the toolchain and keep source files on the host. Do not introduce a game engine
 or replace an existing build system as part of setup.
 
+Use the developer's brief and existing project to choose what to build. Labs
+are optional executable references, not default game templates. When a technique
+fits, adapt the smallest useful part rather than importing the Lab's game flow,
+controls, content or architecture. Copy a complete Lab only when requested.
+
 ## Establish the project
 
 1. Inspect existing source, resource files and Makefiles. Preserve the project's
