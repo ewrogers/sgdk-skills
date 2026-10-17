@@ -22,7 +22,7 @@ def load(name,path):
     finally:sys.path.pop(0)
     return module
 
-def execute(rom,symbols):
+def execute(rom,symbols,instruction_budget=20000000):
     from unicorn import Uc,UC_ARCH_M68K,UC_MODE_BIG_ENDIAN,UC_HOOK_MEM_WRITE
     from unicorn.m68k_const import UC_CPU_M68K_M68000,UC_M68K_REG_A7,UC_M68K_REG_D0,UC_M68K_REG_PC,UC_M68K_REG_SR
     entries=[int(l.split()[0],16) for l in symbols.splitlines() if len(l.split())==3 and l.split()[2]=='main']
@@ -37,7 +37,7 @@ def execute(rom,symbols):
             if size!=2:raise AssertionError('Expected word output')
             values.append(value&65535)
     machine.hook_add(UC_HOOK_MEM_WRITE,write)
-    machine.emu_start(entries[0],0x300000,count=20000000)
+    machine.emu_start(entries[0],0x300000,count=instruction_budget)
     if machine.reg_read(UC_M68K_REG_PC)!=0x300000:raise AssertionError('Probe instruction budget exceeded')
     return machine.reg_read(UC_M68K_REG_D0)&65535,values
 

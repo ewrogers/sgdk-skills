@@ -29,6 +29,21 @@ The Lab declines pause/page changes during an SDK fade rather than pretending
 `XGM2_pause()` freezes the system's VBlank fade task. Adapt that policy to a
 project's scene/pause owner instead of adding conflicting clocks.
 
+## Streaming and scene fades
+
+Keep one music owner while the renderer warms or replaces map art. A new zone
+request during a fanfare updates the return destination; it must not start a
+second player. If pause arrives during an owned fade, choose whether to defer
+or decline it, and make that policy visible. A deferred request can be applied
+after the fade and observed startup, while normal VBlank work keeps running.
+
+If a scene waits for music before revealing, give that wait a stopping condition.
+The stream/audio composition example reveals ready art with silence after the
+director's startup timeout. It does not repeatedly call play or leave the screen
+black forever. This is an example fallback policy, not an SGDK timing guarantee.
+Keep map upload admission and palette publication with the renderer; the audio
+director does not own the global DMA queue.
+
 ## A bounded effects batch
 
 Sound Desk takes up to four distinct requests per serviced game update and coalesces

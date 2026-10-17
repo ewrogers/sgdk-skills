@@ -85,9 +85,12 @@ static bool palettes(u16 x)
     for(u16 room=x/320;room<=(x+319)/320;room++) {
         u16 bank=room&1;
         if(palette_owner[bank]==room)continue;
+        u16 saved[16];memcpy(saved,colors[bank],sizeof(saved));
         for(u16 i=0;i<16;i++)colors[bank][i]=area_colors[room][i];
         if(fade.state==SW_FADE_IDLE &&
-           !sc_queue_words(&io,DMA_CRAM,colors[bank],(PAL1+bank)*32,16,2))return false;
+           !sc_queue_words(&io,DMA_CRAM,colors[bank],(PAL1+bank)*32,16,2)) {
+            memcpy(colors[bank],saved,sizeof(saved));return false;
+        }
         palette_owner[bank]=room;
     }
     return true;
@@ -118,6 +121,7 @@ static void frame(u16 held,u16 hz)
         player=fade_destination+160;cover(fade_destination);warp_covered=true;
     }
     bool fading=fade.state!=SW_FADE_IDLE;
+    SwFade fade_before=fade;
     sw_fade_tick(&fade,hz,!loading);
     s16 next_player=(s16)player;
     phase+=60;u16 steps=0;while(phase>=hz){phase-=hz;steps++;}
@@ -135,23 +139,25 @@ static void frame(u16 held,u16 hz)
     if(loading) {
         if(view_ready(load_camera) && view_ready(clamp_camera((s16)load_camera-128)) &&
            view_ready(clamp_camera((s16)load_camera+128))) {
-            bool ok=palettes(load_camera);
+            bool ok=true;
             for(u16 i=0;i<4 && ok && build_column<sw_columns(load_camera);i++) {
                 u16 world_column=load_camera/8+build_column;
                 if(world_column>=160) { build_column=sw_columns(load_camera);break; }
                 ok=column(world_column,i);if(ok)build_column++;
             }
+            if(ok)ok=palettes(load_camera);
             if(ok && build_column>=sw_columns(load_camera)) {
                 camera=load_camera;loading=false;
                 /* Expose only after the queued columns have actually flushed. */
             }
         }
     } else if(view_ready(next_camera)) {
-        bool ok=palettes(next_camera);
+        bool ok=true;
         u16 entering;
         if(ok && sw_entering(camera,next_camera,&entering)) {
             ok=column(entering,0);
         }
+        if(ok)ok=palettes(next_camera);
         if(ok) {camera=next_camera;player=(u16)next_player;}
         else cover(camera);
     } else if(!loading && next_camera!=camera && walk_waits<99)walk_waits++;
@@ -172,7 +178,7 @@ static void frame(u16 held,u16 hz)
             fade_colors[32+i]=sw_fade_color(colors[1][i],fade.level);
             fade_colors[48+i]=sw_fade_color(hero_colors[i],fade.level);
         }
-        sc_queue_words(&io,DMA_CRAM,fade_colors,0,64,2);
+        if(!sc_queue_words(&io,DMA_CRAM,fade_colors,0,64,2))fade=fade_before;
     }
 }
 

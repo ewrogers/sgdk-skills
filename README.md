@@ -165,6 +165,8 @@ testing. See [testing and maintenance](docs/testing.md) for checks, image update
 and the exact validation boundaries.
 The [composition milestone](docs/validation-milestone.md) also checks several
 skills together in a new disposable game, rather than only rebuilding the Labs.
+Its [streaming/audio follow-up](docs/validation-streaming-audio.md) checks bounded
+uploads, palette publication and asynchronous music handoffs together.
 
 The skills and original examples are MIT licensed. SGDK and the bundled
 toolchain retain their own licenses.
