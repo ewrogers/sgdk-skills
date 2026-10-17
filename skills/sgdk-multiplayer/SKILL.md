@@ -71,3 +71,7 @@ presentation; it does not test multitap electronics or the polling protocol.
 
 Use sgdk-performance for measured frame costs, sgdk-raster for split-screen
 rendering and sgdk-hardware for physical compatibility checks when available.
+
+For damage filtering, friendly fire and hit reactions between participants,
+use sgdk-combat when available. Preserve the session’s player assignments and
+respawn rules rather than creating a second participant registry.

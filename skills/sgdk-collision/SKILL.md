@@ -56,3 +56,7 @@ game's actual rules, not SGDK palette or sprite priority flags.
 [Collision Lab](assets/collision-lab/README.md) is a standalone executable example
 with endpoint/swept shots, movable aiming rays and wall sliding. Its art and
 controls demonstrate the algorithms; they do not prescribe another game's style.
+
+For deciding whether a valid contact causes damage, is blocked or triggers a
+reaction, use sgdk-combat when available. Those policies do not change the
+geometric meaning of this skill’s query results.

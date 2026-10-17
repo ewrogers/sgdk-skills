@@ -72,3 +72,7 @@ Check per-frame work and total wait time separately.
 Build release/debug through the container, then playtest facing, alerts,
 attacks, navigation and readability. Record actual tool versions and distinguish
 host simulation, build validation, emulator playtests and console measurements.
+
+For damage, guarding and reactions after an enemy requests an attack, use
+sgdk-combat when available. Detection and the decision to attempt a guard remain
+AI policy; the combat resolver decides whether that guard blocks the contact.
