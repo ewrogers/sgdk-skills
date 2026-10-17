@@ -12,6 +12,12 @@ not SGDK scene objects or a required game framework. It shows title, options,
 credits, a timed HUD demo, pause and results. Options remain in RAM when
 returning to the title; the lab does not save them to SRAM.
 
+For unfamiliar rules, explain the player's goal and one concrete first action
+before presenting a list of buttons. Group related choices and keep the next
+action visible. If a guide becomes a wall of text, short pages or an in-context
+example may be easier to follow. Check with a first-time player: correct input
+handling and a successful build do not establish that the game is understandable.
+
 ## Press once, repeat deliberately
 
 `JOY_readJoypad(JOY_1)` returns SGDK's cached state. Normal

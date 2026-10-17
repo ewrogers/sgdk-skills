@@ -52,20 +52,23 @@ source in the model's context.
 ## First-submission assessment
 
 The first submission preserves the requested design in the reviewed source and
-visible title. No design leakage was found. The source was frozen before review;
+visible title. No design leakage was found, but the user's playtest found a
+usability failure: flashing text, an overwhelming desk and a dense guide that
+did not explain the game clearly. Adaptation and usable presentation are
+separate checks. The source was frozen before review;
 the 13 retained files in `submission/` are byte-identical to that handoff. The
 reviewer added separate checks without rewriting the submitted game.
 
 | Gate | Finding | Evidence |
 | --- | --- | --- |
-| Identity | Pass for source/title; live desk presentation awaiting playtest | `submission/src/main.c` draws a paper/ink/amber schematic with original tram/interlock tiles and the SDK bitmap font. The title displayed correctly in ares. |
+| Identity | Design preserved; live presentation failed usability review | `submission/src/main.c` draws the requested schematic. The title displayed correctly, but the user found the desk overwhelming and reported flashing text. |
 | Flow | Pass in source | `main.c` has title, desk and report states, with a help overlay. Begin enters the desk directly; retry resets the same shift. No character selection, stages, combat or reward economy. |
 | Controls | Pass in source and target execution | `main.c:103–112` maps actual SDK masks to desk actions; `desk.c:38–54` implements C dispatch, B clear, A hold and Start help. A temporary C-to-A mutation is rejected by the target probe. |
 | Dispatch | Pass | The submitted test checks 144 ordered route pairs, capacity, backlog and release. Reviewer checks independently specify the X/Y route table, rejected-state preservation and release. |
 | Clock/retry | Pass in model | Exactly 4,500 PAL frames or 5,400 NTSC frames complete the shift; matching second-boundary actions produce equal state. Help preserves both running and held states. Retry restores the initial timetable. |
 | Technique transfer | Pass in reviewed implementation | Fixed service storage, admission before mutation, stable service IDs, press edges, a regional phase accumulator and exclusive PSG ownership serve this game's rules. |
 | Provenance | No evidence of Lab game copying | No exact matches for the three submitted game C/H files against installed assets; comparison covered 257 asset C/H files. Longest shared sequences were 16 tokens in the clock, 15 in the renderer and 5 in the header: ordinary loop/clock/VDP idioms. Manual review found no imported Lab game flow or incidental content. |
-| Evidence limits | Partial runtime confirmation | Release builds, host contracts and base-M68000 checks are automated. The ares title is visible. Interactive gameplay, audio balance, frame cost and physical hardware are not certified by those checks. |
+| Evidence limits | Runtime usability failure found | Build/model/mapping checks passed, but did not catch active-display clear/redraw flashing or establish that a new player understood the rules. Audio balance, frame cost and physical hardware remain unverified. |
 
 The agent's engineering handoff reports using `sgdk-project`, `sgdk-input`,
 `sgdk-ui`, `sgdk-audio`, `sgdk-testing` and `sgdk-release`, with specific supporting
@@ -114,4 +117,43 @@ This is a strongly specified counter-example brief and one independent run.
 It supports adaptation under these conditions, not a guarantee of originality
 with a vague brief or after reading a whole genre Lab. A useful later evaluation
 would use a nearby genre with different rules and deliberate example exposure.
-No additional skill rule was warranted by this submission.
+The initial source review did not justify another creative-direction rule. The
+subsequent playtest did justify the focused UI corrections below.
+
+## Informed usability revision
+
+`revision/` is an author correction after user feedback, not another blind agent
+pass. The original 13-file handoff and its hashes remain unchanged. Both versions
+use the same frozen dispatch model; the revision changes presentation and guide
+navigation, keeping C dispatch, B clear, A hold and Start help.
+
+The desk now groups waiting trams, bay choices and moving trams into panels.
+The selected tram/bay have a clear background highlight; a persistent prompt
+names the next action, such as sending tram 101 to bay 1. The title explains the
+job before the player begins. Three guide pages cover the goal, controls and
+shared-track waits. Left/Right changes pages, C advances/returns, and Start closes
+the guide while preserving the previous held/running state.
+
+The old renderer cleared visible text and track areas before redrawing them.
+The revision composes both plane maps in RAM, queues only changed complete rows,
+and leaves their source immutable until `SYS_doVBlankProcess` drains the queue.
+It has no active-display clears or text writes. Maximum publication is 56 row
+operations and 4,480 bytes per frame, below the selected SDK's defaults of 80
+operations and 7,200 bytes in NTSC. This is the sole queue producer. Two staged /
+displayed plane maps consume 8,960 bytes plus small metadata; no runtime heap is
+needed. The SDK font slots are retained and six 8x8 patterns are used for panels,
+rails and trams. These are choices for this desk, not a prescribed UI framework.
+
+`tests/test_design_adaptation_ui.py` covers the paged guide, hold restoration,
+input consumption on close, visible bounds, a full shift/report/retry and queued
+row ownership. Its fake VRAM never receives an intermediate blank frame, and an
+unchanged final screen publishes no rows. The real ROM builds against the selected
+SDK for PAL/NTSC on ARM64 and AMD64 with matching hashes. Those tests do not
+certify physical scanout or whether a new player finds it understandable; the
+updated title was checked in ares, with fresh desk/flicker confirmation pending.
+The full host suite now runs 504 tests with 47 opt-in integration skips; the
+revised UI's affected contracts also pass after the final guide-close check.
+
+The UI skill references now explain the observed clear/redraw failure and the
+need to teach an unfamiliar game's goal/first action. They do not require paneling,
+paged tutorials or this desk's visual style in other games.

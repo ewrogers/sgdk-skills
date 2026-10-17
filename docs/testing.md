@@ -942,3 +942,11 @@ execute a base-M68000 probe including the submitted SDK button adapter. Delibera
 mapping C to A must be detected. CI retains logs/reports and compares native
 ARM64/AMD64 results. Those tests do not run a fresh agent in CI or establish
 visual quality, audible quality, controller feel or originality for future games.
+
+User playtesting subsequently found flashing and an overwhelming interface in
+that frozen submission. The separately labeled `revision/` is an informed
+correction, not a replacement blind result. `tests/test_design_adaptation_ui.py`
+checks bounded layouts, paged help/hold restoration and a RAM-staged presenter:
+borrowed rows cannot change before drain; unchanged rows are not republished.
+Real SDK builds validate the API use, while ares/hardware remain necessary to
+check actual flicker and readability. CI compares revised PAL/NTSC ROM hashes too.
