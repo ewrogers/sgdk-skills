@@ -68,6 +68,24 @@ void hl_ui_bar(u16 active,u16 cells,u16 x,u16 y)
 {
     for(u16 i=0;i<cells;i++)hl_ui_art(HL_READY_METER_OFFSET+(i<active ? 2 : 0),1,1,x+i,y);
 }
+void hl_ui_arrow(u16 direction,u16 x,u16 y,u16 pal)
+{
+    VDP_setTileMapXY(BG_A,TILE_ATTR_FULL(pal,TRUE,FALSE,FALSE,
+        LAB_TILE_START+HL_LAB_ARROW_OFFSET+direction),x,y);
+}
+void hl_ui_amp(u16 phase,bool active,u16 x,u16 y)
+{
+    static const u16 heights[8]={5,11,18,23,16,9,20,4};
+    for(u16 col=0;col<4;col++) {
+        u16 height=active ? heights[(phase+col*3)%8] : 0;
+        for(u16 row=0;row<3;row++) {
+            u16 bottom=(2-row)*8;
+            u16 fill=height<=bottom ? 0 : height-bottom>=8 ? 8 : height-bottom;
+            VDP_setTileMapXY(BG_A,TILE_ATTR_FULL(PAL0,TRUE,FALSE,FALSE,
+                LAB_TILE_START+HL_LAB_AMP_OFFSET+fill),x+col,y+row);
+        }
+    }
+}
 void hl_ui_begin(u16 page)
 {
     u16 font[16];PAL_setPalette(PAL0,colors,CPU);

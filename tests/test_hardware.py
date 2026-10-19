@@ -78,13 +78,13 @@ class HardwareTests(unittest.TestCase):
         self.assertTrue(all((word>>shift)&15 in (1,2,3,4,5,15) for word in words for shift in range(0,32,4)))
         from lab_art import artwork as lab_artwork
         lab_words,offsets,widths=lab_artwork()
-        self.assertEqual(len(lab_words),224*8)
+        self.assertEqual(len(lab_words),237*8)
         self.assertTrue(all((word>>shift)&15 in (1,2,3,4,5,15) for word in lab_words for shift in range(0,32,4)))
         for offset,width in zip(offsets,widths):
             self.assertGreaterEqual(offset,80)
             self.assertLessEqual(offset+width*2,224)
             self.assertLessEqual(9+width,38)
-        self.assertLessEqual((19+59+224)*32,0x8000)
+        self.assertLessEqual((19+59+237)*32,0x8000)
         release=prepare.build_identity()
         self.assertEqual(release,prepare.build_identity())
         self.assertNotEqual(release['build_id'],prepare.build_identity('debug')['build_id'])

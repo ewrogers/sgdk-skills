@@ -60,13 +60,29 @@ def artwork():
                         for dy in (0, 1):
                             for dx in (0, 1): p[y*2+dy][i*12+x*2+dx] = 15
         words += tile_words(p)
+    # Native arrow cells keep ordinary font glyphs unchanged.
+    arrows=((4,14,21,4,4,4,4),(4,4,4,4,21,14,4),
+            (4,8,16,31,16,8,4),(4,2,1,31,1,2,4))
+    for shape in arrows:
+        pixels=[[2]*8 for _ in range(8)]
+        for y,bits in enumerate(shape):
+            for x in range(5):
+                if bits & (1<<(4-x)):pixels[y][x+1]=15
+        words += tile_words(pixels)
+    # Nine fill levels for a small four-column playback indicator.
+    for fill in range(9):
+        words += tile_words([[4 if 1<=x<=5 and y>=8-fill and y%3!=0 else 2
+                              for x in range(8)]for y in range(8)])
     return words, offsets, widths
 
 
 def header():
     words, offsets, widths = artwork()
+    arrow_offset=offsets[-1]+widths[-1]*2
     return ('/* Original diagnostic icons and 2x titles. */\n'
             f'#define HL_LAB_TILE_COUNT {len(words)//8}\n'
+            f'#define HL_LAB_ARROW_OFFSET {arrow_offset}\n'
+            f'#define HL_LAB_AMP_OFFSET {arrow_offset+4}\n'
             'static const u16 hl_lab_title_offsets[5] = {' + ','.join(map(str, offsets)) + '};\n'
             'static const u16 hl_lab_title_widths[5] = {' + ','.join(map(str, widths)) + '};\n'
             'static const u32 hl_lab_tiles[HL_LAB_TILE_COUNT * 8] = {\n' +

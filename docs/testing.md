@@ -813,7 +813,7 @@ Python CRC oracle checks the serialized bytes.
 Standalone preparation is exercised through a second copied project. The PCM
 reference is a native 256-sample, zero-DC waveform with bounded adjacent sample
 steps, including its loop boundary.
-Art checks cover the 59 readiness tiles and 224 diagnostic title/icon tiles,
+Art checks cover the 59 readiness tiles and 237 diagnostic title/icon/arrow/bar tiles,
 their palette indices, title spans, and separation from the DMA workload range.
 Preparation checks cover deterministic
 copying of generated headers, source-sensitive preparation IDs, mode/region

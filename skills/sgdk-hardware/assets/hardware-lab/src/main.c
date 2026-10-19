@@ -103,7 +103,7 @@ int main(bool hard_reset)
         }
         HlPageView view={.music=music,.pcm=pcm,.overflow=overflow,.capture=capture,.valid=valid,
             .mode=mode,.rejected=rejected,.write_status=write_status,.held=held,
-            .missed=clock.missed,.sequence=sequence};
+            .missed=clock.missed,.sequence=sequence,.vints=clock.elapsed};
         if(dirty) {
             VDP_clearPlane(BG_A,TRUE);VDP_clearPlane(BG_B,TRUE);
             VDP_clearSprites();VDP_updateSprites(1,DMA_QUEUE);

@@ -22,7 +22,7 @@ void hl_ready_open(bool hard_reset, u16 entry_data, u16 entry_bss, bool pal, con
     hl_ui_text(bss_ok ? "PASS" : "CHECK", 29, 14, bss_ok ? PAL3 : PAL1);
     hl_ui_text("EVERDRIVE EDIO", 4, 16, PAL2);
     hl_ui_text(link->present ? "DETECTED" : "UNKNOWN", 25, 16, link->present ? PAL3 : PAL1);
-    hl_ui_text("USB LINK", 4, 17, PAL2);
+    hl_ui_text("USB HOST CHECK", 4, 17, PAL2);
 
     hl_ui_card(20, 4);
     hl_ui_text("RUNNING", 4, 21, PAL1);

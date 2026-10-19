@@ -143,3 +143,37 @@ base-M68000 contracts and expanded native-art/copy checks. Skills CLI copied all
 `build/hardware-pages/final-qy8urdj0/` (`page-1` through `page-5`, `transitions`,
 and final default build/capture in `normal`). Generated ROMs and captures remain
 excluded from Git.
+
+## Follow-up: sprite containment, arrows and music activity
+
+The next revision centers both sprite rows inside the panel using tighter
+horizontal spacing, preserving piece counts/sizes and the two test scanlines.
+Four native arrow tiles replace U/D/L/R in the controller view. Sound now has
+a four-column playback animation gated by SGDK's actual `XGM2_isPlaying()`
+state while music is enabled. Phase comes from the existing VInt clock; these
+bars do not measure audio amplitude. Total shared art is now 296 tiles / 9472
+VRAM bytes, still below the private DMA workload.
+
+Ignored initial-state variants were built and hard-reset uploaded for capture:
+`HL-26034E34-RA` (at-limit sprites), `HL-5084A27D-RA` (overload sprites),
+`HL-6061C556-RA` (controller arrows), and `HL-DCF9149B-RA` (music enabled).
+HD60 X inspection showed the sprite patterns within the panel in both modes,
+all four arrow directions on both ports, and different bar heights in music
+frames 00 and 02 while PLAYING was displayed. MISS and rejected queues were
+zero in the reviewed music frames. Capture audio remained disabled; this does
+not establish audible quality, measured amplitude or manual input response.
+
+The normal build `HL-1F3F1E3A-RA` was then warning-free built, hard-reset uploaded
+and captured. Its source SHA-256 is
+`1f3f1e3aaa863753e16b58dbcddc9470650aea77fcb28165fdabb0302fb5e83e`;
+131072-byte ROM SHA-256 is
+`8ddb6e4c93de48b851f2ee7e91c5f6d224c3caaf588cada83d86040e356884a7`.
+Final readiness showed HARD, DATA/BSS PASS, EDIO DETECTED, USB HOST CHECK
+VERIFIED and MISS zero; five exchanges completed in 5.256 seconds. The field
+was renamed to distinguish the host verifier from cable presence. WAITING is
+the initial unverified state, and EXPIRED follows five seconds without renewal,
+including after the bounded host process exits. The lease behavior is unchanged.
+
+All 55 focused tests and the 38-skill installation check passed. Ignored evidence
+is in `build/hardware-tweaks/run-e8jax4g3/`, with individual captures under
+`sprites`, `overload`, `input`, `music`, and final default build under `normal`.

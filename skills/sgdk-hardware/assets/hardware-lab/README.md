@@ -37,16 +37,22 @@ The region label is the actual SGDK video flag, not just the ROM header.
 
 The five diagnostic pages share the same header, original 2x titles, page icons
 and rounded panels. Video keeps its full-color ramp, fine patterns and four
-corner crop markers. Sprite rows retain their original piece sizes/positions.
+corner crop markers. Sprite rows retain their piece counts, sizes and scanlines,
+with horizontal spacing centered inside the panel in both modes.
 DMA/Audio shows the selected extra upload as a bar, not a total VRAM budget.
-Controllers shows both raw port/device/held values and sampled button marks
+Controllers shows both raw port/device/held values, native D-pad arrows and sampled button marks
 (`S` = Start, `M` = Mode). Save keeps its explicit read and guarded write controls.
+Sound's four animated bars follow actual `XGM2_isPlaying()` state using the
+existing VInt clock. They indicate playback activity, not measured amplitude.
 
 The page also probes EverDrive's EDIO signature/read strobe and shows DETECTED
 or UNKNOWN. It does not infer the console model or prove physical hardware.
-USB LINK starts WAITING and becomes VERIFIED only after a fresh host/ROM
+USB HOST CHECK starts WAITING and becomes VERIFIED only after a fresh host/ROM
 challenge-response and acknowledgement. It expires after five seconds without
-renewal. With sgdk-project installed, run its host client against this Lab:
+renewal. WAITING means no check has completed since boot; EXPIRED means no fresh
+check arrived within that lease, including when a bounded host run ends. These
+states track host verification activity, not cable presence. With sgdk-project
+installed, run its host client against this Lab:
 
 ```sh
 python /path/to/sgdk-project/scripts/everdrive.py --port ACTUAL_PORT --timeout 40 verify-lab --duration 30
@@ -89,8 +95,8 @@ uses the existing VInt clock and refreshes every ten samples, not a second clock
 Counters begin after the first screen's queued setup reaches VRAM; C resets them.
 B forces SDK initialization and memory clear, not electrical power cycling.
 
-The shared art adds 283 tiles (9056 bytes) in VRAM `$0260..$25BF`: 59 readiness
-tiles plus 224 tiles for the other page titles/icons. It loads once per entry
+The shared art adds 296 tiles (9472 bytes) in VRAM `$0260..$275F`: 59 readiness
+tiles plus 237 for page titles/icons, arrows and playback bars. It loads once per entry
 with display disabled and remains resident below the private DMA workload.
 Readiness uses all four palette banks; other pages reserve PAL1 for saturated
 diagnostic colors and use the remaining banks for the shared UI. Page changes

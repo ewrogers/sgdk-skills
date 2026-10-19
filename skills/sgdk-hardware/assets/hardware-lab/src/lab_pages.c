@@ -6,11 +6,13 @@ static void label(const char *value,u16 y)
 static void sprites(bool overflow)
 {
     u16 index=0,count=overflow ? 21 : 20;
+    u16 start=32+(256-((count-1)*12+8))/2;
     for(u16 i=0;i<count;i++,index++)
-        VDP_setSpriteFull(index,8+i*14,104,SPRITE_SIZE(1,1),TILE_ATTR_FULL(PAL1,TRUE,FALSE,FALSE,3+i%6),index+1);
+        VDP_setSpriteFull(index,start+i*12,104,SPRITE_SIZE(1,1),TILE_ATTR_FULL(PAL1,TRUE,FALSE,FALSE,3+i%6),index+1);
     count=overflow ? 11 : 10;
+    start=32+(256-((count-1)*22+32))/2;
     for(u16 i=0;i<count;i++,index++)
-        VDP_setSpriteFull(index,4+i*28,152,SPRITE_SIZE(4,1),TILE_ATTR_FULL(PAL1,TRUE,FALSE,FALSE,3),index+1);
+        VDP_setSpriteFull(index,start+i*22,152,SPRITE_SIZE(4,1),TILE_ATTR_FULL(PAL1,TRUE,FALSE,FALSE,3),index+1);
     VDP_setSpriteLink(index-1,0);VDP_updateSprites(index,DMA_QUEUE);
 }
 static void pad(u16 base,u16 port,u16 joy,u16 held)
@@ -20,9 +22,9 @@ static void pad(u16 base,u16 port,u16 joy,u16 held)
     hl_ui_text("HELD",base,14,PAL3);hl_ui_hex(held,4,base+8,14,PAL2);
     static const u16 bits[]={BUTTON_UP,BUTTON_DOWN,BUTTON_LEFT,BUTTON_RIGHT,
         BUTTON_A,BUTTON_B,BUTTON_C,BUTTON_X,BUTTON_Y,BUTTON_Z,BUTTON_START,BUTTON_MODE};
-    static const char *names[]={"U","D","L","R","A","B","C","X","Y","Z","S","M"};
-    for(u16 i=0;i<12;i++)hl_ui_text(names[i],base+(i<4 ? i : i-4)*2,i<4 ? 16 : 17,
-                                   held&bits[i] ? PAL2 : PAL3);
+    static const char *names[]={"A","B","C","X","Y","Z","S","M"};
+    for(u16 i=0;i<4;i++)hl_ui_arrow(i,base+i*2,16,held&bits[i] ? PAL2 : PAL3);
+    for(u16 i=4;i<12;i++)hl_ui_text(names[i-4],base+(i-4)*2,17,held&bits[i] ? PAL2 : PAL3);
 }
 void hl_pages_open(u16 page,const HlPageView *v)
 {
@@ -49,6 +51,7 @@ void hl_pages_open(u16 page,const HlPageView *v)
         hl_ui_text("PIECES / PIXELS TESTED SEPARATELY",2,25,PAL0);
     } else if(page==3) {
         hl_ui_card(10,6);label("SOUND ENGINE / XGM2",11);
+        hl_ui_text("PLAY",32,11,PAL3);
         label("A MUSIC",12);label("START PCM",14);
         hl_ui_card(17,7);label("EXTRA VRAM TRANSFER",18);
         label("B EXTRA DMA",19);label("MISSED LOOPS",21);label("REJECTED QUEUE",22);
@@ -71,8 +74,10 @@ void hl_pages_open(u16 page,const HlPageView *v)
 void hl_pages_update(u16 page,const HlPageView *v)
 {
     if(page==3) {
-        hl_ui_field(v->music ? "PLAYING" : "OFF",24,12,10,PAL2);
-        hl_ui_field(v->pcm ? "LOOPING" : "OFF",24,14,10,PAL2);
+        const bool playing=v->music && XGM2_isPlaying();
+        hl_ui_field(playing ? "PLAYING" : v->music ? "IDLE" : "OFF",24,12,7,PAL2);
+        hl_ui_field(v->pcm ? "LOOPING" : "OFF",24,14,7,PAL2);
+        hl_ui_amp(v->vints/10,playing,32,12);
         hl_ui_field(v->mode==0 ? "0 BYTES" : v->mode==1 ? "1024 BYTES" : "2048 BYTES",24,19,10,PAL2);
         hl_ui_bar(v->mode*16,32,4,20);
         hl_ui_number(v->missed,25,21);hl_ui_number(v->rejected,25,22);
