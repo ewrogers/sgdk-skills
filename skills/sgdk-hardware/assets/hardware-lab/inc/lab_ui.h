@@ -9,6 +9,7 @@ void hl_ui_hex(u32 value,u16 digits,u16 x,u16 y,u16 pal);
 void hl_ui_number(u32 value,u16 x,u16 y);
 void hl_ui_field(const char *value,u16 x,u16 y,u16 width,u16 pal);
 void hl_ui_card(u16 y,u16 height);
+void hl_ui_panel(u16 x,u16 y,u16 width,u16 height);
 void hl_ui_art(u16 offset,u16 width,u16 height,u16 x,u16 y);
 void hl_ui_solid(u16 color,u16 x,u16 y,u16 width,u16 height);
 void hl_ui_meter(u16 head,u16 x,u16 y);

@@ -60,8 +60,10 @@ Host-to-guest uses the existing FCI FIFO memory-write command at `$01810000`.
 Guest-to-host uses Krikzz CMD_USB_WR (`$22`), u16 payload length, then packet.
 Guest byte I/O is at `$A130D1`, available-byte count at `$A130D2 & $7FF`.
 There are no game-side busy waits, disk commands, DMA acknowledgements or FIFO
-flush at startup. Each frame consumes at most 32 available bytes, with at most
-three completed packets / 54 outbound command bytes in that bound. Normal
+flush at startup. The Lab now uses the optional input hook as its single FIFO
+owner, demultiplexing HLV1 and UIV1. Each input iteration consumes at most 32
+available bytes, with at most one input ACK plus two legacy replies (82 outbound
+command bytes). An HLV1-only batch remains at most three replies / 54 bytes. Normal
 exchange is two incoming 12-byte packets and two outgoing 18-byte commands,
 spread across frames. Pending requests and incomplete packets expire after one
 second. Malformed CRCs, unknown kinds, zero requests and unmatched ACKs cannot
@@ -103,3 +105,8 @@ PASS/IDLE records the previous success rather than claiming current connectivity
 This release build used the freshly pulled `ewrogers/sgdk:latest` (SGDK 2.11,
 GCC 16.2.0, binutils 2.47.20260726). The guest wire protocol and timeout behavior
 are unchanged.
+
+The testing skill owns the optional cooperating-ROM input protocol and reusable
+module. See its [USB input integration notes](https://github.com/ewrogers/sgdk-skills/blob/main/skills/sgdk-testing/references/usb-input.md)
+when available. The readiness link and input leases have separate purposes but
+share the existing counter and one FIFO owner.

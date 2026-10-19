@@ -1,0 +1,2 @@
+# Optional host USB input; normal builds/replays do not require pySerial.
+pyserial==3.5

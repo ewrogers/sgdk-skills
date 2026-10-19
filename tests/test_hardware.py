@@ -120,9 +120,12 @@ class HardwareContainerTests(unittest.TestCase):
                 (project/'src/boot/rom_head.c').write_text(header)
                 if kind=='probe':
                     shutil.copyfile(FIXTURE/'probe.c',project/'src/main.c');shutil.copyfile(FIXTURE/'checks.h',project/'inc/checks.h')
+                    shutil.copyfile(ROOT/'tests/fixtures/usb_input.c',project/'inc/usb_input_checks.h')
+                    from test_usb_input import vectors
+                    (project/'inc/vectors.h').write_text('\n'.join('static const unsigned char '+name+'[]={'+','.join(str(b) for b in value)+'};' for name,value in vectors().items()))
                 for mode in (['release','debug'] if kind in ('rom','probe') else ['release']):
                     run('make','clean');log=run('make',mode);(out/f'{kind}-{mode}.log').write_text(log);self.assertEqual([line for line in log.splitlines() if 'warning:' in line],[])
-                    rom=(project/'out/rom.bin').read_bytes();self.assertEqual(len(rom),131072)
+                    rom=(project/'out/rom.bin').read_bytes();self.assertGreaterEqual(len(rom),131072);self.assertLessEqual(len(rom),262144);self.assertEqual(len(rom)%131072,0)
                     self.assertEqual(rom[0x1b0:0x1b4],b'RA\xf8\x20')
                     self.assertEqual(int.from_bytes(rom[0x1b4:0x1b8],'big'),0x200001)
                     self.assertEqual(int.from_bytes(rom[0x1b8:0x1bc],'big'),0x20ffff)

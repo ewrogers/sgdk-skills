@@ -15,16 +15,29 @@ static void sprites(bool overflow)
         VDP_setSpriteFull(index,start+i*22,152,SPRITE_SIZE(4,1),TILE_ATTR_FULL(PAL1,TRUE,FALSE,FALSE,3),index+1);
     VDP_setSpriteLink(index-1,0);VDP_updateSprites(index,DMA_QUEUE);
 }
-static void pad(u16 base,u16 port,u16 joy,u16 held)
+static void pad(u16 base,u16 joy,const UiPort *p,u16 x,u16 y)
 {
-    hl_ui_text("PORT",base,12,PAL3);hl_ui_hex(JOY_getPortType(port),4,base+8,12,PAL2);
-    hl_ui_text("DEVICE",base,13,PAL3);hl_ui_hex(JOY_getJoypadType(joy),4,base+8,13,PAL2);
-    hl_ui_text("HELD",base,14,PAL3);hl_ui_hex(held,4,base+8,14,PAL2);
+    const char *source=p->remote?(p->kind==UI_MOUSE?"USB MOUSE":"USB PAD"):
+        (p->kind==UI_MOUSE?"PHYSICAL MOUSE":p->kind==UI_PAD?"PHYSICAL PAD":"NO DEVICE");
+    hl_ui_field(source,base,12,14,PAL2);
+    hl_ui_text("HELD",base,13,PAL3);hl_ui_hex(p->held,4,base+8,13,PAL2);
+    hl_ui_text("HW",base,14,PAL3);hl_ui_hex(JOY_getJoypadType(joy),2,base+3,14,PAL3);
+    hl_ui_text("RAW",base+6,14,PAL3);hl_ui_hex(JOY_readJoypad(joy),4,base+10,14,PAL3);
+    hl_ui_text("DX",base,15,PAL3);hl_ui_hex((u16)p->dx,4,base+2,15,PAL2);
+    hl_ui_text("DY",base+8,15,PAL3);hl_ui_hex((u16)p->dy,4,base+10,15,PAL2);
     static const u16 bits[]={BUTTON_UP,BUTTON_DOWN,BUTTON_LEFT,BUTTON_RIGHT,
         BUTTON_A,BUTTON_B,BUTTON_C,BUTTON_X,BUTTON_Y,BUTTON_Z,BUTTON_START,BUTTON_MODE};
     static const char *names[]={"A","B","C","X","Y","Z","S","M"};
-    for(u16 i=0;i<4;i++)hl_ui_arrow(i,base+i*2,16,held&bits[i] ? PAL2 : PAL3);
-    for(u16 i=4;i<12;i++)hl_ui_text(names[i-4],base+(i-4)*2,17,held&bits[i] ? PAL2 : PAL3);
+    if(p->kind==UI_MOUSE) {
+        hl_ui_field("L   R   M   S",base,16,14,PAL3);
+        for(u16 i=0;i<4;i++)hl_ui_text(i==0?"L":i==1?"R":i==2?"M":"S",base+i*4,16,p->held&(1u<<i)?PAL2:PAL3);
+        hl_ui_field("MOUSE BUTTONS",base,17,15,PAL3);
+    } else {
+        hl_ui_field("",base,16,14,PAL3);hl_ui_field("",base,17,15,PAL3);
+        for(u16 i=0;i<4;i++)hl_ui_arrow(i,base+i*2,16,p->held&bits[i]?PAL2:PAL3);
+        for(u16 i=4;i<12;i++)hl_ui_text(names[i-4],base+(i-4)*2,17,p->held&bits[i]?PAL2:PAL3);
+    }
+    hl_ui_text("XY",base,18,PAL3);hl_ui_hex(x,4,base+2,18,PAL2);hl_ui_hex(y,4,base+9,18,PAL2);
 }
 void hl_pages_open(u16 page,const HlPageView *v)
 {
@@ -57,9 +70,9 @@ void hl_pages_open(u16 page,const HlPageView *v)
         label("B EXTRA DMA",19);label("MISSED LOOPS",21);label("REJECTED QUEUE",22);
         hl_ui_text("LISTEN FOR CRACKLE / DROPOUTS",2,25,PAL0);
     } else if(page==4) {
-        hl_ui_card(10,9);hl_ui_text("PORT 1",4,11,PAL2);hl_ui_text("PORT 2",22,11,PAL2);
-        hl_ui_card(20,4);
-        hl_ui_text("SGDK TYPE / HELD BITS",2,25,PAL0);
+        hl_ui_panel(2,10,17,13);hl_ui_panel(21,10,17,13);
+        hl_ui_text("PORT 1",3,11,PAL2);hl_ui_text("PORT 2",22,11,PAL2);
+        hl_ui_text("POINTER",3,19,PAL3);hl_ui_text("POINTER",22,19,PAL3);
     } else if(page==5) {
         hl_ui_card(10,6);label("RECORD CRC",11);label("SEQUENCE",13);
         hl_ui_bar(v->valid ? 12 : 0,12,4,14);hl_ui_text("12 BYTE RECORD",20,14,PAL3);
@@ -69,7 +82,7 @@ void hl_pages_open(u16 page,const HlPageView *v)
         hl_ui_text("REBOOT + READ TO CHECK RETENTION",4,22,PAL2);
         hl_ui_text("READBACK IS NOT POWER-LOSS PROOF",2,25,PAL0);
     }
-    hl_pages_update(page,v);
+    /* Main publishes the dynamic fields once after opening the page. */
 }
 void hl_pages_update(u16 page,const HlPageView *v)
 {
@@ -82,10 +95,19 @@ void hl_pages_update(u16 page,const HlPageView *v)
         hl_ui_bar(v->mode*16,32,4,20);
         hl_ui_number(v->missed,25,21);hl_ui_number(v->rejected,25,22);
     } else if(page==4) {
-        pad(4,PORT_1,JOY_1,v->held);pad(22,PORT_2,JOY_2,JOY_readJoypad(JOY_2));
-        hl_ui_field(v->capture ? "DPAD PAGE NAV: LOCKED" : "DPAD PAGE NAV: ENABLED",4,21,32,PAL2);
-        hl_ui_field(v->capture ? "A UNLOCKS PAGE FOR NAVIGATION" : "A LOCKS PAGE FOR INPUT TEST",4,22,32,PAL3);
-        hl_ui_field(v->capture ? "A UNLOCK  C ZERO" : "L/R PAGES  A LOCK  C ZERO",2,26,36,PAL0);
+        pad(3,JOY_1,&v->input[0],v->pointer_x[0],v->pointer_y[0]);
+        pad(22,JOY_2,&v->input[1],v->pointer_x[1],v->pointer_y[1]);
+        /* Clear each interior separately: never paint across the panel gutter
+         * or its bottom corners. Both pointer rows remain inside the cards. */
+        for(u16 i=0;i<2;i++) {
+            const u16 x=3+i*19;
+            hl_ui_field("",x,20,14,PAL3);hl_ui_field("",x,21,14,PAL3);
+            hl_ui_text("+",x+v->pointer_x[i]/8,20+v->pointer_y[i]/8,i?PAL3:PAL2);
+        }
+        hl_ui_field(v->capture ? "PAGES LOCKED / A: UNLOCK" : "L/R: PAGES / A: LOCK TEST",2,24,36,PAL0);
+        hl_ui_field(v->input[0].remote ? "USB P1 ACTIVE / PAD PAUSED" :
+                    v->input[1].remote ? "USB P2 ACTIVE / P1 READY" : "PHYSICAL PAD READY",2,25,36,PAL0);
+        hl_ui_field("C: CLEAR COUNTERS",2,26,36,PAL0);
     } else if(page==5) {
         hl_ui_field(v->valid ? "VALID" : "EMPTY/INVALID",22,11,13,PAL2);
         hl_ui_number(v->valid ? v->sequence : 0,24,13);

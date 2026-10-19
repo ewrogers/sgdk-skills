@@ -70,3 +70,7 @@ Do not promise automatic hotplug from `JOY_getPortType()` or
 `JOY_getJoypadType()`. Use deliberate rediscovery during setup if needed,
 explain its interruption, and account for the selected SGDK version's
 startup and stale-state behavior.
+
+## Optional remote test input
+
+For a user-requested development-ROM USB controller, the testing skill owns the [optional input hook](https://github.com/ewrogers/sgdk-skills/blob/main/skills/sgdk-testing/references/usb-input.md). Feed it this input owner's sampled states and route gameplay through its logical result; do not add a second physical sampler, replace SDK globals or reinterpret mouse bits as pad directions. The two USB slots can independently replace pad/mouse state until a short lease expires. This does not test electrical ports, add multitap support or control the BIOS before application entry. The hook is optional instrumentation, not a requirement for ordinary games.

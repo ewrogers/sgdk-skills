@@ -5,29 +5,46 @@
 #include "readiness.h"
 #include "lab_pages.h"
 #include "lab_ui.h"
+#include "usb_input_ed.h"
 
 /* SGDK's reset entry retains application globals. Snapshot before reinitializing. */
 static volatile u16 initialized_word=0x1234;
 static volatile u16 zero_word;
 static u16 upload[1024]; /* Retained, immutable while the DMA queue owns it. */
 static u32 tiles[18*8];
-#define ED_STATUS (*(volatile u16 *)0xa130d4)
-#define ED_FIFO_STATUS (*(volatile u16 *)0xa130d2)
-#define ED_FIFO_DATA (*(volatile u8 *)0xa130d1)
-static void ed_poll(HlEdLink *link,u32 now)
+static UsbInput remote_input;
+static s16 mouse_x[2],mouse_y[2];
+static bool mouse_seen[2];
+static u16 pointer_x[2]={48,48},pointer_y[2]={8,8};
+static void legacy_packet(void *context,const UiU8 *packet,UiU32 now)
 {
-    hl_ed_tick(link,now);
-    if(!link->present)return;
-    u16 count=ED_FIFO_STATUS & 0x7ff;
-    if(count>32)count=32;
-    for(u16 i=0;i<count;i++) {
-        u8 reply[HL_ED_PACKET_BYTES];
-        if(hl_ed_receive(link,ED_FIFO_DATA,now,reply)) {
-            /* Krikzz CMD_USB_WR, length, payload; never wait for USB from ROM. */
-            ED_FIFO_DATA=0x2b;ED_FIFO_DATA=0xd4;ED_FIFO_DATA=0x22;ED_FIFO_DATA=0xdd;
-            ED_FIFO_DATA=0;ED_FIFO_DATA=HL_ED_PACKET_BYTES;
-            for(u16 n=0;n<HL_ED_PACKET_BYTES;n++)ED_FIFO_DATA=reply[n];
-        }
+    HlEdLink *link=context;u8 reply[HL_ED_PACKET_BYTES];
+    for(u16 i=0;i<HL_ED_PACKET_BYTES;i++)
+        if(hl_ed_receive(link,packet[i],now,reply))ui_ed_send(reply,HL_ED_PACKET_BYTES);
+}
+static void sample_input(HlEdLink *link,u32 now)
+{
+    UiPort physical[2]={{0},{0}};
+    for(u16 i=0;i<2;i++) {
+        u16 raw=JOY_readJoypad(i),type=JOY_getJoypadType(i);
+        physical[i].kind=type==JOY_TYPE_MOUSE?UI_MOUSE:(type==JOY_TYPE_PAD3 || type==JOY_TYPE_PAD6?UI_PAD:UI_PHYSICAL);
+        physical[i].held=raw;
+        if(type==JOY_TYPE_MOUSE) {
+            s16 x=JOY_readJoypadX(i),y=JOY_readJoypadY(i);
+            /* Direct ports: accumulated mouse axes are screen-down in 2.11.
+             * Read differences without replacing SDK polling or resetting axes. */
+            if(mouse_seen[i]) {physical[i].dx=(s16)(x-mouse_x[i]);physical[i].dy=(s16)(y-mouse_y[i]);}
+            mouse_x[i]=x;mouse_y[i]=y;mouse_seen[i]=TRUE;
+            physical[i].held=(raw&BUTTON_LMB?1:0)|(raw&BUTTON_RMB?2:0)|(raw&BUTTON_MMB?4:0)|(raw&BUTTON_START?8:0);
+        } else mouse_seen[i]=FALSE;
+    }
+    hl_ed_tick(link,now);ui_ed_poll(&remote_input,now,legacy_packet,link);
+    ui_ed_finish(&remote_input,now,physical);
+    for(u16 i=0;i<2;i++) {
+        const UiPort *p=&remote_input.port[i];
+        s32 x=pointer_x[i]+(p->kind==UI_MOUSE?p->dx:((p->held&BUTTON_RIGHT?1:0)-(p->held&BUTTON_LEFT?1:0)));
+        s32 y=pointer_y[i]+(p->kind==UI_MOUSE?p->dy:((p->held&BUTTON_DOWN?1:0)-(p->held&BUTTON_UP?1:0)));
+        pointer_x[i]=x<0?0:x>111?111:(u16)x;pointer_y[i]=y<0?0:y>15?15:(u16)y;
     }
 }
 static bool read_record(u32 *sequence)
@@ -63,17 +80,19 @@ int main(bool hard_reset)
     VDP_clearPlane(BG_A,FALSE);VDP_clearPlane(BG_B,FALSE);VDP_clearSprites();VDP_updateSprites(1,CPU);
     VDP_setEnable(TRUE);
     DMA_setMaxTransferSize(8192);Z80_setForceDelayDMA(TRUE);
-    u16 page=0,previous=0,hz=SYS_isPAL() ? 50 : 60,refresh=0,mode=0;
+    u16 page=0,hz=SYS_isPAL() ? 50 : 60,refresh=0,mode=0;
     /* Signature plus read strobe; never touch the FIFO when absent. */
-    const u16 ed_first=ED_STATUS,ed_second=ED_STATUS;
-    HlEdLink link;hl_ed_init(&link,hl_ed_signature(ed_first,ed_second),hz);
+    const bool present=ui_ed_detect();
+    HlEdLink link;hl_ed_init(&link,present,hz);ui_init(&remote_input,present,hz);
+    for(u16 i=0;i<2;i++){mouse_seen[i]=FALSE;pointer_x[i]=48;pointer_y[i]=8;}
     u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE,capture=FALSE,pcm=FALSE,first_screen=TRUE;
     HlClock clock;hl_clock_init(&clock,vtimer);
     while(TRUE) {
         SYS_doVBlankProcess();
         logic+=hl_clock_sample(&clock,vtimer,hz);
-        ed_poll(&link,vtimer);
-        u16 held=JOY_readJoypad(JOY_1),pressed=held&~previous;previous=held;
+        sample_input(&link,vtimer);
+        u16 held=remote_input.port[0].kind==UI_PAD?remote_input.port[0].held:0;
+        u16 pressed=remote_input.port[0].kind==UI_PAD?remote_input.port[0].pressed:0;
         if(!(page==4 && capture) && (pressed&(BUTTON_LEFT|BUTTON_RIGHT))) {
             page=(page+((pressed&BUTTON_LEFT) ? 5 : 1))%6;dirty=TRUE;
             XGM2_pause();XGM2_stopPCM(SOUND_PCM_CH3);music=FALSE;pcm=FALSE;
@@ -103,7 +122,9 @@ int main(bool hard_reset)
         }
         HlPageView view={.music=music,.pcm=pcm,.overflow=overflow,.capture=capture,.valid=valid,
             .mode=mode,.rejected=rejected,.write_status=write_status,.held=held,
-            .missed=clock.missed,.sequence=sequence,.vints=clock.elapsed};
+            .missed=clock.missed,.sequence=sequence,.vints=clock.elapsed,
+            .input={remote_input.port[0],remote_input.port[1]},
+            .pointer_x={pointer_x[0],pointer_x[1]},.pointer_y={pointer_y[0],pointer_y[1]}};
         if(dirty) {
             VDP_clearPlane(BG_A,TRUE);VDP_clearPlane(BG_B,TRUE);
             VDP_clearSprites();VDP_updateSprites(1,DMA_QUEUE);

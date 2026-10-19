@@ -71,3 +71,5 @@ Refer to sgdk-testing for deterministic replay, sgdk-performance for profiling,
 sgdk-input for peripheral setup, sgdk-save for resilient save formats,
 sgdk-cartridge for mapper/banking contracts and sgdk-release for packaging.
 Keep those implementations in their focused skills instead of duplicating them.
+
+The readiness ROM also includes the testing skill's optional USB input hook. Its input view distinguishes logical pad/mouse state from the current physical source and shows independent pointer tracks. Use fresh capture frames and the host's sampled ACKs to test slot 1, slot 2, both mice and lease expiry. This is cooperating-ROM instrumentation; physical device qualification and the game's existing input owner remain separate.

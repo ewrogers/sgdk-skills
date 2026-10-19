@@ -121,3 +121,37 @@ DMA/Z80 timing and save retention all remain unverified.
 Use a capture card to review the visible build label, startup values and several
 heartbeat positions when available. Match those observations to the ROM hash;
 upload acknowledgement alone is not visual verification.
+
+## USB-controlled input test
+
+The readiness ROM includes a local copy of the testing skill's optional `UIV1`
+hook. A detected EverDrive interface enables it; without detection there is no
+FIFO access and input follows the existing physical sampler. The normal sampler
+still runs during overrides. Two logical slots independently accept a full pad
+or Mega Mouse (left/right/middle/Start, relative X/Y). Held overrides expire in
+at most 120 actual VInts; mouse deltas apply once. Explicit release or expiry
+returns to the current physical state. No saves or device configuration are
+changed by the hook itself; normal game actions still respond to mapped buttons.
+
+Install the testing skill's host pySerial requirements, then use its helper:
+
+```sh
+python /path/to/sgdk-testing/scripts/usb_input.py --port ACTUAL_PORT --pad1 UP+B+X --pad2 DOWN+C+Z --seconds 5
+python /path/to/sgdk-testing/scripts/usb_input.py --port ACTUAL_PORT --mouse1=20,8,left --mouse2=-16,-7,right --seconds 5
+python /path/to/sgdk-testing/scripts/usb_input.py --port ACTUAL_PORT --release
+```
+
+The input helper and readiness verifier share one multiplexed FIFO owner. Do not
+run two serial processes concurrently. `HLV1` is the separate readiness check;
+`UIV1` controls logical input. Both use the existing frame counter. The source
+files copied into this Lab are tested against the testing skill's reusable
+snapshot, without requiring that skill at build/runtime.
+
+On Controllers (four Right presses from readiness), A locks D-pad navigation for
+input testing. Port source/type, logical HELD, raw physical bits, per-frame DX/DY
+and pointer XY are shown in hex. Two small pointer tracks make movement visible.
+The normal direct-port SDK owner supplies physical state; the hook does not
+change port support, SDK joy state or accumulated axes. Check the kind before
+interpreting buttons. Normal Lab A/B/reset/audio/SRAM bindings still apply when
+those inputs are sent on their respective pages. The release ROM now fits the
+Lab's 256 KiB diagnostic budget; this is not a console cartridge limit.
