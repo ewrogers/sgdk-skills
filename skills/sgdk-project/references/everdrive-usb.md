@@ -2,9 +2,9 @@
 
 The bundled [Python client](../scripts/everdrive.py) implements the serial
 protocol directly. It needs Python 3.10+ and optional pySerial; it does not invoke
-edlink or require Mono/game-side hooks. Source/transcript and pseudo-terminal
-checks are not physical-cartridge validation. Do not describe launch sent as
-observed play or SGDK fresh startup.
+edlink or require Mono/game-side hooks. A physical Pro acknowledged a hard-reset
+upload/install and was sent launch; that alone does not establish observed play
+or SGDK fresh startup. Keep console observations separate from protocol results.
 
 ## Responsibility boundary
 
@@ -88,13 +88,14 @@ install tools globally to make USB work.
 
 ## Supported protocol and failures
 
-The implemented subset is Mega **Gen2 discovery/status**: extended status
-identifies protocol `0x05`, device `0x18`, with legacy `A5/status` operation
-replies. CORE/other devices and early firmware without identifiable extended
-status are rejected before reset/SD writes. The sources do not establish an
-exact minimum Pro firmware version; record the installed version and check
-`info`. Firmware updates, custom mapper uploads, saves, debug monitors and game
-logging protocols are outside this client.
+The implemented subset is Mega **Gen1/Gen2 discovery/status**, with `A5/status`
+operation replies. Extended status identifies protocol `0x05`, device `0x18`.
+For older Mega firmware that ignores extended status, read-only `SYS_INF` returns
+64 bytes; its device ID at offset 50 must be `0x18` before reset/SD writes are
+allowed. Legacy N8 responses, CORE/other devices, and unidentifiable replies are
+rejected. The sources do not establish an exact minimum Pro firmware version;
+record the installed version and check `info`. Firmware updates, custom mapper
+uploads, saves, debug monitors and game logging are outside this client.
 
 Per-operation reads/writes allow two seconds; menu readiness allows six for hard
 or two for soft reset; installation allows thirty. These are host wait allowances,
@@ -123,7 +124,7 @@ The wire implementation was checked against Krikzz edlink revision
   identity/status formats, command envelope, endianness, 1024-byte ACK blocks,
   and the 512-byte USB write workaround.
 - [DeviceIO_V1.cs](https://github.com/krikzz/edlink/blob/064874e2c89df6e8a8cf6dbd3e57661961374d46/edlink/Device/DeviceIO_V1.cs): file/directory/status commands and memory/FIFO writes.
-- [Mega DeviceIO.cs](https://github.com/krikzz/edlink/blob/064874e2c89df6e8a8cf6dbd3e57661961374d46/edlink/DEV_MEGA/DeviceIO.cs): identity, reset modes, configuration/FIFO addresses.
+- [Mega DeviceIO.cs](https://github.com/krikzz/edlink/blob/064874e2c89df6e8a8cf6dbd3e57661961374d46/edlink/DEV_MEGA/DeviceIO.cs): identity, SYS_INF field offsets, reset modes, configuration/FIFO addresses.
 - [Mega MenuCmd.cs](https://github.com/krikzz/edlink/blob/064874e2c89df6e8a8cf6dbd3e57661961374d46/edlink/DEV_MEGA/MenuCmd.cs): reset/release/readiness, installation ACK, and unacknowledged launch.
 - [DeviceCmd.cs](https://github.com/krikzz/edlink/blob/064874e2c89df6e8a8cf6dbd3e57661961374d46/edlink/Device/DeviceCmd.cs): official `usb-games` directory and file create/overwrite flags.
 - [pySerial API](https://pyserial.readthedocs.io/en/latest/pyserial_api.html): native serial, bounded I/O and POSIX exclusivity; dependency pinned at 3.5.

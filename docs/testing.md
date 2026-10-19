@@ -45,6 +45,10 @@ timeouts, reset release on interruption, and failure exit codes. Project-helper
 tests ensure failed builds never invoke USB and preserve build/upload statuses.
 These tests contact no physical serial devices.
 
+Legacy Mega status is also tested with a read-only 64-byte `SYS_INF` reply:
+only device ID `0x18` at offset 50 permits deployment. Wrong IDs and missing
+system information stop before reset or SD writes.
+
 For the native serial test, install the optional dependency in a virtual environment:
 
 ```sh

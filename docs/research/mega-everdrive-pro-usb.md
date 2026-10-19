@@ -2,7 +2,7 @@
 
 Investigated 2026-10-19. Source inspection only: no cartridge connection, upload, console observation, or hardware acceptance test was performed.
 
-Follow-on implementation: the user selected an independent Python protocol client instead of wrapping edlink. It is now bundled under `skills/sgdk-project/scripts/everdrive.py`; setup, supported firmware/status format, and physical acceptance are documented in `skills/sgdk-project/references/everdrive-usb.md`. The official-tool details below remain protocol research, not runtime dependencies of that client.
+Follow-on implementation: the user selected an independent Python protocol client instead of wrapping edlink. It is now bundled under `skills/sgdk-project/scripts/everdrive.py`; setup, supported firmware/status formats, and physical acceptance are documented in `skills/sgdk-project/references/everdrive-usb.md`. Both extended status and older Mega status with a verified SYS_INF device ID are supported. The official-tool details below remain protocol research, not runtime dependencies of that client.
 
 ## Conclusion
 
@@ -79,3 +79,27 @@ Official source revisions inspected: `krikzz/mega-ed-pub` **23dbd5ef527999eb8559
 Local SGDK inspection: pulled `ewrogers/sgdk:latest`; `doctor` reported SGDK **2.11**, GCC **16.2.0**, binutils **2.47.20260726**, on **aarch64**. Docker reported manifest digest `sha256:1d8dd3f289ef9ed1c7186b68b47a1977bc02b2bcbd72903e7682f6b19ce7d0df`. This records the inspected image, not a proposed pinned build default. The startup implementation and host helper were inspected; no ROM was compiled or executed for this investigation.
 
 Follow-on implementation validation on the same date: 34 focused client/project/resource tests passed, including copied-CLI deployment to a simulated cartridge through real pySerial and a POSIX pseudo-terminal. The macOS PTY test substitutes 115200 baud; the real client uses 921600. The copied project helper built SGDK Hello World release/debug ROMs, checked debug symbols, and rejected invalid C using the refreshed container above. The Skills CLI copied all 38 skills and their resources. These checks did not connect to physical USB hardware or execute a game on a console.
+
+## Physical deployment trial, 2026-10-19
+
+The user authorized a trial from the ROM-selection screen. macOS enumerated a
+`Mega EverDrive` serial USB device (VID `0483`, PID `5740`). It returned legacy
+`A5 00` status rather than extended identity. The documented read-only `SYS_INF`
+command `0x26` returned 64 bytes with device ID `0x18` at offset 50, MCU version
+`0x0112`, hardware version `0x0001`, and boot version `0x0101`. These are raw MCU
+information fields, not a claimed menu OS version. Console revision/region and
+menu OS version remain unknown.
+
+The client was extended to verify legacy Pro identity through that field before
+allowing reset or SD writes. Its transcript tests now cover successful legacy
+deployment, wrong legacy device ID, and unavailable system information.
+
+A small diagnostic was built as release with the refreshed SGDK 2.11/GCC 16.2.0
+image. It displays startup classification, initialized-data/BSS acceptance and
+a blinking heartbeat; it contains no save writes. The 131072-byte ROM's SHA-256
+is `e4eb47b4ca95acf5f64fbbb0a4d1345d56792c2d41720be30c323f0768145d61`.
+The real client requested hard reset, transferred the ROM to
+`usb-games/sgdk-usb-reset-test.bin`, received successful file/installation
+acknowledgements, and sent launch. The transaction returned success in about
+3.9 seconds. This establishes that one physical device accepted that protocol
+sequence; startup/RAM/heartbeat observations await the user's console report.

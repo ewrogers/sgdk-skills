@@ -23,6 +23,7 @@ DEVICE_ID = 0x18
 CMD_STATUS = 0x10
 CMD_STATUS2 = 0x40
 CMD_MEM_WRITE = 0x1A
+CMD_SYSTEM_INFO = 0x26
 CMD_RESET = 0x29
 CMD_FILE_OPEN = 0xC9
 CMD_FILE_WRITE = 0xCC
@@ -45,7 +46,7 @@ def positive_seconds(value):
 
 
 class MegaEverDrivePro:
-    """The supported Mega Gen2 transport with acknowledged ROM installation.
+    """Mega Gen1/Gen2 transport with verified Pro identity and ROM installation.
 
     Reads/writes tolerate fragmentation, have per-operation deadlines, and share
     a deployment deadline. Only reset release can exceed that deadline (by at
@@ -108,9 +109,22 @@ class MegaEverDrivePro:
         self._command(CMD_STATUS2)
         self._command(CMD_STATUS)
         head = self._read(2, "device identity")
-        if head[0] == 0xA5 or head[1] == 0xA5:
-            raise ProtocolError("legacy firmware has no verifiable Pro identity; "
-                                "this client requires the extended status command")
+        if head[0] == 0xA5:
+            # Early Mega firmware ignores STATUS2. Its SYS_INF reply still
+            # includes the explicit device ID (Mega DeviceIO.getSysInf).
+            self._command(CMD_SYSTEM_INFO)
+            info = self._read(64, "legacy cartridge system information")
+            if info[50] != DEVICE_ID:
+                raise ProtocolError(f"expected Mega EverDrive Pro device 0x18; "
+                                    f"legacy system information reports 0x{info[50]:02X}")
+            self.identified = True
+            return {"device": "Mega EverDrive Pro", "protocol_id": PROTOCOL_ID,
+                    "device_id": DEVICE_ID, "status_format": "legacy",
+                    "mcu_version": f"0x{struct.unpack_from('>H', info, 44)[0]:04X}",
+                    "hardware_version": f"0x{struct.unpack_from('>H', info, 46)[0]:04X}",
+                    "boot_version": f"0x{struct.unpack_from('>H', info, 48)[0]:04X}"}
+        if head[1] == 0xA5:
+            raise ProtocolError("legacy N8 status detected; expected Mega EverDrive Pro")
         if head[0] != 0x5A:
             raise ProtocolError(f"invalid device identity: {head.hex()}")
         tail = self._read(2, "device identity")
@@ -124,7 +138,7 @@ class MegaEverDrivePro:
             raise ProtocolError(f"unsupported Mega status format: {status.hex()}")
         self.identified = True
         return {"device": "Mega EverDrive Pro", "protocol_id": PROTOCOL_ID,
-                "device_id": DEVICE_ID}
+                "device_id": DEVICE_ID, "status_format": "extended"}
 
     def _require_identity(self):
         if not self.identified:

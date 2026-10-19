@@ -37,6 +37,14 @@ def identity(protocol=5, device=0x18):
             (frame(0x10), b"\xA5\x00")]
 
 
+def legacy_identity(device=0x18):
+    info = bytearray(64)
+    info[44:50] = bytes.fromhex("011200010101")
+    info[50] = device
+    return [(bytes(66), b""), (frame(0x40), b""),
+            (frame(0x10), b"\xA5\x00"), (frame(0x26), bytes(info))]
+
+
 def deployment(data, reset=2, install_status=0):
     """Golden Gen2 transcript, based on the pinned official wire operations."""
     name = b"usb-games/Test ROM.bin"
@@ -152,10 +160,27 @@ class EverDriveProtocolTests(unittest.TestCase):
             self.assertEqual(client.deploy(b"rom", "usb-games/Test ROM.bin")["reset"], "hard")
         self.assertFalse(port.steps)
 
-    def test_unidentifiable_legacy_firmware_is_rejected(self):
+    def test_legacy_pro_identity_is_verified_via_system_info_before_deployment(self):
+        port = TranscriptPort(legacy_identity() + deployment(b"rom")[3:], read_fragment=1)
+        client = usb.MegaEverDrivePro(port)
+        with patch.object(usb.time, "sleep"):
+            identity = client.identify()
+            self.assertEqual(identity["status_format"], "legacy")
+            self.assertEqual(identity["mcu_version"], "0x0112")
+            self.assertEqual(client.deploy(b"rom", "usb-games/Test ROM.bin")["reset"], "hard")
+        self.assertFalse(port.steps)
+
+    def test_legacy_non_pro_device_is_rejected_before_reset(self):
+        port = TranscriptPort(legacy_identity(device=0x25))
+        with self.assertRaisesRegex(usb.ProtocolError, "expected Mega EverDrive Pro"):
+            usb.MegaEverDrivePro(port).identify()
+        self.assertFalse(port.steps)
+        self.assertNotIn(frame(0x29), port.received)
+
+    def test_legacy_firmware_without_system_info_is_rejected(self):
         port = TranscriptPort([(bytes(66), b""), (frame(0x40), b""),
-                               (frame(0x10), b"\xA5\x00")])
-        with self.assertRaisesRegex(usb.ProtocolError, "legacy firmware"):
+                               (frame(0x10), b"\xA5\x00"), (frame(0x26), b"")])
+        with self.assertRaisesRegex(usb.ProtocolError, "legacy cartridge system information"):
             usb.MegaEverDrivePro(port).identify()
         self.assertFalse(port.steps)
 
