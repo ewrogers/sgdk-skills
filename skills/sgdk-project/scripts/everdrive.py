@@ -5,12 +5,14 @@ Protocol sources and hardware acceptance: ../references/everdrive-usb.md.
 Requires Python 3.10+ and pySerial. No edlink, Mono, or game-side USB code.
 """
 import argparse
+import binascii
 import contextlib
 import hashlib
 import json
 import math
 import os
 from pathlib import Path
+import secrets
 import struct
 import sys
 import time
@@ -31,7 +33,14 @@ CMD_FILE_CLOSE = 0xCE
 CMD_MKDIR = 0xD2
 CONFIG_ADDRESS = 0x1800000
 FIFO_ADDRESS = 0x1810000
+LAB_LEASE_SECONDS = 5
+LAB_XOR = 0xA55A5AA5
 IO_TIMEOUT = 2.0
+
+
+def lab_packet(kind, nonce):
+    body = struct.pack(">4sHI", b"HLV1", kind, nonce)
+    return body + struct.pack(">H", binascii.crc_hqx(body, 0xFFFF))
 
 
 class ProtocolError(RuntimeError):
@@ -42,6 +51,13 @@ def positive_seconds(value):
     seconds = float(value)
     if not math.isfinite(seconds) or seconds <= 0:
         raise argparse.ArgumentTypeError("timeout must be a positive finite number")
+    return seconds
+
+
+def lab_duration(value):
+    seconds = float(value)
+    if not math.isfinite(seconds) or not 0 <= seconds <= 300:
+        raise argparse.ArgumentTypeError("duration must be finite, from 0 to 300 seconds")
     return seconds
 
 
@@ -158,6 +174,45 @@ class MegaEverDrivePro:
     def _fifo(self, data):
         self._memory_write(FIFO_ADDRESS, data)
 
+    def _lab_reply(self, kind, nonce):
+        # Sliding frame search tolerates stale/fragmented replies and noise.
+        end = self._deadline()
+        expected = lab_packet(kind, nonce)
+        window = bytearray()
+        while bytes(window) != expected:
+            window.extend(self._read(1, "Hardware Lab handshake", self._remaining(end, "Hardware Lab handshake")))
+            if len(window) > len(expected):
+                del window[0]
+
+    def verify_lab(self, duration=0.0):
+        """Lab-only FIFO challenge/response/ack; no reset, ROM or save writes.
+
+        A five-second guest lease requires periodic fresh exchanges. This is
+        cooperative liveness evidence, not authentication or console identity.
+        """
+        self._require_identity()
+        if not math.isfinite(duration) or not 0 <= duration <= 300:
+            raise ValueError("duration must be finite, from 0 to 300 seconds")
+        started = time.monotonic()
+        checks, previous = 0, 0
+        while True:
+            nonce = secrets.randbelow(0xFFFFFFFF) + 1
+            if nonce == previous:
+                nonce = nonce % 0xFFFFFFFF + 1
+            previous = nonce
+            self._fifo(lab_packet(1, nonce))
+            self._lab_reply(2, nonce ^ LAB_XOR)
+            self._fifo(lab_packet(3, nonce))
+            self._lab_reply(4, nonce)
+            checks += 1
+            elapsed = time.monotonic() - started
+            if elapsed >= duration:
+                return {"lab_link_verified": True, "handshakes": checks,
+                        "lease_seconds": LAB_LEASE_SECONDS,
+                        "elapsed_seconds": round(elapsed, 3), "console_model": "unknown"}
+            time.sleep(min(1.0, duration - elapsed,
+                           self._remaining(self.deadline, "Hardware Lab verification")))
+
     def _release_reset(self):
         if self.reset_asserted:
             self._command(CMD_RESET, b"\x00", cleanup=True)
@@ -270,6 +325,9 @@ def main(argv=None):
                         help="Total transaction deadline in seconds (default: 120)")
     commands = parser.add_subparsers(dest="operation", required=True)
     commands.add_parser("info", help="Verify Mega EverDrive Pro identity without reset/upload")
+    verify = commands.add_parser("verify-lab", help="Verify the running Hardware Lab USB FIFO link")
+    verify.add_argument("--duration", type=lab_duration, default=0.0,
+                        help="Refresh verification for 0-300 seconds; 0 performs one handshake")
     deploy = commands.add_parser("deploy", help="Upload, install and send ROM launch")
     deploy.add_argument("rom", type=Path)
     deploy.add_argument("--reset", choices=("hard", "soft"), default="hard",
@@ -280,7 +338,10 @@ def main(argv=None):
             result = deploy_rom(args.rom, args.port, args.reset, args.timeout)
         else:
             with open_serial(args.port) as connection:
-                result = MegaEverDrivePro(connection, args.timeout).identify()
+                client = MegaEverDrivePro(connection, args.timeout)
+                result = client.identify()
+                if args.operation == "verify-lab":
+                    result = dict(result, **client.verify_lab(args.duration))
         print(json.dumps(result, sort_keys=True))
         return 0
     except (OSError, ProtocolError, ValueError) as error:

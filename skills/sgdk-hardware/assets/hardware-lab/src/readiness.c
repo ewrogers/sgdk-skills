@@ -52,7 +52,7 @@ static void card(u16 y, u16 height)
     art(HL_READY_CORNER_OFFSET + 3, 1, 1, 37, y + height - 1);
 }
 
-void hl_ready_open(bool hard_reset, u16 entry_data, u16 entry_bss, bool pal)
+void hl_ready_open(bool hard_reset, u16 entry_data, u16 entry_bss, bool pal, const HlEdLink *link)
 {
     const bool data_ok = entry_data == 0x1234;
     const bool bss_ok = entry_bss == 0;
@@ -64,7 +64,7 @@ void hl_ready_open(bool hard_reset, u16 entry_data, u16 entry_bss, bool pal)
     PAL_setPalette(PAL1, font_palette, CPU);
     font_palette[15] = ready_colors[6];
     PAL_setPalette(PAL2, font_palette, CPU);
-    font_palette[15] = fresh ? ready_colors[4] : ready_colors[8];
+    font_palette[15] = ready_colors[4];
     PAL_setPalette(PAL3, font_palette, CPU);
     VDP_loadTileData(hl_ready_tiles, READY_TILE_START, HL_READY_TILE_COUNT, CPU);
 
@@ -78,15 +78,18 @@ void hl_ready_open(bool hard_reset, u16 entry_data, u16 entry_bss, bool pal)
 
     card(10, 9);
     ready_text("BOOT / RAM CHECKS", 4, 11, PAL2);
-    ready_text(fresh ? "PASS" : "REVIEW", 29, 11, PAL3);
-    ready_text("BOOT ENTRY", 4, 13, PAL2);
-    ready_text(hard_reset ? "HARD START" : "WARM START", 23, 13, PAL3);
-    ready_text("INIT DATA", 4, 15, PAL2);
-    ready_hex(entry_data, 4, 23, 15, PAL1);
-    ready_text(data_ok ? "PASS" : "CHECK", 30, 15, PAL3);
-    ready_text("ZERO / BSS", 4, 17, PAL2);
-    ready_hex(entry_bss, 4, 23, 17, PAL1);
-    ready_text(bss_ok ? "PASS" : "CHECK", 30, 17, PAL3);
+    ready_text(fresh ? "PASS" : "REVIEW", 29, 11, fresh ? PAL3 : PAL1);
+    ready_text("BOOT ENTRY", 4, 12, PAL2);
+    ready_text(hard_reset ? "HARD START" : "WARM START", 23, 12, hard_reset ? PAL3 : PAL1);
+    ready_text("INIT DATA", 4, 13, PAL2);
+    ready_hex(entry_data, 4, 23, 13, PAL1);
+    ready_text(data_ok ? "PASS" : "CHECK", 30, 13, data_ok ? PAL3 : PAL1);
+    ready_text("ZERO / BSS", 4, 14, PAL2);
+    ready_hex(entry_bss, 4, 23, 14, PAL1);
+    ready_text(bss_ok ? "PASS" : "CHECK", 30, 14, bss_ok ? PAL3 : PAL1);
+    ready_text("EVERDRIVE EDIO", 4, 16, PAL2);
+    ready_text(link->present ? "DETECTED" : "UNKNOWN", 25, 16, link->present ? PAL3 : PAL1);
+    ready_text("USB LINK", 4, 17, PAL2);
 
     card(20, 4);
     ready_text("RUNNING", 4, 21, PAL1);
@@ -97,7 +100,7 @@ void hl_ready_open(bool hard_reset, u16 entry_data, u16 entry_bss, bool pal)
     ready_text("L/R PAGES  A RESET  B INIT  C ZERO", 2, 26, PAL0);
 }
 
-void hl_ready_update(u32 vints, u32 logic, u32 missed)
+void hl_ready_update(u32 vints, u32 logic, u32 missed, const HlEdLink *link)
 {
     const u16 head = (vints / 10) % 8;
     for (u16 i = 0; i < 8; i++) {
@@ -107,4 +110,7 @@ void hl_ready_update(u32 vints, u32 logic, u32 missed)
     ready_hex(vints, 8, 26, 21, PAL1);
     ready_hex(logic, 8, 10, 22, PAL1);
     ready_hex(missed, 8, 25, 22, PAL1);
+    ready_text(!link->present ? "UNAVAILABLE" : link->verified ? "VERIFIED   " :
+               link->ever_verified ? "EXPIRED    " : "WAITING    ",
+               25, 17, link->verified ? PAL3 : PAL1);
 }

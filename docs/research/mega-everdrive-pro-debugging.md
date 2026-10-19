@@ -12,7 +12,7 @@ Investigated 2026-10-19 using first-party sources. USB debugging feature claims 
 
 ## Requires game instrumentation
 
-Official EDIO demonstrates console-to-PC text with `ed_cmd_usb_wr`, PC-to-console FIFO messages, and a 16-bit mailbox for fast status exchange. Host examples use `usbrd --print`, `fifowr`, and mailbox memory access. These support building logs, assertions, readiness/heartbeat signals, test results and developer commands; those features are proposals for our client, not already implemented. [Guest sample](https://github.com/krikzz/mega-ed-pub/blob/23dbd5ef527999eb85590ece7ad0ba6e202c8a4c/edio/main.c), [guest library](https://github.com/krikzz/mega-ed-pub/blob/23dbd5ef527999eb85590ece7ad0ba6e202c8a4c/edio/everdrive.c), [host examples](https://github.com/krikzz/mega-ed-pub/tree/23dbd5ef527999eb85590ece7ad0ba6e202c8a4c/edio-cmd)
+Official EDIO demonstrates console-to-PC text with `ed_cmd_usb_wr`, PC-to-console FIFO messages, and a 16-bit mailbox for fast status exchange. Host examples use `usbrd --print`, `fifowr`, and mailbox memory access. Hardware Lab now implements a bounded FIFO/USB link check with an expiring verification lease; general logs, assertions, test results and developer commands remain proposals for our client. [Guest sample](https://github.com/krikzz/mega-ed-pub/blob/23dbd5ef527999eb85590ece7ad0ba6e202c8a4c/edio/main.c), [guest library](https://github.com/krikzz/mega-ed-pub/blob/23dbd5ef527999eb85590ece7ad0ba6e202c8a4c/edio/everdrive.c), [host examples](https://github.com/krikzz/mega-ed-pub/tree/23dbd5ef527999eb85590ece7ad0ba6e202c8a4c/edio-cmd)
 
 A cooperative game could copy selected main-RAM snapshots into cartridge memory or USB messages. Automatic snapshots of a hung game, complete video reconstruction, and generic live asset replacement are not established capabilities. Prefer a bounded ring buffer for telemetry/assertion messages, limited draining per frame, and explicit overflow/disconnect behavior; hardware tests are required. This is proposed instrumentation, not arbitrary CPU-memory access.
 
@@ -29,9 +29,9 @@ Running-ROM replacement and recovery from a deliberate IRQ-disabled infinite loo
 Hardware Lab's existing boot/reset page now has native tile graphics, an animated
 running meter, a top-right build ID, the actual region flag and boot/DATA/BSS
 results. It retains the other optional diagnostic pages and ships source and
-build instructions, with generated ROMs excluded from Git. These local checks
-do not claim a USB round trip: a USB LINK VERIFIED indicator would require
-actual host/guest exchange. The readiness screen was uploaded and inspected
+build instructions, with generated ROMs excluded from Git. The screen separately
+shows EDIO detection and USB LINK VERIFIED only after an actual fresh host/guest
+exchange, expiring after five seconds without renewal. The readiness screen was uploaded and inspected
 through the capture card; see [physical validation](../validation-hardware-readiness.md).
 
 ## Separate HDMI capture path: Elgato HD60 X on macOS

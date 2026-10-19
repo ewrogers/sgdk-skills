@@ -55,3 +55,38 @@ sequence on this console. It does not certify every diagnostic page, physical
 power cycling, full RAM integrity, USB guest telemetry, audio or console timing.
 The current capture backend is macOS AVFoundation; concurrent short capture was
 previously confirmed while Elgato Studio stayed live on this Mac.
+
+## Follow-up: EverDrive detection and expiring USB verification
+
+The subsequent `HL-E4B7CB31-RA` release adds an EDIO signature/read-strobe probe
+and a bounded guest FIFO protocol. It leaves the console model unknown. Source
+SHA-256 is `e4b7cb3180d4bc1dc20685ca570ddc659ea143c67ce197bee8d15879dccb37c6`;
+the 131072-byte ROM SHA-256 is
+`fcad4f5de16b3cf8f766cd4f7404224a47754c09a79de4715a0706175dff7550`.
+The same refreshed image built release without warnings.
+
+An initial attempt at the newer FCI mailbox interface read `$FFFF` on this Pro
+and timed out without verification. The shipped implementation instead uses
+Krikzz's established FIFO and CMD_USB_WR paths. It performs no electrical
+power cycle, save writes or console-model inference.
+
+After a hard-reset reupload, HD60 X captures showed EVERDRIVE EDIO DETECTED /
+USB LINK WAITING. `verify-lab --duration 10` completed nine challenge-response /
+ACK-completion exchanges in 10.267 seconds, with the host independently
+verifying Pro device `$18`, MCU `$0112`, hardware `$0001`, boot `$0101`.
+Inspected captures during the exchange showed USB LINK VERIFIED, HARD START,
+DATA `1234` PASS, BSS `0000` PASS, and NTSC. The meter moved and V/LOGIC advanced
+from `000000E6` to `00000113`, with MISS zero in both reviewed frames. Capturing
+after six seconds without renewal showed USB LINK EXPIRED with continued
+execution. The cable was not unplugged for this expiry check.
+
+Ignored evidence is in `build/hardware-usb-link/fifo-pratnn5s/`: standalone
+project, build/upload logs, host link JSON and waiting/verified/expired capture
+manifests and PNGs. These observations establish recent bidirectional liveness
+for this Lab and this Pro, not authentication, debugger features, cable-presence
+sensing, every firmware/mapper, or full-console certification. The protocol and
+its independent skill ownership are documented in sgdk-hardware's installed
+EverDrive-link reference.
+All 55 focused tests passed, including the updated release/debug target probes
+and packet-byte comparison. The Skills CLI again copied all 38 skills/resources;
+both edited skills passed the skill-creator validator.

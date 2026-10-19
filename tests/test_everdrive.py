@@ -298,6 +298,75 @@ class EverDriveProtocolTests(unittest.TestCase):
                     self.fail("must not open a port")
 
 
+class HardwareLabLinkTests(unittest.TestCase):
+    @staticmethod
+    def packet(kind, nonce):
+        import binascii
+        body = b"HLV1" + struct.pack(">HI", kind, nonce)
+        return body + struct.pack(">H", binascii.crc_hqx(body, 0xffff))
+
+    def exchange(self, nonce, first_reply=None):
+        reply = self.packet(2, nonce ^ 0xA55A5AA5) if first_reply is None else first_reply
+        return [(memory(0x1810000, self.packet(1, nonce)), reply),
+                (memory(0x1810000, self.packet(3, nonce)), self.packet(4, nonce))]
+
+    def test_fragmented_exchange_waits_for_matching_response_and_guest_ack(self):
+        response = b"noise" + self.packet(2, 0x777) + self.packet(2, 0x12345678 ^ 0xA55A5AA5)
+        port = TranscriptPort(identity() + self.exchange(0x12345678,response), read_fragment=1, write_fragment=3)
+        client = usb.MegaEverDrivePro(port);client.identify()
+        with patch.object(usb.secrets, "randbelow", return_value=0x12345677):
+            result = client.verify_lab()
+        self.assertTrue(result["lab_link_verified"])
+        self.assertEqual((result["handshakes"], result["lease_seconds"]), (1, 5))
+        self.assertEqual(result["console_model"], "unknown")
+        self.assertFalse(port.steps);self.assertFalse(port.responses)
+
+    def test_stale_or_corrupt_response_does_not_send_ack(self):
+        bad = bytearray(self.packet(2, 0x123 ^ 0xA55A5AA5));bad[-1] ^= 1
+        for reply in [self.packet(4,0x123),bytes(bad),self.packet(2,0x124 ^ 0xA55A5AA5)]:
+            port = TranscriptPort(identity()+self.exchange(0x123,reply)[:1])
+            client = usb.MegaEverDrivePro(port);client.identify()
+            with patch.object(usb.secrets, "randbelow", return_value=0x122):
+                with self.assertRaisesRegex(usb.ProtocolError, "handshake"):client.verify_lab()
+            self.assertFalse(port.steps)
+
+    def test_missing_final_guest_ack_is_a_failure(self):
+        steps = self.exchange(0x123);steps[-1] = (steps[-1][0],b"")
+        port = TranscriptPort(identity()+steps)
+        client = usb.MegaEverDrivePro(port);client.identify()
+        with patch.object(usb.secrets, "randbelow", return_value=0x122):
+            with self.assertRaises(usb.ProtocolError):client.verify_lab()
+        self.assertFalse(port.steps)
+
+    def test_absent_guest_times_out_without_ack_reset_or_sd_writes(self):
+        port = TranscriptPort(identity()+self.exchange(0x123,b"")[:1])
+        client = usb.MegaEverDrivePro(port);client.identify()
+        with patch.object(usb.secrets, "randbelow", return_value=0x122):
+            with self.assertRaises(usb.ProtocolError):client.verify_lab()
+        self.assertFalse(port.steps)
+
+    def test_duration_renews_with_a_fresh_nonce(self):
+        port = TranscriptPort(identity()+self.exchange(0x123)+self.exchange(0x124))
+        now = [10.0]
+        with patch.object(usb.time, "monotonic", side_effect=lambda: now[0]), patch.object(usb.time, "sleep", side_effect=lambda seconds: now.__setitem__(0, now[0]+seconds)), patch.object(usb.secrets, "randbelow", return_value=0x122):
+            client = usb.MegaEverDrivePro(port);client.identify()
+            result = client.verify_lab(duration=1)
+        self.assertEqual(result["handshakes"],2);self.assertFalse(port.steps)
+
+    def test_unidentified_or_expired_transport_cannot_verify(self):
+        port = TranscriptPort([]);client = usb.MegaEverDrivePro(port)
+        with self.assertRaisesRegex(usb.ProtocolError,"identify"):client.verify_lab()
+        client.identified=True;client.deadline=0
+        with self.assertRaisesRegex(usb.ProtocolError,"timeout"):client.verify_lab()
+        self.assertFalse(port.received)
+
+    def test_invalid_duration_never_opens_the_port(self):
+        for value in ["nan","inf","-1","301"]:
+            with patch.object(usb,"open_serial") as opening, contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):usb.main(["--port","unused","verify-lab","--duration",value])
+                opening.assert_not_called()
+
+
 @unittest.skipUnless(os.name == "posix" and importlib.util.find_spec("serial"),
                      "native pseudo-terminal integration needs POSIX and pySerial")
 class NativeSerialTests(unittest.TestCase):

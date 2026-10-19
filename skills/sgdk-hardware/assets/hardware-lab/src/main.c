@@ -12,6 +12,25 @@ static u32 tiles[18*8];
 static const u16 palette[16]={0x000,0x222,0x00e,0x0e0,0xe00,0x0ee,0xee0,0xe0e,
     0x444,0x666,0x888,0xaaa,0xccc,0xeee,0x08e,0xeee};
 static const char *titles[]={"BOOT / REGION","VIDEO PATTERNS","SPRITE SCANLINES","DMA / AUDIO","CONTROLLERS","SRAM RECORD"};
+#define ED_STATUS (*(volatile u16 *)0xa130d4)
+#define ED_FIFO_STATUS (*(volatile u16 *)0xa130d2)
+#define ED_FIFO_DATA (*(volatile u8 *)0xa130d1)
+static void ed_poll(HlEdLink *link,u32 now)
+{
+    hl_ed_tick(link,now);
+    if(!link->present)return;
+    u16 count=ED_FIFO_STATUS & 0x7ff;
+    if(count>32)count=32;
+    for(u16 i=0;i<count;i++) {
+        u8 reply[HL_ED_PACKET_BYTES];
+        if(hl_ed_receive(link,ED_FIFO_DATA,now,reply)) {
+            /* Krikzz CMD_USB_WR, length, payload; never wait for USB from ROM. */
+            ED_FIFO_DATA=0x2b;ED_FIFO_DATA=0xd4;ED_FIFO_DATA=0x22;ED_FIFO_DATA=0xdd;
+            ED_FIFO_DATA=0;ED_FIFO_DATA=HL_ED_PACKET_BYTES;
+            for(u16 n=0;n<HL_ED_PACKET_BYTES;n++)ED_FIFO_DATA=reply[n];
+        }
+    }
+}
 static void text(const char *s,u16 y){VDP_drawText(s,2,y);}
 static void field(const char *name,const char *value,u16 y)
 {
@@ -74,11 +93,15 @@ int main(bool hard_reset)
     VDP_setEnable(TRUE);
     DMA_setMaxTransferSize(8192);Z80_setForceDelayDMA(TRUE);
     u16 page=0,previous=0,hz=SYS_isPAL() ? 50 : 60,refresh=0,mode=0;
+    /* Signature plus read strobe; never touch the FIFO when absent. */
+    const u16 ed_first=ED_STATUS,ed_second=ED_STATUS;
+    HlEdLink link;hl_ed_init(&link,hl_ed_signature(ed_first,ed_second),hz);
     u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE,capture=FALSE,pcm=FALSE,first_screen=TRUE;
     HlClock clock;hl_clock_init(&clock,vtimer);
     while(TRUE) {
         SYS_doVBlankProcess();
         logic+=hl_clock_sample(&clock,vtimer,hz);
+        ed_poll(&link,vtimer);
         u16 held=JOY_readJoypad(JOY_1),pressed=held&~previous;previous=held;
         if(!(page==4 && capture) && (pressed&(BUTTON_LEFT|BUTTON_RIGHT))) {
             page=(page+((pressed&BUTTON_LEFT) ? 5 : 1))%6;dirty=TRUE;
@@ -118,7 +141,7 @@ int main(bool hard_reset)
                 text(page==4 && capture ? "A: UNLOCK PAGE       C: COUNTERS" : "LEFT / RIGHT: PAGE    C: COUNTERS",25);
             }
             if(page==0) {
-                hl_ready_open(hard_reset,boot_data,boot_zero,SYS_isPAL());
+                hl_ready_open(hard_reset,boot_data,boot_zero,SYS_isPAL(),&link);
             } else if(page==1) {
                 text("CHECK EDGES, STRIPES AND COLORS",5);
                 for(u16 y=7;y<20;y++)for(u16 x=1;x<39;x++)
@@ -164,7 +187,7 @@ int main(bool hard_reset)
         /* Refresh only counters; no full-screen redraw on every input poll. */
         if(++refresh>=10) {
             refresh=0;
-            if(page==0)hl_ready_update(clock.elapsed,logic,clock.missed);
+            if(page==0)hl_ready_update(clock.elapsed,logic,clock.missed,&link);
             if(page==3){number("MISSED LOOP INTERVALS: ",clock.missed,20);number("REJECTED UPLOADS: ",rejected,21);}
             if(page==4) {
                 hex("P1 PORT: ",JOY_getPortType(PORT_1),8);hex("P1 TYPE: ",JOY_getJoypadType(JOY_1),9);hex("P1 HELD: ",held,10);

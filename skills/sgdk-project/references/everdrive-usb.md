@@ -83,6 +83,36 @@ When sgdk-testing is installed, its optional capture-card helper can supply
 fresh HDMI frames for the agent to review without capturing a preview window.
 This provides visual evidence alongside USB; it does not add a CPU debugger.
 
+## Optional Hardware Lab link verification
+
+After launching a compatible Hardware Lab from sgdk-hardware, run:
+
+```sh
+python /path/to/sgdk-project/scripts/everdrive.py --port ACTUAL_PORT --timeout 40 verify-lab --duration 30
+```
+
+This verifies Pro identity, sends a fresh 32-bit challenge through the guest FIFO,
+checks the matching CRC-protected response, acknowledges it, and waits for guest
+completion. Success reports `lab_link_verified: true`, handshake count and a
+five-second lease. The ROM displays VERIFIED while fresh exchanges continue;
+after five seconds it displays EXPIRED. Default duration zero performs one
+exchange; `--duration` accepts 0-300 seconds, bounded by the overall timeout.
+No reset, SD/ROM/save writes or cartridge-configuration changes occur. Console
+model remains unknown. An absent guest, stale/corrupt reply or missing completion
+fails rather than treating upload/USB attachment as a verified link.
+
+Use this only with the compatible Lab: it writes diagnostic packets to the
+running guest's FIFO. It is not a general game probe or debugger. The client
+and guest must own that FIFO exclusively during verification; do not run a
+second serial tool or guest logging protocol concurrently. Only the explicit
+`verify-lab` command uses this instrumentation; normal deployment is unchanged.
+The guest protocol is owned and documented by sgdk-hardware. Wire packets are
+12 bytes: `HLV1`, big-endian u16 kind (1 request, 2 response, 3 ACK, 4 done),
+big-endian u32 nonce, then CRC-16/CCITT over the first ten bytes (initial `$FFFF`).
+Response nonce is original XOR `$A55A5AA5`; ACK/done carry the original nonce.
+Guest output uses CMD_USB_WR; host input uses FifoWR. This is cooperative liveness
+evidence, not authentication or an identification of the underlying console.
+
 ## Docker placement
 
 The client/dependency can be bundled in an image, but USB device access matters

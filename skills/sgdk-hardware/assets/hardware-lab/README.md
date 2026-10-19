@@ -30,10 +30,25 @@ after changing source or build settings, and record the actual ROM SHA-256 too.
 
 Startup PASS requires SGDK's hard-entry flag, initialized DATA `1234`, and BSS
 `0000` captured before the Lab changes those globals to `BEEF` / `CAFE`. A warm
-entry or retained values shows REVIEW/CHECK in amber; that is not a claim of bad
+entry or retained values shows REVIEW/CHECK; that is not a claim of bad
 RAM. ROM RUNNING and the heartbeat show local execution, not a verified USB
 round trip, electrical cold power cycle, or a complete hardware RAM test.
 The region label is the actual SGDK video flag, not just the ROM header.
+
+The page also probes EverDrive's EDIO signature/read strobe and shows DETECTED
+or UNKNOWN. It does not infer the console model or prove physical hardware.
+USB LINK starts WAITING and becomes VERIFIED only after a fresh host/ROM
+challenge-response and acknowledgement. It expires after five seconds without
+renewal. With sgdk-project installed, run its host client against this Lab:
+
+```sh
+python /path/to/sgdk-project/scripts/everdrive.py --port ACTUAL_PORT --timeout 40 verify-lab --duration 30
+```
+
+The USB helper requires host pySerial. No host check means WAITING; no detected
+EDIO means UNAVAILABLE. C only clears display counters, not link state or its
+lease; both reset entry paths clear the link state. Read the
+[protocol and ownership notes](../../references/everdrive-link.md) before reuse.
 
 ## Controls and observations
 

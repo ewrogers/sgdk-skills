@@ -63,3 +63,9 @@ show `EDIO: DETECTED` with a raw status/model result, and `CONSOLE: UNKNOWN` unl
 declared or established by a specifically validated detector. Instrumented
 host/guest challenge-response could verify an active development link, but
 would still not prove the underlying console manufacturer.
+
+Follow-up: Hardware Lab now implements the EDIO signature/read-strobe check and
+a CRC-framed FIFO/USB nonce exchange with a five-second verification lease. It
+does not query or infer console model. See [physical acceptance](../validation-hardware-readiness.md).
+The newer FCI mailbox interface returned `$FFFF` on the tested Pro; the shipped
+check uses established FIFO/CMD_USB_WR operations instead.

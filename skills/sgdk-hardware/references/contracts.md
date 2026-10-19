@@ -88,7 +88,8 @@ the palettes used by the other tests. It adds no sprite-engine allocation.
 
 The meter and hexadecimal fields refresh every ten existing VInt samples.
 Changing eight meter cells writes 16 tilemap bytes; three eight-character
-counters queue another 48 tilemap bytes per refresh. These are payload sizes,
+counters queue another 48 tilemap bytes and the padded USB status field adds
+22 tilemap bytes per refresh. These are payload sizes,
 not measured CPU cost or timing guarantees. The existing Lab clock starts after
 initial screen transfers complete, so initial setup is outside the measurement
 window. VBlank service still owns queued transfers.
@@ -104,6 +105,10 @@ The readiness page uses the same queued-copy API for fixed-width fields.
 [`intToHex`](https://github.com/Stephane-D/SGDK/blob/v2.11/src/string.c) permits up
 to 15 padding digits plus a terminator; its scratch destination retains the Lab's
 32-byte formatting allowance even though this page requests only four or eight.
+
+The optional [EverDrive link diagnostic](everdrive-link.md) owns its EDIO probe,
+bounded FIFO parsing and recent-verification lease. It shares the Lab VInt clock;
+it does not identify an underlying console or provide a general CPU debugger.
 
 ## Cartridge memory
 

@@ -45,6 +45,15 @@ timeouts, reset release on interruption, and failure exit codes. Project-helper
 tests ensure failed builds never invoke USB and preserve build/upload statuses.
 These tests contact no physical serial devices.
 
+Hardware Lab link tests exercise CRC-framed nonce/response/ACK/completion over
+fragmented USB, stale/wrong/corrupt replies, absent guests, invalid durations,
+fresh renewal and total deadlines. Guest C contracts cover signature/strobe,
+incremental parsing, request/fragment timeouts, matching ACK, both nominal video
+rates, lease expiry across counter wrap and reset state. The target probe checks
+the actual big-endian packet bytes against Python's CRC and bounds state size.
+These are protocol/CPU checks; physical acceptance is recorded separately in
+[Hardware Lab validation](validation-hardware-readiness.md).
+
 Legacy Mega status is also tested with a read-only 64-byte `SYS_INF` reply:
 only device ID `0x18` at offset 50 permits deployment. Wrong IDs and missing
 system information stop before reset or SD writes.

@@ -79,6 +79,9 @@ support and acceptance limits before using an unverified console/firmware.
 This skill owns deployment; sgdk-hardware owns console/reset acceptance and
 sgdk-testing owns runtime evidence. Upload/install success and launch sent do
 not prove the game ran or entered SGDK's cold-start path. Record those separately.
+For the compatible Hardware Lab, the same client's optional `verify-lab` command
+checks a fresh guest exchange with an expiring lease. This requires that Lab's
+instrumentation; ordinary deployment remains independent of guest hooks.
 
 ## Verify and hand off
 

@@ -22,13 +22,13 @@ def load_prepare():
     return module
 
 def compile_host(cc,path,mode):
-    args=[cc,'-DHL_HOST','-std=c17',mode,'-Wall','-Wextra','-Werror','-I',str(LAB/'inc'),'-I',str(FIXTURE),str(LAB/'src/hardware.c'),str(FIXTURE/'host.c'),'-o',str(path)]
+    args=[cc,'-DHL_HOST','-std=c17',mode,'-Wall','-Wextra','-Werror','-I',str(LAB/'inc'),'-I',str(FIXTURE),str(LAB/'src/hardware.c'),str(LAB/'src/everdrive_link.c'),str(FIXTURE/'host.c'),'-o',str(path)]
     if os.name!='nt':args+=['-fsanitize=undefined','-fno-sanitize-recover=all']
     r=subprocess.run(args,capture_output=True,text=True,timeout=60)
     if r.returncode:raise RuntimeError(r.stdout+r.stderr)
 
 class HardwareTests(unittest.TestCase):
-    def test_clock_fields_scanline_upload_and_crc_contracts(self):
+    def test_clock_fields_scanline_upload_crc_and_usb_contracts(self):
         cc=next((p for n in ['clang','cc','gcc'] if(p:=shutil.which(n))),None)
         if not cc:
             if os.environ.get('SGDK_REQUIRE_HOST_CC')=='1':self.fail('C17 compiler required')
@@ -124,7 +124,11 @@ class HardwareContainerTests(unittest.TestCase):
                         geometry=values[:3];self.assertEqual(geometry[0],16);self.assertGreater(geometry[1],256);self.assertEqual(geometry[2],256)
                         body=b'HWL\x01\x12\x34\x56\x78\x55\xaa';record=body+binascii.crc_hqx(body,0xffff).to_bytes(2,'big')
                         self.assertEqual(values[3:15],list(record))
-                        self.assertEqual(values[15:],[half for word in prepare.font_words() for half in (word>>16,word&65535)])
+                        self.assertEqual(values[15:1551],[half for word in prepare.font_words() for half in (word>>16,word&65535)])
+                        self.assertLessEqual(values[1551],48)
+                        body=b'HLV1\x00\x01\x12\x34\x56\x78'
+                        packet=body+binascii.crc_hqx(body,0xffff).to_bytes(2,'big')
+                        self.assertEqual(values[1552:],list(packet))
             (out/'hardware-report.json').write_text(json.dumps({'passed':True,'hashes':hashes,'geometry':geometry,
                 'execution':'Base M68000 helper contracts; boot, VDP, Z80, I/O and SRAM devices not emulated',
                 'physical_hardware':'not tested'},indent=2)+'\n')

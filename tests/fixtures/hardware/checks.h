@@ -1,5 +1,65 @@
 #include "hardware.h"
+#include "everdrive_link.h"
 #define CHECK(x) do {if(!(x))return __LINE__;} while(0)
+static bool feed_packet(HlEdLink *link,u16 kind,u32 nonce,u32 now,u8 *reply)
+{
+    u8 packet[HL_ED_PACKET_BYTES];hl_ed_packet(packet,kind,nonce);
+    bool wrote=false;
+    for(u16 i=0;i<HL_ED_PACKET_BYTES;i++)wrote|=hl_ed_receive(link,packet[i],now,reply);
+    return wrote;
+}
+static bool matches_packet(const u8 *actual,u16 kind,u32 nonce)
+{
+    u8 expected[HL_ED_PACKET_BYTES];hl_ed_packet(expected,kind,nonce);
+    for(u16 i=0;i<HL_ED_PACKET_BYTES;i++)if(actual[i]!=expected[i])return false;
+    return true;
+}
+static int check_ed_link(void)
+{
+    CHECK(hl_ed_signature(0x55a0,0x55a8));
+    CHECK(hl_ed_signature(0x55af,0x55a7));
+    CHECK(!hl_ed_signature(0x55a0,0x55a0));
+    CHECK(!hl_ed_signature(0xffff,0xffff) && !hl_ed_signature(0,8));
+    CHECK(!hl_ed_signature(0x55a0,0x55b8));
+    HlEdLink link;u8 reply[HL_ED_PACKET_BYTES]={0};
+    hl_ed_init(&link,false,60);
+    CHECK(!feed_packet(&link,HL_ED_REQUEST,0x12345678,1,reply));
+    CHECK(!link.verified && !link.pending && !link.ever_verified);
+    for(u16 hz=50;hz<=60;hz+=10) {
+        const u32 start=0xfffffff0u;
+        hl_ed_init(&link,true,hz);
+        CHECK(!feed_packet(&link,HL_ED_ACK,0x12345678,start,reply) && !link.verified);
+        CHECK(!feed_packet(&link,HL_ED_REQUEST,0,start,reply));
+        CHECK(feed_packet(&link,HL_ED_REQUEST,0x12345678,start,reply));
+        CHECK(matches_packet(reply,HL_ED_RESPONSE,0x12345678^HL_ED_XOR));
+        CHECK(link.pending && !link.verified);
+        CHECK(!feed_packet(&link,HL_ED_ACK,0x12345679,start+1,reply) && !link.verified);
+        CHECK(feed_packet(&link,HL_ED_ACK,0x12345678,start+2,reply));
+        CHECK(matches_packet(reply,HL_ED_DONE,0x12345678));
+        CHECK(link.verified && link.ever_verified && !link.pending);
+        hl_ed_tick(&link,start+2+hz*5-1);CHECK(link.verified);
+        hl_ed_tick(&link,start+2+hz*5);CHECK(!link.verified);
+        CHECK(link.ever_verified);
+        CHECK(feed_packet(&link,HL_ED_REQUEST,456,400,reply));
+        CHECK(!feed_packet(&link,HL_ED_ACK,456,400+hz,reply));
+        CHECK(!link.verified && !link.pending);
+        CHECK(feed_packet(&link,HL_ED_REQUEST,789,500,reply));
+        CHECK(feed_packet(&link,HL_ED_REQUEST,321,501,reply));
+        CHECK(!feed_packet(&link,HL_ED_ACK,789,502,reply));
+        CHECK(feed_packet(&link,HL_ED_ACK,321,503,reply) && link.verified);
+        hl_ed_init(&link,true,hz);
+        CHECK(!link.verified && !link.ever_verified && !link.pending);
+        u8 packet[HL_ED_PACKET_BYTES];hl_ed_packet(packet,HL_ED_REQUEST,123);
+        packet[10]^=1;
+        for(u16 i=0;i<HL_ED_PACKET_BYTES;i++)CHECK(!hl_ed_receive(&link,packet[i],600,reply));
+        CHECK(!link.pending);
+        CHECK(!hl_ed_receive(&link,'H',600,reply));hl_ed_tick(&link,600+hz);CHECK(link.used==0);
+        CHECK(!hl_ed_receive(&link,0xff,700,reply));
+        CHECK(!hl_ed_receive(&link,'H',700,reply));
+        CHECK(feed_packet(&link,HL_ED_REQUEST,0xffffffff,701,reply));
+    }
+    return 0;
+}
 static int check_fields(void)
 {
     char line[HL_FIELD_WIDTH+1];

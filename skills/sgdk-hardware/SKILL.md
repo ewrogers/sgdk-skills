@@ -51,9 +51,10 @@ tester or an electrical test suite. Its artwork and reference audio are diagnost
 fixtures, not a prescribed game style.
 Its readiness page has a visible build label, boot/DATA/BSS results and a VInt
 heartbeat. Record the label and ROM hash, then inspect fresh capture frames when
-available. These local checks do not verify a USB round trip or electrical power
-cycle. The other Lab pages remain opt-in diagnostics, including the guarded SRAM
-write test.
+available. Its optional [EverDrive link check](references/everdrive-link.md)
+detects EDIO and verifies a fresh host/ROM exchange; USB VERIFIED expires without
+renewal. Leave console identity unknown. Startup/link checks do not establish an
+electrical power cycle. Other Lab pages remain opt-in, including guarded SRAM writes.
 
 ## Keep the evidence honest
 

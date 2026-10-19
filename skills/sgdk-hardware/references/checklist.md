@@ -20,6 +20,10 @@ do not replace unknowns with a successful build result.
    On the readiness page, record the build label and ROM hash; confirm HARD START,
    DATA `1234`, BSS `0000`, and changing meter/counter values across fresh frames.
    Retained globals on a warm entry should show REVIEW rather than a false PASS.
+   For EverDrive EDIO, record DETECTED/UNKNOWN separately from console identity.
+   With the compatible host helper, inspect USB WAITING, VERIFIED during fresh
+   exchanges and EXPIRED after renewal stops; absent EDIO should be UNAVAILABLE.
+   See [link check](everdrive-link.md); do not infer the console manufacturer.
 2. Run in actual PAL and NTSC modes, not just two ROM filenames. Compare roughly
    ten seconds of VInt/logic counts. At steady service, 500 PAL / 600 NTSC loops
    each advance 600 nominal logic units. No independent frequency claim follows.
