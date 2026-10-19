@@ -2,6 +2,7 @@
 #include "hardware.h"
 #include "resources.h"
 #include "font.h"
+#include "readiness.h"
 
 /* SGDK's reset entry retains application globals. Snapshot before reinitializing. */
 static volatile u16 initialized_word=0x1234;
@@ -73,7 +74,7 @@ int main(bool hard_reset)
     VDP_setEnable(TRUE);
     DMA_setMaxTransferSize(8192);Z80_setForceDelayDMA(TRUE);
     u16 page=0,previous=0,hz=SYS_isPAL() ? 50 : 60,refresh=0,mode=0;
-    u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE,capture=FALSE,pcm=FALSE;
+    u16 rejected=0,write_status=0;u32 logic=0,sequence=0;bool dirty=TRUE,music=FALSE,overflow=FALSE,valid=FALSE,reset_armed=FALSE,capture=FALSE,pcm=FALSE,first_screen=TRUE;
     HlClock clock;hl_clock_init(&clock,vtimer);
     while(TRUE) {
         SYS_doVBlankProcess();
@@ -109,18 +110,15 @@ int main(bool hard_reset)
             valid=read_record(&sequence);dirty=TRUE;
         }
         if(dirty) {
-            VDP_clearPlane(BG_A,TRUE);VDP_clearSprites();VDP_updateSprites(1,DMA_QUEUE);
-            text("HARDWARE LAB",1);text(titles[page],3);
-            text(page==4 && capture ? "A: UNLOCK PAGE       C: COUNTERS" : "LEFT / RIGHT: PAGE    C: COUNTERS",25);
-            text("CONSOLE CHECKS STILL NEED HARDWARE",26);
+            VDP_clearPlane(BG_A,TRUE);VDP_clearPlane(BG_B,TRUE);
+            VDP_clearSprites();VDP_updateSprites(1,DMA_QUEUE);
+            if(page!=0) {
+                PAL_setPalette(PAL0,palette,CPU);PAL_setPalette(PAL1,palette,CPU);
+                text("HARDWARE LAB",1);text(titles[page],3);
+                text(page==4 && capture ? "A: UNLOCK PAGE       C: COUNTERS" : "LEFT / RIGHT: PAGE    C: COUNTERS",25);
+            }
             if(page==0) {
-                text(hard_reset ? "SGDK ENTRY: HARD" : "SGDK ENTRY: RESET",6);
-                text(SYS_isPAL() ? "VIDEO FLAG: PAL / NOMINAL 50" : "VIDEO FLAG: NTSC / NOMINAL 60",7);
-                hex("ENTRY DATA: ",boot_data,9);hex("ENTRY BSS:  ",boot_zero,10);
-                text("COLD EXPECTS 1234 / 0000",12);
-                text("WARM MAY RETAIN BEEF / CAFE",13);
-                text("A: SOFTWARE RESET",16);text("B: FORCED INIT (NOT POWER CYCLE)",17);
-                text("COUNTERS ARE VINTS, NOT A STOPWATCH",22);
+                hl_ready_open(hard_reset,boot_data,boot_zero,SYS_isPAL());
             } else if(page==1) {
                 text("CHECK EDGES, STRIPES AND COLORS",5);
                 for(u16 y=7;y<20;y++)for(u16 x=1;x<39;x++)
@@ -157,12 +155,16 @@ int main(bool hard_reset)
                 text("READBACK IS NOT POWER-LOSS PROOF",21);
                 if(write_status)text(write_status==1 ? "LAST WRITE: READBACK MATCHED" : "LAST WRITE: READBACK FAILED",23);
             }
+            if(first_screen) {
+                /* Begin measurement after initial graphics/text have reached VRAM. */
+                SYS_doVBlankProcess();hl_clock_init(&clock,vtimer);logic=0;first_screen=FALSE;
+            }
             dirty=FALSE;refresh=9;
         }
         /* Refresh only counters; no full-screen redraw on every input poll. */
         if(++refresh>=10) {
             refresh=0;
-            if(page==0){number("VINTS: ",clock.elapsed,19);number("LOGIC 60HZ UNITS: ",logic,20);number("MISSED LOOP INTERVALS: ",clock.missed,21);}
+            if(page==0)hl_ready_update(clock.elapsed,logic,clock.missed);
             if(page==3){number("MISSED LOOP INTERVALS: ",clock.missed,20);number("REJECTED UPLOADS: ",rejected,21);}
             if(page==4) {
                 hex("P1 PORT: ",JOY_getPortType(PORT_1),8);hex("P1 TYPE: ",JOY_getJoypadType(JOY_1),9);hex("P1 HELD: ",held,10);

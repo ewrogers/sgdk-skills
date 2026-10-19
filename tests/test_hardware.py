@@ -50,8 +50,14 @@ class HardwareTests(unittest.TestCase):
             with self.assertRaises(ValueError):prepare.prepare(project)
             r=subprocess.run([sys.executable,str(project/'tools/prepare.py'),str(Path(scratch)/'second copy')],capture_output=True,text=True,timeout=30)
             self.assertEqual(r.returncode,0,r.stderr)
-            for name in ['res/garden.vgm','res/reference.wav','inc/font.h']:
+            for name in ['res/garden.vgm','res/reference.wav','inc/font.h','inc/readiness_art.h','inc/build_id.h','build-info.json']:
                 self.assertEqual((project/name).read_bytes(),(Path(scratch)/'second copy'/name).read_bytes())
+            original=json.loads((project/'build-info.json').read_text())
+            with (project/'src/main.c').open('a') as source:source.write('\n/* Changed preparation input. */\n')
+            third=Path(scratch)/'changed copy'
+            r=subprocess.run([sys.executable,str(project/'tools/prepare.py'),str(third)],capture_output=True,text=True,timeout=30)
+            self.assertEqual(r.returncode,0,r.stderr)
+            self.assertNotEqual(json.loads((third/'build-info.json').read_text())['build_id'],original['build_id'])
             import wave
             with wave.open(str(project/'res/reference.wav')) as wav:
                 self.assertEqual((wav.getnchannels(),wav.getsampwidth(),wav.getframerate(),wav.getnframes()),(1,2,13300,256))
@@ -63,6 +69,26 @@ class HardwareTests(unittest.TestCase):
                 self.assertLessEqual(abs(samples[0]-samples[-1]),interior)
                 self.assertLess(interior,1200)
         with self.assertRaises(ValueError):prepare.prepare(LAB/'new output')
+
+    def test_readiness_art_and_preparation_identity_are_reproducible(self):
+        prepare=load_prepare()
+        from readiness_art import artwork
+        words=artwork()
+        self.assertEqual(len(words),59*8)
+        self.assertTrue(all((word>>shift)&15 in (1,2,3,4,5,15) for word in words for shift in range(0,32,4)))
+        release=prepare.build_identity()
+        self.assertEqual(release,prepare.build_identity())
+        self.assertNotEqual(release['build_id'],prepare.build_identity('debug')['build_id'])
+        self.assertNotEqual(release['build_id'],prepare.build_identity(region='pal')['build_id'])
+        with tempfile.TemporaryDirectory() as scratch:
+            project=prepare.prepare(Path(scratch)/'custom',build_id='READY-01')
+            identity=json.loads((project/'build-info.json').read_text())
+            self.assertEqual(identity['build_id'],'READY-01')
+            self.assertIn('"READY-01"',(project/'inc/build_id.h').read_text())
+            self.assertEqual(identity['source_sha256'],release['source_sha256'])
+            for invalid in ['','bad label','X"\n#define HACK 1','x'*21]:
+                with self.assertRaises(ValueError):prepare.prepare(Path(scratch)/'invalid',build_id=invalid)
+                self.assertFalse((Path(scratch)/'invalid').exists())
 
 @unittest.skipUnless(os.environ.get('SGDK_SKILLS_INTEGRATION')=='1','Docker integration is opt-in')
 class HardwareContainerTests(unittest.TestCase):

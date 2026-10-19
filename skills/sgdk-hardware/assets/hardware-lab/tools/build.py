@@ -14,13 +14,14 @@ def main():
     parser.add_argument('--platform',choices=['linux/arm64','linux/amd64'])
     parser.add_argument('--mode',choices=['release','debug'],default='release')
     parser.add_argument('--region',choices=['auto','ntsc','pal'],default='auto')
+    parser.add_argument('--build-id',help='Optional 1-20 character display label: uppercase, digits, ._-')
     args=parser.parse_args()
     try:
-        output=prepare(args.output)
+        output=prepare(args.output,args.mode,args.region,args.build_id)
         if args.region!='auto':
             path=output/'src/boot/rom_head.c'
             path.write_text(path.read_text().replace('.region="JUE"','.region="'+('E' if args.region=='pal' else 'U')+'"'))
-        command=['docker','run','--rm']
+        command=['docker','run','--rm','--pull=always']
         if args.platform:command+=['--platform',args.platform]
         if hasattr(os,'getuid'):command+=['--user',f'{os.getuid()}:{os.getgid()}']
         command+=['--mount',f'type=bind,source={output},target=/workspace','ewrogers/sgdk:latest','make',args.mode]

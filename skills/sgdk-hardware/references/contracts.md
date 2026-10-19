@@ -77,15 +77,33 @@ not identify a specific disconnected device. The Lab exposes raw types and
 held bits for the default pad setup; it does not reconfigure a mouse or multitap.
 Use sgdk-input for those support modes and logical player routing.
 
-## Updating diagnostic text
+## Readiness graphics and diagnostic text
 
-Hardware Lab replaces each changing field as one padded 36-character row through
+The Lab's readiness module loads 59 original 4bpp tiles with
+[`VDP_loadTileData`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_tile.h)
+and places them with `VDP_setTileMapXY`. This adds 1888 VRAM bytes at
+`$0260..$09BF`, below the separate `$8000` upload workload. The page owns four
+palette banks while visible; leaving it clears the backing plane and restores
+the palettes used by the other tests. It adds no sprite-engine allocation.
+
+The meter and hexadecimal fields refresh every ten existing VInt samples.
+Changing eight meter cells writes 16 tilemap bytes; three eight-character
+counters queue another 48 tilemap bytes per refresh. These are payload sizes,
+not measured CPU cost or timing guarantees. The existing Lab clock starts after
+initial screen transfers complete, so initial setup is outside the measurement
+window. VBlank service still owns queued transfers.
+
+Other Hardware Lab pages replace each changing field as a padded 36-character row through
 [`VDP_drawTextEx(..., DMA_QUEUE_COPY)`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_bg.h).
 The SDK converts text to tilemap data and keeps a queued copy, so a local string
 may go out of scope after the call. Padding clears old digits without a separate
 visible erase. Do not clear a live field and redraw it through CPU port writes
 during active scanout; the empty intermediate state can become visible.
 These text transfers count toward the total queue budget too.
+The readiness page uses the same queued-copy API for fixed-width fields.
+[`intToHex`](https://github.com/Stephane-D/SGDK/blob/v2.11/src/string.c) permits up
+to 15 padding digits plus a terminator; its scratch destination retains the Lab's
+32-byte formatting allowance even though this page requests only four or eight.
 
 ## Cartridge memory
 

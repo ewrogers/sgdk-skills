@@ -24,16 +24,15 @@ SGDK's `KDebug_*` APIs are documented as **Gens KMod** support; they are not Eve
 
 Custom mapper sources and upload examples exist, but FPGA development is a separate advanced project, not a ready-made CPU debugger. [FPGA examples](https://github.com/krikzz/mega-ed-pub/blob/23dbd5ef527999eb85590ece7ad0ba6e202c8a4c/fpga/README.md)
 
-Running-ROM replacement and recovery from a deliberate IRQ-disabled infinite loop were subsequently observed on the user's console, as recorded in the deployment research. Next: optional readiness and bounded logging, then structured test results and cooperative state inspection. Reserve emulator debugging for instruction-level investigation.
+Running-ROM replacement and recovery from a deliberate IRQ-disabled infinite loop were subsequently observed on the user's console, as recorded in the deployment research. Hardware Lab now provides local readiness checks; bounded USB logging, structured test messages and cooperative state inspection remain possible next steps. Reserve emulator debugging for instruction-level investigation.
 
-For a more polished readiness ROM, prefer improving Hardware Lab's existing
-boot/reset page rather than introducing a competing game template. Native tile
-graphics, an animated status mark, visible build ID, actual region flag, boot/RAM
-results and controller indicators would make a useful optional diagnostic.
-Show ROM RUNNING/INIT PASS from local checks; a USB LINK VERIFIED indicator must
-require an actual host/guest round trip, not merely launching the ROM. Ship source
-and build instructions; generated ROM binaries stay out of Git. This visual
-polish and guest telemetry are proposals, not implemented by the capture helper.
+Hardware Lab's existing boot/reset page now has native tile graphics, an animated
+running meter, a top-right build ID, the actual region flag and boot/DATA/BSS
+results. It retains the other optional diagnostic pages and ships source and
+build instructions, with generated ROMs excluded from Git. These local checks
+do not claim a USB round trip: a USB LINK VERIFIED indicator would require
+actual host/guest exchange. The readiness screen was uploaded and inspected
+through the capture card; see [physical validation](../validation-hardware-readiness.md).
 
 ## Separate HDMI capture path: Elgato HD60 X on macOS
 

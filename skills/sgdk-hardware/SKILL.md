@@ -49,6 +49,11 @@ Use [Hardware Lab](assets/hardware-lab/README.md) as an observation aid. It uses
 normal SGDK APIs and a deliberately small ROM; it is not a destructive RAM
 tester or an electrical test suite. Its artwork and reference audio are diagnostic
 fixtures, not a prescribed game style.
+Its readiness page has a visible build label, boot/DATA/BSS results and a VInt
+heartbeat. Record the label and ROM hash, then inspect fresh capture frames when
+available. These local checks do not verify a USB round trip or electrical power
+cycle. The other Lab pages remain opt-in diagnostics, including the guarded SRAM
+write test.
 
 ## Keep the evidence honest
 
