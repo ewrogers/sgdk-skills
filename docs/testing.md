@@ -30,12 +30,63 @@ Run the Python tests from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-Python checks use the standard library. Input, graphics, audio, gameplay, save
+Most Python checks use the standard library. Input, graphics, audio, gameplay, save
 performance, UI and level behavior tests also need a C17
 compiler (`clang`, `cc` or `gcc`) to execute the actual example modules with a
 fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
 host checks on macOS, Linux and Windows without requiring Docker. Docker tests
 are skipped unless explicitly enabled.
+
+### Mega EverDrive Pro USB client
+
+`tests/test_everdrive.py` checks golden protocol transcripts, fragmented I/O,
+explicit Pro identity, hard-reset default/soft override, SD/installation errors,
+timeouts, reset release on interruption, and failure exit codes. Project-helper
+tests ensure failed builds never invoke USB and preserve build/upload statuses.
+These tests contact no physical serial devices.
+
+Hardware Lab link tests exercise CRC-framed nonce/response/ACK/completion over
+fragmented USB, stale/wrong/corrupt replies, absent guests, invalid durations,
+fresh renewal and total deadlines. Guest C contracts cover signature/strobe,
+incremental parsing, request/fragment timeouts, matching ACK, both nominal video
+rates, lease expiry across counter wrap and reset state. The target probe checks
+the actual big-endian packet bytes against Python's CRC and bounds state size.
+These are protocol/CPU checks; physical acceptance is recorded separately in
+[Hardware Lab validation](validation-hardware-readiness.md).
+
+Legacy Mega status is also tested with a read-only 64-byte `SYS_INF` reply:
+only device ID `0x18` at offset 50 permits deployment. Wrong IDs and missing
+system information stop before reset or SD writes.
+
+For the native serial test, install the optional dependency in a virtual environment:
+
+```sh
+python3 -m pip install -r skills/sgdk-project/scripts/requirements-usb.txt
+python3 -m unittest discover -s tests -p test_everdrive.py -v
+```
+
+On POSIX with pySerial installed, a separate process runs a copied skill's CLI
+against a simulated cartridge on a pseudo-terminal, including ACK boundaries
+and JSON output. macOS PTYs need a test-only 115200-baud substitution; the client
+uses 921600 for real ports. Windows skips the PTY test. CI installs pySerial for
+host-helper jobs. No test establishes console execution, physical USB behavior,
+fresh SGDK startup, visuals, audio, or timing. Follow the installed project's
+USB reference and Hardware Lab acceptance checklist for those observations.
+
+### Real-console video evidence
+
+`tests/test_console_capture.py` validates explicit device selection and disabled
+audio, finite capture bounds, no-overwrite evidence directories, failure/timeout
+handling, image manifests, and independent installation. Automated tests mock
+FFmpeg and do not open cameras. The copied helper's `--help` works with only the
+standard library; real capture additionally needs host FFmpeg and macOS.
+
+Physical checks on 2026-10-19 used an Elgato HD60 X and FFmpeg 9.0.2, with explicit
+1920x1080/30/uyvy422 capture. The agent inspected a running diagnostic, an
+intentional CPU-hang screen, and HARD/RAM PASS after recovery; a short sequence
+showed both heartbeat states. The user confirmed Studio stayed live during
+direct capture. This does not certify sustained dual recording, audio or
+frame-accurate timing. See sgdk-testing's installed live-console reference.
 
 The planning tests check supplied budget arithmetic, H32/H40 sprite limits,
 RAM/VRAM boundaries, ROM padding and mapping declarations. They exercise
@@ -762,6 +813,13 @@ Python CRC oracle checks the serialized bytes.
 Standalone preparation is exercised through a second copied project. The PCM
 reference is a native 256-sample, zero-DC waveform with bounded adjacent sample
 steps, including its loop boundary.
+Art checks cover the 59 readiness tiles and 237 diagnostic title/icon/arrow/bar tiles,
+their palette indices, title spans, and separation from the DMA workload range.
+Preparation checks cover deterministic
+copying of generated headers, source-sensitive preparation IDs, mode/region
+labels, explicit custom IDs, and rejection of invalid labels before publishing
+an output folder. The Lab's graphical pages use the existing VInt clock and
+fixed-width queued text fields; it adds no independent timing policy.
 
 With `SGDK_SKILLS_INTEGRATION=1`, both container architectures build release/debug
 Hardware Lab and helper probes, plus PAL/NTSC header variants. Tests inspect the

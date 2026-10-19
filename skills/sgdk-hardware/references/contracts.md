@@ -77,15 +77,57 @@ not identify a specific disconnected device. The Lab exposes raw types and
 held bits for the default pad setup; it does not reconfigure a mouse or multitap.
 Use sgdk-input for those support modes and logical player routing.
 
-## Updating diagnostic text
+## Readiness graphics and diagnostic text
 
-Hardware Lab replaces each changing field as one padded 36-character row through
+The Lab's shared UI loads 296 original 4bpp tiles with
+[`VDP_loadTileData`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_tile.h)
+and places them with `VDP_setTileMapXY`. This adds 9472 VRAM bytes at
+`$0260..$275F`, below the separate `$8000` upload workload. The first 59 tiles
+retain the readiness artwork; 237 supply icons, 2x titles, D-pad arrows and
+playback-bar fill levels.
+All art loads once per entry with the display disabled. Readiness owns four
+palette banks; other pages reserve PAL1 for unchanged saturated diagnostic colors.
+Changing page clears both planes/sprites and sets the destination palettes.
+The shared renderer adds no sprite-engine allocation; the sprite diagnostic
+still uses the low-level SAT with unchanged piece counts, sizes and scanlines.
+Its horizontal spacing centers both rows inside the panel; overlap between
+32px pieces does not reduce the hardware's per-scanline pixel accounting.
+
+The meter and hexadecimal fields refresh every ten existing VInt samples.
+Changing eight meter cells writes 16 tilemap bytes; three eight-character
+counters queue another 48 tilemap bytes and the padded USB status field adds
+22 tilemap bytes per refresh. These are payload sizes,
+not measured CPU cost or timing guarantees. The existing Lab clock starts after
+initial screen transfers complete, so initial setup is outside the measurement
+window. VBlank service still owns queued transfers.
+
+Other Hardware Lab pages replace each changing field within its padded width through
 [`VDP_drawTextEx(..., DMA_QUEUE_COPY)`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_bg.h).
 The SDK converts text to tilemap data and keeps a queued copy, so a local string
 may go out of scope after the call. Padding clears old digits without a separate
 visible erase. Do not clear a live field and redraw it through CPU port writes
 during active scanout; the empty intermediate state can become visible.
 These text transfers count toward the total queue budget too.
+The readiness page uses the same queued-copy API for fixed-width fields.
+The DMA page's 32-cell selection bar writes another 64 tilemap bytes through
+the CPU at that refresh cadence; it represents 0/1024/2048 extra upload bytes,
+not an overall DMA allowance. Controller button marks are samples at the same
+ten-loop cadence as its raw held bits, not an input event recorder. Music/PCM,
+load and controller-lock changes refresh fields without a full-screen clear.
+Page-entry/setup work after the first page remains included in missed-loop
+counts, so changing pages can increase that counter; C begins a new sample.
+Four native D-pad arrow tiles use the same held bits and active/inactive colors.
+The four-column playback animation adds 24 CPU-written tilemap bytes per refresh.
+It follows [`XGM2_isPlaying()`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/snd/xgm2.h)
+while music is enabled, with phase from the existing VInt clock. These are
+decorative activity bars, not sampled audio levels; no raw Z80/FM access is added.
+[`intToHex`](https://github.com/Stephane-D/SGDK/blob/v2.11/src/string.c) permits up
+to 15 padding digits plus a terminator; its scratch destination retains the Lab's
+32-byte formatting allowance even though this page requests only four or eight.
+
+The optional [EverDrive link diagnostic](everdrive-link.md) owns its EDIO probe,
+bounded FIFO parsing and recent-verification lease. It shares the Lab VInt clock;
+it does not identify an underlying console or provide a general CPU debugger.
 
 ## Cartridge memory
 

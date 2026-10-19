@@ -1,6 +1,6 @@
 ---
 name: sgdk-testing
-description: Build repeatable SGDK game tests with seeded input replay, PAL/NTSC logic checks, checkpoint comparisons and bounded soak runs. Use for regression suites and automated QA, rather than investigating a single fault or measuring performance alone.
+description: Build repeatable SGDK game tests with seeded input replay, PAL/NTSC logic checks, checkpoint comparisons, bounded soak runs and real-console capture evidence. Use for regression suites, automated QA and inspecting capture-card output, rather than investigating a single fault or measuring performance alone.
 ---
 
 # SGDK Testing
@@ -18,12 +18,20 @@ JSON reports are example game code.
   execution, report comparison, failure artifacts and reviewed baselines.
 - [PAL/NTSC and presentation](references/regions.md): display schedules, input
   edges, pause, frame misses and emulator/hardware checks.
+- [Live-console visual evidence](references/live-console.md): explicit capture
+  card selection, bounded host capture, build identity and reviewed observations.
 - [Test Lab](assets/test-lab/README.md): a standalone seeded courier scene with
   reference playback, live recording and a deliberate regression switch.
 
 Fit the existing project's architecture. A small test seam around input, time,
 randomness or storage is often enough; do not replace the game with the Lab or
 require every game to use its 60-tick clock, JSON schema or capacities.
+
+For an available capture card, use the bundled capture helper on its supported
+host to obtain fresh images that the agent can inspect. Keep the user's preview
+app running when concurrent access has been confirmed; do not assume all devices
+support it. Frame capture does not reset/upload ROMs or control game input.
+Keep protocol success, reviewed video, telemetry and timing evidence separate.
 
 ## Keep failures repeatable
 

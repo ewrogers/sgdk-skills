@@ -17,6 +17,12 @@ console model/revision if known, region, display path, peripherals and cartridge
 or flashcart model/firmware. For an emulator, record its version and actual
 emulated system/region. Unknown fields stay unknown.
 
+For Mega EverDrive Pro USB upload, use sgdk-project's bundled host client when
+that skill is installed. Default deployments to hard reset; soft requires an
+explicit user request. Keep upload/install success, launch sent, fresh SGDK
+startup and actual electrical power cycling as separate observations. This
+skill owns those console checks rather than a second upload implementation.
+
 Pull `ewrogers/sgdk:latest`; inspect the installed headers and implementations
 before relying on reset, VBlank, audio or mapper behavior. Read
 [SGDK contracts and hardware differences](references/contracts.md). Do not
@@ -43,6 +49,12 @@ Use [Hardware Lab](assets/hardware-lab/README.md) as an observation aid. It uses
 normal SGDK APIs and a deliberately small ROM; it is not a destructive RAM
 tester or an electrical test suite. Its artwork and reference audio are diagnostic
 fixtures, not a prescribed game style.
+Its readiness page has a visible build label, boot/DATA/BSS results and a VInt
+heartbeat. Record the label and ROM hash, then inspect fresh capture frames when
+available. Its optional [EverDrive link check](references/everdrive-link.md)
+detects EDIO and verifies a fresh host/ROM exchange; USB VERIFIED expires without
+renewal. Leave console identity unknown. Startup/link checks do not establish an
+electrical power cycle. Other Lab pages remain opt-in, including guarded SRAM writes.
 
 ## Keep the evidence honest
 

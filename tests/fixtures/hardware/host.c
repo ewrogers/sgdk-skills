@@ -8,7 +8,7 @@ int main(int argc,char **argv)
         for(u16 i=0;i<HL_RECORD_BYTES;i++)printf("%02x",record[i]);
         puts("");return 0;
     }
-    int e=check_clock();if(!e)e=check_budgets();if(!e)e=check_records();if(!e)e=check_fields();
+    int e=check_clock();if(!e)e=check_budgets();if(!e)e=check_records();if(!e)e=check_fields();if(!e)e=check_ed_link();
     if(e)fprintf(stderr,"Hardware helper contract failed at %d\n",e);
     return e ? 1 : 0;
 }

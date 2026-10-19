@@ -1,0 +1,2 @@
+# Optional host-side USB deployment dependency; normal SGDK builds do not need it.
+pyserial==3.5

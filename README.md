@@ -20,7 +20,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 
 | Skill | What to ask it for |
 | --- | --- |
-| [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, use the toolchain or check the actual SDK API. |
+| [sgdk-project](skills/sgdk-project/SKILL.md) | Start a project, build a ROM, deploy over Mega EverDrive Pro USB or check the actual SDK API. |
 | [sgdk-planning](skills/sgdk-planning/SKILL.md) | Turn a game idea into a first playable milestone, hardware budgets and practical tests. |
 | [sgdk-best-practices](skills/sgdk-best-practices/SKILL.md) | Write or review C contracts, module boundaries and safe SGDK resource lifetimes. |
 
@@ -97,8 +97,12 @@ npx skills add ewrogers/sgdk-skills --skill sgdk-project
 
 The current installer needs Node.js 22.20 or later. Planning works without Docker.
 The build workflow needs
-Docker running with Linux containers. The optional helpers need Python 3.10+
-and use its standard library. No native SGDK installation or API key is needed.
+Docker running with Linux containers. The optional helpers need Python 3.10+.
+Most use its standard library; optional Mega EverDrive Pro USB deployment also
+needs pySerial on the host. See [USB setup and hardware acceptance](skills/sgdk-project/references/everdrive-usb.md).
+Optional [capture-card visual evidence](skills/sgdk-testing/references/live-console.md)
+uses host FFmpeg; the current helper supports macOS AVFoundation.
+No native SGDK installation or API key is needed.
 
 ## Use
 
