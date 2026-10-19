@@ -90,3 +90,12 @@ EverDrive-link reference.
 All 55 focused tests passed, including the updated release/debug target probes
 and packet-byte comparison. The Skills CLI again copied all 38 skills/resources;
 both edited skills passed the skill-creator validator.
+
+The subsequent layout-only release `HL-83127FEB-RA` aligns HARD/SOFT and the
+three PASS labels in column 29 and moves the video label to row 25, leaving
+row 24 clear below the counter panel. It built without warnings, was deployed
+with hard reset, and was inspected through HD60 X capture. HARD, DATA/BSS PASS,
+EDIO DETECTED and USB VERIFIED were visible; the host completed six handshakes
+in 6.264 seconds. ROM SHA-256:
+`f11565cb8ed44ed5fcbc06860af646d081f3dd9b7c09c6d558eb0f7a60c52c95`.
+Ignored evidence: `build/hardware-usb-link/aligned-d3ek1i91/`.

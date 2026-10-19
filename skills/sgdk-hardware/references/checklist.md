@@ -17,7 +17,7 @@ do not replace unknowns with a successful build result.
 
 1. Start fresh, open Boot, record entry values and video flag. Use software reset
    and forced init separately. A restored emulator state is not a cold boot.
-   On the readiness page, record the build label and ROM hash; confirm HARD START,
+   On the readiness page, record the build label and ROM hash; confirm HARD,
    DATA `1234`, BSS `0000`, and changing meter/counter values across fresh frames.
    Retained globals on a warm entry should show REVIEW rather than a false PASS.
    For EverDrive EDIO, record DETECTED/UNKNOWN separately from console identity.
