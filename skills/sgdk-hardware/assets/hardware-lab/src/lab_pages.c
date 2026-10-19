@@ -70,9 +70,9 @@ void hl_pages_open(u16 page,const HlPageView *v)
         label("B EXTRA DMA",19);label("MISSED LOOPS",21);label("REJECTED QUEUE",22);
         hl_ui_text("LISTEN FOR CRACKLE / DROPOUTS",2,25,PAL0);
     } else if(page==4) {
-        hl_ui_card(10,10);hl_ui_text("PORT 1",4,11,PAL2);hl_ui_text("PORT 2",22,11,PAL2);
-        hl_ui_card(20,4);
-        hl_ui_text("LOGICAL INPUT / PHYSICAL RAW",2,25,PAL0);
+        hl_ui_panel(2,10,17,13);hl_ui_panel(21,10,17,13);
+        hl_ui_text("PORT 1",3,11,PAL2);hl_ui_text("PORT 2",22,11,PAL2);
+        hl_ui_text("POINTER",3,19,PAL3);hl_ui_text("POINTER",22,19,PAL3);
     } else if(page==5) {
         hl_ui_card(10,6);label("RECORD CRC",11);label("SEQUENCE",13);
         hl_ui_bar(v->valid ? 12 : 0,12,4,14);hl_ui_text("12 BYTE RECORD",20,14,PAL3);
@@ -82,7 +82,7 @@ void hl_pages_open(u16 page,const HlPageView *v)
         hl_ui_text("REBOOT + READ TO CHECK RETENTION",4,22,PAL2);
         hl_ui_text("READBACK IS NOT POWER-LOSS PROOF",2,25,PAL0);
     }
-    hl_pages_update(page,v);
+    /* Main publishes the dynamic fields once after opening the page. */
 }
 void hl_pages_update(u16 page,const HlPageView *v)
 {
@@ -95,15 +95,19 @@ void hl_pages_update(u16 page,const HlPageView *v)
         hl_ui_bar(v->mode*16,32,4,20);
         hl_ui_number(v->missed,25,21);hl_ui_number(v->rejected,25,22);
     } else if(page==4) {
-        pad(4,JOY_1,&v->input[0],v->pointer_x[0],v->pointer_y[0]);
+        pad(3,JOY_1,&v->input[0],v->pointer_x[0],v->pointer_y[0]);
         pad(22,JOY_2,&v->input[1],v->pointer_x[1],v->pointer_y[1]);
-        /* Tiny original pointer tracks. Clear complete interiors, then publish
-         * both sampled positions; no sprite/physical-driver ownership change. */
-        hl_ui_field("",4,21,32,PAL3);hl_ui_field("",4,22,32,PAL3);
-        hl_ui_text("+",4+v->pointer_x[0]/8,21+v->pointer_y[0]/8,PAL2);
-        hl_ui_text("+",22+v->pointer_x[1]/8,21+v->pointer_y[1]/8,PAL3);
-        hl_ui_field(v->capture ? "INPUT TEST / A UNLOCKS NAV" : "L/R PAGES / A LOCKS INPUT TEST",2,24,36,PAL0);
-        hl_ui_field(v->capture ? "A UNLOCK  C ZERO" : "L/R PAGES  A LOCK  C ZERO",2,26,36,PAL0);
+        /* Clear each interior separately: never paint across the panel gutter
+         * or its bottom corners. Both pointer rows remain inside the cards. */
+        for(u16 i=0;i<2;i++) {
+            const u16 x=3+i*19;
+            hl_ui_field("",x,20,14,PAL3);hl_ui_field("",x,21,14,PAL3);
+            hl_ui_text("+",x+v->pointer_x[i]/8,20+v->pointer_y[i]/8,i?PAL3:PAL2);
+        }
+        hl_ui_field(v->capture ? "PAGES LOCKED / A: UNLOCK" : "L/R: PAGES / A: LOCK TEST",2,24,36,PAL0);
+        hl_ui_field(v->input[0].remote ? "USB P1 ACTIVE / PAD PAUSED" :
+                    v->input[1].remote ? "USB P2 ACTIVE / P1 READY" : "PHYSICAL PAD READY",2,25,36,PAL0);
+        hl_ui_field("C: CLEAR COUNTERS",2,26,36,PAL0);
     } else if(page==5) {
         hl_ui_field(v->valid ? "VALID" : "EMPTY/INVALID",22,11,13,PAL2);
         hl_ui_number(v->valid ? v->sequence : 0,24,13);

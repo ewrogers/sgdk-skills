@@ -55,3 +55,27 @@ This tests logical USB input through a cooperating ROM. It does not qualify
 physical mouse/multitap support, analog output, audio timing, saves, stressed USB
 throughput, other firmware, electrical cold power cycling or arbitrary-ROM input.
 ACK means sampled by the hook; capture inspection supplies the visual evidence.
+
+## Panel and navigation follow-up
+
+Input Lab now gives each port its own padded rounded panel, with a visible
+central gutter. Text and both pointer rows stay inside the panel interiors;
+clears do not cross the gutter or bottom corners. Page entry publishes dynamic
+fields once instead of enqueueing the same fields twice. The footer explicitly
+shows Left/Right navigation, A's lock/unlock action, and whether USB P1 has
+paused the physical pad. Controls retain their existing meanings.
+
+Release build `HL-B6D89515-RA`, ROM SHA-256
+`9550d0d84f9f9a52623d7c21bc0573f17580b94ff7ba3b0989c6d3c45ac0da47`,
+was uploaded with hard reset and inspected through direct HD60 X frames.
+Ignored `build/input-ui-acceptance` contains readiness, all five diagnostic
+pages, both pad masks, mouse pointers at opposite limits in each panel, mixed
+pad/mouse input, release and the final unlocked page. Borders and corners remain
+visible, fields stay inset and footer text stays outside the panels. Active USB
+showed PAD PAUSED; release restored PHYSICAL PAD READY. The final view is Input
+Lab with navigation unlocked and zero active overrides. No SRAM action or audio
+playback action was requested during this visual pass.
+
+The final source also passed the existing release/debug, PAL/NTSC and original
+68000 hardware contract checks. The same freshly pulled toolchain above was
+used. This is visual/input evidence, not an audio or frame-timing qualification.

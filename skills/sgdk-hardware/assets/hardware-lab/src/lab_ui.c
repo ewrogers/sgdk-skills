@@ -49,14 +49,16 @@ void hl_ui_solid(u16 color,u16 x,u16 y,u16 width,u16 height)
     for(u16 row=0;row<height;row++)for(u16 col=0;col<width;col++)
         VDP_setTileMapXY(BG_B,TILE_ATTR_FULL(PAL0,FALSE,FALSE,FALSE,1+color),x+col,y+row);
 }
-void hl_ui_card(u16 y,u16 height)
+void hl_ui_panel(u16 x,u16 y,u16 width,u16 height)
 {
-    hl_ui_solid(2,2,y,36,height);
-    hl_ui_art(HL_READY_CORNER_OFFSET,1,1,2,y);
-    hl_ui_art(HL_READY_CORNER_OFFSET+1,1,1,37,y);
-    hl_ui_art(HL_READY_CORNER_OFFSET+2,1,1,2,y+height-1);
-    hl_ui_art(HL_READY_CORNER_OFFSET+3,1,1,37,y+height-1);
+    hl_ui_solid(2,x,y,width,height);
+    hl_ui_art(HL_READY_CORNER_OFFSET,1,1,x,y);
+    hl_ui_art(HL_READY_CORNER_OFFSET+1,1,1,x+width-1,y);
+    hl_ui_art(HL_READY_CORNER_OFFSET+2,1,1,x,y+height-1);
+    hl_ui_art(HL_READY_CORNER_OFFSET+3,1,1,x+width-1,y+height-1);
 }
+void hl_ui_card(u16 y,u16 height)
+{hl_ui_panel(2,y,36,height);}
 void hl_ui_meter(u16 head,u16 x,u16 y)
 {
     for(u16 i=0;i<8;i++) {
