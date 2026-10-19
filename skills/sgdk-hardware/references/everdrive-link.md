@@ -16,12 +16,13 @@ physical hardware. The interface exists in PRO/CORE sources; the current host
 client separately requires a verified Pro identity. If absent, skip all FIFO
 access and show EVERDRIVE EDIO UNKNOWN / USB LINK UNAVAILABLE.
 
-With EDIO present, the screen starts WAITING. It becomes VERIFIED only after
+With EDIO present, the screen starts NOT RUN. It becomes PASS/LIVE only after
 receiving a matching acknowledgement for a fresh request. A five-second lease
-using the existing `vtimer` and actual PAL/NTSC flag expires to EXPIRED. This is
-recent bidirectional liveness, not an electrical cable-presence sensor. The
-game keeps polling on every page; C resets counters without affecting leases.
-Both reset entry paths explicitly initialize all protocol state.
+using the existing `vtimer` and actual PAL/NTSC flag supplies recent bidirectional
+liveness. After renewal stops, PASS/IDLE preserves the earlier successful check
+without claiming a current host session. It is not an electrical cable-presence
+sensor. The game keeps polling on every page; C resets counters without affecting
+leases. Both reset entry paths explicitly initialize all protocol state.
 
 ## Optional host command
 
@@ -42,7 +43,7 @@ do not deploy simultaneously. Target this command only at the compatible Lab,
 because it writes diagnostic packets into the running guest's FIFO.
 
 The command does not reset, upload, write saves or modify cartridge configuration.
-Stopping renewal lets the screen expire normally. A successful host check does
+Stopping renewal lets the live lease expire; the screen retains PASS/IDLE. A successful host check does
 not replace HDMI observation of the build ID, boot values and running indicator.
 
 ## Lab protocol v1 and budget
@@ -90,3 +91,15 @@ VERIFIED during nine exchanges over ten seconds, then EXPIRED after renewal
 stopped, with a moving heartbeat and MISS zero in the inspected frames.
 This does not establish compatibility with every mapper/firmware or USB handling
 under sustained stress. No console model was assumed or automatically detected.
+
+The clearer status follow-up was observed on 2026-10-19 after the user's firmware
+update (extended protocol discovery): build `HL-C3F86D33-RA`, ROM SHA-256
+`9bc6e872792d86cfeb7b044cb11ee93dd8ff56175165db8ae7b817a08d5d19e4`.
+Direct HD60 X frames showed NOT RUN, then PASS/LIVE during six fresh exchanges
+over six seconds, then PASS/IDLE after renewal stopped. Boot was HARD, DATA 1234,
+BSS 0000, all startup checks PASS, with advancing counters/heartbeat and MISS zero
+in the inspected frames. The live lease still expires after five seconds;
+PASS/IDLE records the previous success rather than claiming current connectivity.
+This release build used the freshly pulled `ewrogers/sgdk:latest` (SGDK 2.11,
+GCC 16.2.0, binutils 2.47.20260726). The guest wire protocol and timeout behavior
+are unchanged.

@@ -52,8 +52,8 @@ fixtures, not a prescribed game style.
 Its readiness page has a visible build label, boot/DATA/BSS results and a VInt
 heartbeat. Record the label and ROM hash, then inspect fresh capture frames when
 available. Its optional [EverDrive link check](references/everdrive-link.md)
-detects EDIO and verifies a fresh host/ROM exchange; USB VERIFIED expires without
-renewal. Leave console identity unknown. Startup/link checks do not establish an
+detects EDIO and verifies a fresh host/ROM exchange; the live lease expires without
+renewal while PASS/IDLE preserves the last successful result. Leave console identity unknown. Startup/link checks do not establish an
 electrical power cycle. Other Lab pages remain opt-in, including guarded SRAM writes.
 
 ## Keep the evidence honest
