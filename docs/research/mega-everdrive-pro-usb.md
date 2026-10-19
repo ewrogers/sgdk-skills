@@ -107,7 +107,38 @@ user-observed evidence that this diagnostic executed on the console, took SGDK's
 hard-start entry, and observed initialized DATA `1234` / BSS `0000` before
 mutating those globals. The agent did not directly view the TV.
 
-This validates one hard-reset upload from the cartridge's ROM-selection screen
-on this device. Replacing a running/hung ROM, repeated uploads, soft reset,
+That initial trial validated one hard-reset upload from the ROM-selection screen.
+Follow-on running/hung replacement observations are recorded below. Soft reset,
 audio/timing behavior, other console/firmware combinations, and actual electrical
-power-off/on were not tested by this trial.
+power-off/on remain untested.
+
+## Running-ROM and intentional-hang replacement, 2026-10-19
+
+With TEST01 running, the same SD pathname was overwritten with TEST02 using
+hard reset. The user confirmed the new TEST02 build identifier, HARD entry,
+RAM PASS and blinking heartbeat. A direct HD60 X capture also showed that screen.
+TEST02 ROM SHA-256: `de49f1219fe1fc41a5e17bec0a0483f47ae4e3c64e647100fbdc21c34e6ceeab`.
+
+TEST03 was built to display an intentional-hang message after 180 VBlanks,
+flush its final text, call the selected SDK's verified `SYS_disableInts()`, and
+enter an infinite loop with no game USB polling. A direct capture after five
+seconds showed TEST03, INTENTIONAL CPU HANG and IRQ OFF / AWAITING USB RESET.
+TEST03 ROM SHA-256: `abb20ca9a7b33b80a13d9addac52fb1bfbd1612eafd0f51f26ceefc1dcea8c17`.
+
+Hard-reset deployment then replaced that image with TEST04. File/installation
+acknowledgements succeeded. The agent directly inspected HDMI captures showing
+TEST04 / RECOVERED, HARD entry, RAM PASS, and both RUNNING indicator states in a
+short sequence. Fresh independent capture also showed the complete recovered
+screen. TEST04 ROM SHA-256: `d1f9d7498eb8b4f0a8e3b1ddc3349c6f440188af5449ca5b6c6342ac8a7d5c97`.
+
+This is observed recovery from the specific IRQ-disabled loop, not a claim
+about arbitrary bus locks, damaged mapper state, cable/SD failure or every
+possible game crash. The console was left running TEST04. Source, ROMs, logs,
+images and JSON trial reports remain local generated artifacts under ignored
+`build/everdrive-hardware-test`; no ROM binaries are added to Git.
+
+Video used FFmpeg 9.0.2 AVFoundation and the named HD60 X at explicit
+1920x1080/30/uyvy422, with audio disabled. The user confirmed Elgato Studio's
+preview stayed live during direct capture. The bundled sgdk-testing helper was
+also exercised on the actual card; it saves bounded fresh PNGs and metadata.
+This does not establish sustained dual recording, audio or frame-accurate timing.

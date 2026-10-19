@@ -100,6 +100,8 @@ The build workflow needs
 Docker running with Linux containers. The optional helpers need Python 3.10+.
 Most use its standard library; optional Mega EverDrive Pro USB deployment also
 needs pySerial on the host. See [USB setup and hardware acceptance](skills/sgdk-project/references/everdrive-usb.md).
+Optional [capture-card visual evidence](skills/sgdk-testing/references/live-console.md)
+uses host FFmpeg; the current helper supports macOS AVFoundation.
 No native SGDK installation or API key is needed.
 
 ## Use

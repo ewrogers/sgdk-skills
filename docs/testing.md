@@ -64,6 +64,21 @@ host-helper jobs. No test establishes console execution, physical USB behavior,
 fresh SGDK startup, visuals, audio, or timing. Follow the installed project's
 USB reference and Hardware Lab acceptance checklist for those observations.
 
+### Real-console video evidence
+
+`tests/test_console_capture.py` validates explicit device selection and disabled
+audio, finite capture bounds, no-overwrite evidence directories, failure/timeout
+handling, image manifests, and independent installation. Automated tests mock
+FFmpeg and do not open cameras. The copied helper's `--help` works with only the
+standard library; real capture additionally needs host FFmpeg and macOS.
+
+Physical checks on 2026-10-19 used an Elgato HD60 X and FFmpeg 9.0.2, with explicit
+1920x1080/30/uyvy422 capture. The agent inspected a running diagnostic, an
+intentional CPU-hang screen, and HARD/RAM PASS after recovery; a short sequence
+showed both heartbeat states. The user confirmed Studio stayed live during
+direct capture. This does not certify sustained dual recording, audio or
+frame-accurate timing. See sgdk-testing's installed live-console reference.
+
 The planning tests check supplied budget arithmetic, H32/H40 sprite limits,
 RAM/VRAM boundaries, ROM padding and mapping declarations. They exercise
 unknown costs, partial coverage, invalid input, CLI exit codes and a copied
