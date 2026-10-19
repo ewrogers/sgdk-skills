@@ -50,7 +50,7 @@ class HardwareTests(unittest.TestCase):
             with self.assertRaises(ValueError):prepare.prepare(project)
             r=subprocess.run([sys.executable,str(project/'tools/prepare.py'),str(Path(scratch)/'second copy')],capture_output=True,text=True,timeout=30)
             self.assertEqual(r.returncode,0,r.stderr)
-            for name in ['res/garden.vgm','res/reference.wav','inc/font.h','inc/readiness_art.h','inc/build_id.h','build-info.json']:
+            for name in ['res/garden.vgm','res/reference.wav','inc/font.h','inc/readiness_art.h','inc/lab_art.h','inc/build_id.h','build-info.json']:
                 self.assertEqual((project/name).read_bytes(),(Path(scratch)/'second copy'/name).read_bytes())
             original=json.loads((project/'build-info.json').read_text())
             with (project/'src/main.c').open('a') as source:source.write('\n/* Changed preparation input. */\n')
@@ -76,6 +76,15 @@ class HardwareTests(unittest.TestCase):
         words=artwork()
         self.assertEqual(len(words),59*8)
         self.assertTrue(all((word>>shift)&15 in (1,2,3,4,5,15) for word in words for shift in range(0,32,4)))
+        from lab_art import artwork as lab_artwork
+        lab_words,offsets,widths=lab_artwork()
+        self.assertEqual(len(lab_words),224*8)
+        self.assertTrue(all((word>>shift)&15 in (1,2,3,4,5,15) for word in lab_words for shift in range(0,32,4)))
+        for offset,width in zip(offsets,widths):
+            self.assertGreaterEqual(offset,80)
+            self.assertLessEqual(offset+width*2,224)
+            self.assertLessEqual(9+width,38)
+        self.assertLessEqual((19+59+224)*32,0x8000)
         release=prepare.build_identity()
         self.assertEqual(release,prepare.build_identity())
         self.assertNotEqual(release['build_id'],prepare.build_identity('debug')['build_id'])

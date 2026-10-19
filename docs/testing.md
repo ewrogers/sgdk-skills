@@ -813,10 +813,12 @@ Python CRC oracle checks the serialized bytes.
 Standalone preparation is exercised through a second copied project. The PCM
 reference is a native 256-sample, zero-DC waveform with bounded adjacent sample
 steps, including its loop boundary.
-Readiness checks cover the 59-tile art's size/palette indices, deterministic
+Art checks cover the 59 readiness tiles and 224 diagnostic title/icon tiles,
+their palette indices, title spans, and separation from the DMA workload range.
+Preparation checks cover deterministic
 copying of generated headers, source-sensitive preparation IDs, mode/region
 labels, explicit custom IDs, and rejection of invalid labels before publishing
-an output folder. The Lab's graphical page uses the existing VInt clock and
+an output folder. The Lab's graphical pages use the existing VInt clock and
 fixed-width queued text fields; it adds no independent timing policy.
 
 With `SGDK_SKILLS_INTEGRATION=1`, both container architectures build release/debug

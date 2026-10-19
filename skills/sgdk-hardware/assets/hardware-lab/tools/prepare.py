@@ -13,6 +13,7 @@ import wave
 from hardware_glyphs import rows
 from hardware_audio import assets as music
 from readiness_art import header as readiness_header
+from lab_art import header as lab_header
 ROOT=Path(__file__).resolve().parents[1]
 
 def font_words():
@@ -27,7 +28,7 @@ def build_identity(mode='release',region='auto',build_id=None):
     if mode not in ('release','debug') or region not in ('auto','ntsc','pal'):
         raise ValueError('Unknown build mode or region')
     digest=hashlib.sha256()
-    generated={'font.h','readiness_art.h','build_id.h','resources.h'}
+    generated={'font.h','readiness_art.h','lab_art.h','build_id.h','resources.h'}
     paths=[ROOT/'Makefile']
     for folder in ('src','inc','tools'):
         paths += [p for p in (ROOT/folder).rglob('*') if p.is_file() and
@@ -57,6 +58,7 @@ def prepare(output,mode='release',region='auto',build_id=None):
         wav.writeframes(b''.join(struct.pack('<h',int(7500*math.sin(2*math.pi*6*i/256)))for i in range(256)))
     (output/'inc/font.h').write_text('/* Original 5x7 opaque font. */\nstatic const u32 font_tiles[768]={\n'+',\n'.join(f'0x{v:08x}'for v in font_words())+'\n};\n')
     (output/'inc/readiness_art.h').write_text(readiness_header())
+    (output/'inc/lab_art.h').write_text(lab_header())
     (output/'inc/build_id.h').write_text('/* Preparation identity; full inputs in build-info.json. */\n#define HL_BUILD_ID "'+identity['build_id']+'"\n')
     (output/'build-info.json').write_text(json.dumps(identity,indent=2)+'\n')
     (output/'res/resources.res').write_text('XGM2 reference_music "garden.vgm"\nWAV reference_pcm "reference.wav" XGM2\n')

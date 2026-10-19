@@ -99,3 +99,47 @@ EDIO DETECTED and USB VERIFIED were visible; the host completed six handshakes
 in 6.264 seconds. ROM SHA-256:
 `f11565cb8ed44ed5fcbc06860af646d081f3dd9b7c09c6d558eb0f7a60c52c95`.
 Ignored evidence: `build/hardware-usb-link/aligned-d3ek1i91/`.
+
+## Follow-up: all diagnostic pages share the visual style
+
+The five diagnostic pages now have original native icons, 2x titles, matching
+panels and a top-right build label. Shared presentation lives in `lab_ui.c` and
+`lab_pages.c`; the main loop retains input decisions, SRAM access and its VInt
+clock. All 283 UI tiles (9056 VRAM bytes) load with display disabled and stay
+below the private DMA workload. PAL1 preserves the saturated diagnostic palette
+on non-readiness pages. Music/PCM/load/lock changes refresh fields instead of
+clearing the screen. The approved readiness layout is retained.
+
+All five pages were hard-reset uploaded and inspected through the same HD60 X
+path. Ignored preparation variants selected the initial page solely to capture
+each layout; the SRAM variant performed its normal read on entry. These were
+not controller automation or a new shipped startup mode:
+
+| Page | Variant build ID | Observed |
+| --- | --- | --- |
+| Video | `HL-933A2481-RA` | Color ramp, fine checker/stripes, four corner crop markers |
+| Sprites | `HL-41FE7B6E-RA` | At-limit piece/pixel rows with unchanged coordinates and sizes |
+| DMA / Audio | `HL-AC25C03D-RA` | Sound controls, zero-byte selection bar, zero rejected queues |
+| Controllers | `HL-613BCD95-RA` | Two raw port/device/held columns, button marks, navigation/lock hints |
+| SRAM | `HL-115532AB-RA` | EMPTY/INVALID, sequence zero, guarded-write guidance, LAST WRITE NOT RUN |
+
+A separate ignored variant cycled pages every three nominal seconds. Reviewed
+capture frames 0-9 showed all six pages and a return to readiness with restored
+colors and no stale page graphics. Page-entry work contributes to missed-loop
+counts (the cycle accumulated gaps); this is not a steady-service performance
+benchmark. The trial did not test audio quality, held-button interaction,
+over-limit dropout, or save writes/power retention.
+
+The normal default build `HL-8624579A-RA` was then rebuilt without warnings and
+hard-reset uploaded. Source SHA-256:
+`8624579aa1eb87cb96c0be82f4d35517da218e45e5597923103ef7d3c03755e3`.
+ROM SHA-256 (131072 bytes):
+`e3ac5ac5b64838b9413e9afc0547b554b2d60f455026dc44f6511641fa272914`.
+Its final capture showed the preserved layout, HARD, DATA/BSS PASS, EDIO DETECTED,
+USB VERIFIED and MISS zero. Five host exchanges completed in 5.258 seconds.
+All 55 focused tests passed, including release/debug/region-header target builds,
+base-M68000 contracts and expanded native-art/copy checks. Skills CLI copied all
+38 skills/resources. Local evidence is under
+`build/hardware-pages/final-qy8urdj0/` (`page-1` through `page-5`, `transitions`,
+and final default build/capture in `normal`). Generated ROMs and captures remain
+excluded from Git.

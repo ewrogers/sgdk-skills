@@ -79,12 +79,16 @@ Use sgdk-input for those support modes and logical player routing.
 
 ## Readiness graphics and diagnostic text
 
-The Lab's readiness module loads 59 original 4bpp tiles with
+The Lab's shared UI loads 283 original 4bpp tiles with
 [`VDP_loadTileData`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_tile.h)
-and places them with `VDP_setTileMapXY`. This adds 1888 VRAM bytes at
-`$0260..$09BF`, below the separate `$8000` upload workload. The page owns four
-palette banks while visible; leaving it clears the backing plane and restores
-the palettes used by the other tests. It adds no sprite-engine allocation.
+and places them with `VDP_setTileMapXY`. This adds 9056 VRAM bytes at
+`$0260..$25BF`, below the separate `$8000` upload workload. The first 59 tiles
+retain the readiness artwork; 224 supply five native icons and 2x titles.
+All art loads once per entry with the display disabled. Readiness owns four
+palette banks; other pages reserve PAL1 for unchanged saturated diagnostic colors.
+Changing page clears both planes/sprites and sets the destination palettes.
+The shared renderer adds no sprite-engine allocation; the sprite diagnostic
+still uses the low-level SAT with its original coordinates and limits.
 
 The meter and hexadecimal fields refresh every ten existing VInt samples.
 Changing eight meter cells writes 16 tilemap bytes; three eight-character
@@ -94,7 +98,7 @@ not measured CPU cost or timing guarantees. The existing Lab clock starts after
 initial screen transfers complete, so initial setup is outside the measurement
 window. VBlank service still owns queued transfers.
 
-Other Hardware Lab pages replace each changing field as a padded 36-character row through
+Other Hardware Lab pages replace each changing field within its padded width through
 [`VDP_drawTextEx(..., DMA_QUEUE_COPY)`](https://github.com/Stephane-D/SGDK/blob/v2.11/inc/vdp_bg.h).
 The SDK converts text to tilemap data and keeps a queued copy, so a local string
 may go out of scope after the call. Padding clears old digits without a separate
@@ -102,6 +106,13 @@ visible erase. Do not clear a live field and redraw it through CPU port writes
 during active scanout; the empty intermediate state can become visible.
 These text transfers count toward the total queue budget too.
 The readiness page uses the same queued-copy API for fixed-width fields.
+The DMA page's 32-cell selection bar writes another 64 tilemap bytes through
+the CPU at that refresh cadence; it represents 0/1024/2048 extra upload bytes,
+not an overall DMA allowance. Controller button marks are samples at the same
+ten-loop cadence as its raw held bits, not an input event recorder. Music/PCM,
+load and controller-lock changes refresh fields without a full-screen clear.
+Page-entry/setup work after the first page remains included in missed-loop
+counts, so changing pages can increase that counter; C begins a new sample.
 [`intToHex`](https://github.com/Stephane-D/SGDK/blob/v2.11/src/string.c) permits up
 to 15 padding digits plus a terminator; its scratch destination retains the Lab's
 32-byte formatting allowance even though this page requests only four or eight.

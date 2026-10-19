@@ -35,6 +35,13 @@ RAM. ROM RUNNING and the heartbeat show local execution, not a verified USB
 round trip, electrical cold power cycle, or a complete hardware RAM test.
 The region label is the actual SGDK video flag, not just the ROM header.
 
+The five diagnostic pages share the same header, original 2x titles, page icons
+and rounded panels. Video keeps its full-color ramp, fine patterns and four
+corner crop markers. Sprite rows retain their original piece sizes/positions.
+DMA/Audio shows the selected extra upload as a bar, not a total VRAM budget.
+Controllers shows both raw port/device/held values and sampled button marks
+(`S` = Start, `M` = Mode). Save keeps its explicit read and guarded write controls.
+
 The page also probes EverDrive's EDIO signature/read strobe and shows DETECTED
 or UNKNOWN. It does not infer the console model or prove physical hardware.
 USB LINK starts WAITING and becomes VERIFIED only after a fresh host/ROM
@@ -82,9 +89,12 @@ uses the existing VInt clock and refreshes every ten samples, not a second clock
 Counters begin after the first screen's queued setup reaches VRAM; C resets them.
 B forces SDK initialization and memory clear, not electrical power cycling.
 
-The readiness art adds 59 tiles (1888 bytes) in VRAM `$0260..$09BF` and uses all
-four palettes on that page. Leaving it clears the backing plane and restores
-the palettes used by the other diagnostics. Art/font generators and references
+The shared art adds 283 tiles (9056 bytes) in VRAM `$0260..$25BF`: 59 readiness
+tiles plus 224 tiles for the other page titles/icons. It loads once per entry
+with display disabled and remains resident below the private DMA workload.
+Readiness uses all four palette banks; other pages reserve PAL1 for saturated
+diagnostic colors and use the remaining banks for the shared UI. Page changes
+clear both planes/sprites and set the destination palettes. Art/font generators and references
 ship inside this Lab; there are no downloaded assets or repository test dependencies.
 
 Queued upload data stays allocated and unchanged. Its private VRAM range is
