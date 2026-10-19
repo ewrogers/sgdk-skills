@@ -30,12 +30,35 @@ Run the Python tests from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-Python checks use the standard library. Input, graphics, audio, gameplay, save
+Most Python checks use the standard library. Input, graphics, audio, gameplay, save
 performance, UI and level behavior tests also need a C17
 compiler (`clang`, `cc` or `gcc`) to execute the actual example modules with a
 fake SDK. They skip locally if no compiler exists; CI requires one. CI runs
 host checks on macOS, Linux and Windows without requiring Docker. Docker tests
 are skipped unless explicitly enabled.
+
+### Mega EverDrive Pro USB client
+
+`tests/test_everdrive.py` checks golden protocol transcripts, fragmented I/O,
+explicit Pro identity, hard-reset default/soft override, SD/installation errors,
+timeouts, reset release on interruption, and failure exit codes. Project-helper
+tests ensure failed builds never invoke USB and preserve build/upload statuses.
+These tests contact no physical serial devices.
+
+For the native serial test, install the optional dependency in a virtual environment:
+
+```sh
+python3 -m pip install -r skills/sgdk-project/scripts/requirements-usb.txt
+python3 -m unittest discover -s tests -p test_everdrive.py -v
+```
+
+On POSIX with pySerial installed, a separate process runs a copied skill's CLI
+against a simulated cartridge on a pseudo-terminal, including ACK boundaries
+and JSON output. macOS PTYs need a test-only 115200-baud substitution; the client
+uses 921600 for real ports. Windows skips the PTY test. CI installs pySerial for
+host-helper jobs. No test establishes console execution, physical USB behavior,
+fresh SGDK startup, visuals, audio, or timing. Follow the installed project's
+USB reference and Hardware Lab acceptance checklist for those observations.
 
 The planning tests check supplied budget arithmetic, H32/H40 sprite limits,
 RAM/VRAM boundaries, ROM padding and mapping declarations. They exercise

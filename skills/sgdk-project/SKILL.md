@@ -1,6 +1,6 @@
 ---
 name: sgdk-project
-description: Create, inspect or build an SGDK C game project using the SGDK Docker toolchain. Use for project setup, release/debug builds, tool invocation and checking the installed SDK API.
+description: Create, inspect or build an SGDK C game project using the SGDK Docker toolchain, or deploy a ROM to Mega EverDrive Pro over USB. Use for project setup, release/debug builds, hardware upload, tool invocation and checking the installed SDK API.
 ---
 
 # SGDK project
@@ -27,7 +27,7 @@ controls, content or architecture. Copy a complete Lab only when requested.
 
 The portable helper is [scripts/sgdk.py](scripts/sgdk.py). Locate it relative to
 this installed skill, not the current directory or a neighboring skill.
-It needs Python 3.10+ and a running Docker engine with Linux containers.
+Build commands need Python 3.10+ and a running Docker engine with Linux containers.
 
 ```sh
 python3 /path/to/sgdk-project/scripts/sgdk.py doctor
@@ -60,6 +60,25 @@ For large ROMs, mapper changes or low-level audio, read
 [cartridge and sound boundaries](references/cartridge-and-sound.md). The normal
 4 MiB ROM window, SGDK's padding, Z80 bus ownership and FM/PSG register ownership
 are separate questions; do not assume linking or a helper name makes them safe.
+
+## Optional real-console deployment
+
+For Mega EverDrive Pro USB iteration, follow
+[USB deployment](references/everdrive-usb.md). The bundled Python client speaks
+the protocol directly and needs optional pySerial on the host. It does not need
+edlink, Mono or game-side hooks. Keep USB outside Docker on macOS/Windows.
+
+`sgdk.py --project GAME deploy --port PORT` builds release, then uploads only
+after build success. The direct `everdrive.py` client handles already built ROMs
+and custom build systems. Require an explicit port and verify the Pro identity.
+**Default to hard reset on every deployment; use soft only when the user
+explicitly requests it.** Never silently fall back to soft after an error.
+The SD `usb-games/<ROM basename>` file is replaced. Read the reference's firmware
+support and acceptance limits before using an unverified console/firmware.
+
+This skill owns deployment; sgdk-hardware owns console/reset acceptance and
+sgdk-testing owns runtime evidence. Upload/install success and launch sent do
+not prove the game ran or entered SGDK's cold-start path. Record those separately.
 
 ## Verify and hand off
 

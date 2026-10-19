@@ -106,6 +106,36 @@ class ProjectTests(unittest.TestCase):
                 sgdk.main(["build"])
         self.assertEqual(error.exception.code, 2)
 
+    def test_failed_build_never_invokes_uploader(self):
+        with patch.object(sgdk, "run", return_value=19) as build:
+            with patch.object(sgdk.subprocess, "run") as upload:
+                self.assertEqual(sgdk.deploy("image", None, "project", "unused"), 19)
+                upload.assert_not_called()
+        self.assertEqual(build.call_args.args[-1], ["build", "release"])
+
+    def test_successful_build_uses_installed_host_client_and_hard_reset_by_default(self):
+        with tempfile.TemporaryDirectory(prefix="game with spaces ") as temporary:
+            with patch.object(sgdk, "run", return_value=0):
+                with patch.object(sgdk.subprocess, "run", return_value=subprocess.CompletedProcess([], 7)) as upload:
+                    self.assertEqual(sgdk.deploy("image", None, temporary, "/dev/explicit"), 7)
+            args = upload.call_args.args[0]
+            self.assertEqual(args[1], str(Path(sgdk.__file__).with_name("everdrive.py")))
+            self.assertEqual(args[-3:], [str(Path(temporary).resolve() / "out/rom.bin"), "--reset", "hard"])
+            self.assertNotIn("shell", upload.call_args.kwargs)
+
+    def test_explicit_soft_override_is_forwarded(self):
+        with patch.object(sgdk, "run", return_value=0):
+            with patch.object(sgdk.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as upload:
+                sgdk.deploy("image", None, ".", "COM4", reset="soft")
+        self.assertEqual(upload.call_args.args[0][-2:], ["--reset", "soft"])
+
+    def test_invalid_usb_timeout_is_rejected_before_build(self):
+        for value in ["nan", "inf", "0", "-1"]:
+            with patch.object(sgdk, "run") as build, contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    sgdk.main(["--project", ".", "deploy", "--port", "unused", "--timeout", value])
+                build.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

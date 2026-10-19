@@ -17,6 +17,12 @@ console model/revision if known, region, display path, peripherals and cartridge
 or flashcart model/firmware. For an emulator, record its version and actual
 emulated system/region. Unknown fields stay unknown.
 
+For Mega EverDrive Pro USB upload, use sgdk-project's bundled host client when
+that skill is installed. Default deployments to hard reset; soft requires an
+explicit user request. Keep upload/install success, launch sent, fresh SGDK
+startup and actual electrical power cycling as separate observations. This
+skill owns those console checks rather than a second upload implementation.
+
 Pull `ewrogers/sgdk:latest`; inspect the installed headers and implementations
 before relying on reset, VBlank, audio or mapper behavior. Read
 [SGDK contracts and hardware differences](references/contracts.md). Do not
