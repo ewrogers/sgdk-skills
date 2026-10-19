@@ -70,8 +70,11 @@ void hl_ui_bar(u16 active,u16 cells,u16 x,u16 y)
 }
 void hl_ui_arrow(u16 direction,u16 x,u16 y,u16 pal)
 {
-    VDP_setTileMapXY(BG_A,TILE_ATTR_FULL(pal,TRUE,FALSE,FALSE,
-        LAB_TILE_START+HL_LAB_ARROW_OFFSET+direction),x,y);
+    /* Keep the arrow ordered after the queued row clear, and copy the stack
+     * tile while enqueueing so it remains valid until VBlank. */
+    const u16 tile=TILE_ATTR_FULL(pal,TRUE,FALSE,FALSE,
+        LAB_TILE_START+HL_LAB_ARROW_OFFSET+direction);
+    VDP_setTileMapDataRect(BG_A,&tile,x,y,1,1,1,DMA_QUEUE_COPY);
 }
 void hl_ui_amp(u16 phase,bool active,u16 x,u16 y)
 {

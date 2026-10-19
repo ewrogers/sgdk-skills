@@ -67,7 +67,7 @@ and [Megadev Skills](https://github.com/ewrogers/megadev-skills) (in development
 
 | Skill | What to ask it for |
 | --- | --- |
-| [sgdk-testing](skills/sgdk-testing/SKILL.md) | Build deterministic replays, PAL/NTSC logic checks and regression reports for automated QA. Includes Test Lab. |
+| [sgdk-testing](skills/sgdk-testing/SKILL.md) | Build deterministic replays, PAL/NTSC checks and regression reports; capture console video and optionally inject USB pad/mouse input. Includes Test Lab. |
 | [sgdk-hardware](skills/sgdk-hardware/SKILL.md) | Check reset, video, sprite limits, DMA/audio and cartridge behavior, with explicit real-console checks. Includes Hardware Lab. |
 | [sgdk-debug](skills/sgdk-debug/SKILL.md) | Investigate a failed build, a ROM fault, a graphics problem or a slow frame. |
 | [sgdk-performance](skills/sgdk-performance/SKILL.md) | Measure frame-rate headroom, compare optimizations and separate CPU, DMA and scanline limits. |

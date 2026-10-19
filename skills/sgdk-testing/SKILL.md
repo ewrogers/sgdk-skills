@@ -1,6 +1,6 @@
 ---
 name: sgdk-testing
-description: Build repeatable SGDK game tests with seeded input replay, PAL/NTSC logic checks, checkpoint comparisons, bounded soak runs and real-console capture evidence. Use for regression suites, automated QA and inspecting capture-card output, rather than investigating a single fault or measuring performance alone.
+description: Build repeatable SGDK game tests with seeded input replay, PAL/NTSC logic checks, checkpoint comparisons, bounded soak runs and real-console capture evidence. Supports optional EverDrive USB pad/mouse injection in cooperating development ROMs. Use for regression suites, automated QA and inspecting capture-card output, rather than investigating a single fault or measuring performance alone.
 ---
 
 # SGDK Testing
@@ -65,3 +65,7 @@ VDP timing, audio quality, real input protocols or frame-rate headroom.
 Other installed skills are optional: `sgdk-debug` for investigating failures,
 `sgdk-performance` for measured frame costs, and `sgdk-release` for packaging
 the exact tested candidate. This skill and its Lab work independently.
+
+## Optional USB input for development ROMs
+
+When the user wants agent-driven real-console input, use [cooperative USB input](references/usb-input.md). The bundled portable C module and host client support two independent pad/mouse slots, gated by EverDrive EDIO detection, with bounded leases and physical fallback. Install it only into an opted-in ROM and connect it after the game's existing physical sampler; gameplay must read the resulting logical snapshot. Keep one FIFO owner, preserve SDK polling/interrupts and never claim physical-controller or BIOS-input emulation. Hardware Lab includes the hook and an input view; use direct capture plus ACKs to verify both ports, one-shot mouse movement and expiry.
