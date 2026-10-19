@@ -40,7 +40,7 @@ void hl_ready_update(u32 vints, u32 logic, u32 missed, const HlEdLink *link)
     hl_ui_hex(vints, 8, 26, 21, PAL1);
     hl_ui_hex(logic, 8, 10, 22, PAL1);
     hl_ui_hex(missed, 8, 25, 22, PAL1);
-    hl_ui_text(!link->present ? "UNAVAILABLE" : link->verified ? "VERIFIED   " :
-               link->ever_verified ? "EXPIRED    " : "WAITING    ",
-               25, 17, link->verified ? PAL3 : PAL1);
+    hl_ui_text(!link->present ? "UNAVAILABLE" : link->verified ? "PASS/LIVE  " :
+               link->ever_verified ? "PASS/IDLE  " : "NOT RUN    ",
+               25, 17, link->ever_verified ? PAL3 : PAL1);
 }

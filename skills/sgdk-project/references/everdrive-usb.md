@@ -94,8 +94,9 @@ python /path/to/sgdk-project/scripts/everdrive.py --port ACTUAL_PORT --timeout 4
 This verifies Pro identity, sends a fresh 32-bit challenge through the guest FIFO,
 checks the matching CRC-protected response, acknowledges it, and waits for guest
 completion. Success reports `lab_link_verified: true`, handshake count and a
-five-second lease. The ROM displays VERIFIED while fresh exchanges continue;
-after five seconds it displays EXPIRED. Default duration zero performs one
+five-second live lease. The ROM displays PASS/LIVE while fresh exchanges continue;
+after five seconds it retains PASS/IDLE to record the last successful check.
+Before the first successful exchange it displays NOT RUN. Default duration zero performs one
 exchange; `--duration` accepts 0-300 seconds, bounded by the overall timeout.
 No reset, SD/ROM/save writes or cartridge-configuration changes occur. Console
 model remains unknown. An absent guest, stale/corrupt reply or missing completion

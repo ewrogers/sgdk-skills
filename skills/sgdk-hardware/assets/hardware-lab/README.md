@@ -47,18 +47,19 @@ existing VInt clock. They indicate playback activity, not measured amplitude.
 
 The page also probes EverDrive's EDIO signature/read strobe and shows DETECTED
 or UNKNOWN. It does not infer the console model or prove physical hardware.
-USB HOST CHECK starts WAITING and becomes VERIFIED only after a fresh host/ROM
-challenge-response and acknowledgement. It expires after five seconds without
-renewal. WAITING means no check has completed since boot; EXPIRED means no fresh
-check arrived within that lease, including when a bounded host run ends. These
-states track host verification activity, not cable presence. With sgdk-project
+USB HOST CHECK starts NOT RUN and becomes PASS/LIVE only after a fresh host/ROM
+challenge-response and acknowledgement. After five seconds without renewal it
+shows PASS/IDLE, preserving the last successful result without claiming a current
+host session. This includes when a bounded verifier run ends; it does not mean
+the cable disconnected. These states track host verification activity, not cable
+presence. With sgdk-project
 installed, run its host client against this Lab:
 
 ```sh
 python /path/to/sgdk-project/scripts/everdrive.py --port ACTUAL_PORT --timeout 40 verify-lab --duration 30
 ```
 
-The USB helper requires host pySerial. No host check means WAITING; no detected
+The USB helper requires host pySerial. No host check means NOT RUN; no detected
 EDIO means UNAVAILABLE. C only clears display counters, not link state or its
 lease; both reset entry paths clear the link state. Read the
 [protocol and ownership notes](../../references/everdrive-link.md) before reuse.
