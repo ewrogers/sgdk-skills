@@ -2,9 +2,11 @@
 
 The bundled [Python client](../scripts/everdrive.py) implements the serial
 protocol directly. It needs Python 3.10+ and optional pySerial; it does not invoke
-edlink or require Mono/game-side hooks. A physical Pro acknowledged a hard-reset
-upload/install and was sent launch; that alone does not establish observed play
-or SGDK fresh startup. Keep console observations separate from protocol results.
+edlink or require Mono/game-side hooks. One physical Pro accepted a hard-reset
+upload from the ROM-selection screen, and the user confirmed a diagnostic's HARD
+entry, RAM-init PASS and blinking heartbeat. Repeated replacement, recovery from
+a hung game and other firmware/console combinations remain separate checks.
+The CLI reports protocol results; console observations require their own evidence.
 
 ## Responsibility boundary
 

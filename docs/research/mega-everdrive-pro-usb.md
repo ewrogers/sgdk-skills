@@ -70,7 +70,7 @@ Edlink also offers `.stdio` for process integration, with length-prefixed binary
 - Validate with the existing Hardware Lab: observe its HARD entry indication and initial DATA `1234` / BSS `0000`, then reupload after those variables mutate to `BEEF` / `CAFE`. Compare explicit soft reset, explicit hard reset, reupload, and actual power-off/on. Record console model, add-ons, region, firmware, edlink version, host OS/port, ROM hash, and observed results.
 - Test useful host failures before calling the integration ready: absent/incorrect/occupied port, identity mismatch, missing Mono/tool/ROM, failed build, paths with spaces, timeout, failed SD transfer/install, and misleading zero exit status. Serialize deployment attempts. Report separate states such as build passed, upload/install passed, start sent, and runtime observed.
 
-The Python client and build handoff are implemented; the physical Hardware Lab observations above remain proposed acceptance work. No claim is made about visual output, sound, timing, hardware startup, or power-loss behavior.
+The Python client and build handoff are implemented; the broader Hardware Lab observations above remain proposed acceptance work. The limited diagnostic observations from the physical trial are recorded below; they do not establish audio, timing, other ROMs, or power-loss behavior.
 
 ## Evidence snapshot
 
@@ -101,5 +101,13 @@ is `e4eb47b4ca95acf5f64fbbb0a4d1345d56792c2d41720be30c323f0768145d61`.
 The real client requested hard reset, transferred the ROM to
 `usb-games/sgdk-usb-reset-test.bin`, received successful file/installation
 acknowledgements, and sent launch. The transaction returned success in about
-3.9 seconds. This establishes that one physical device accepted that protocol
-sequence; startup/RAM/heartbeat observations await the user's console report.
+3.9 seconds. The user then confirmed the test screen displayed **SGDK ENTRY:
+HARD**, **RAM INIT: PASS**, and a blinking **RUNNING** indicator. This is
+user-observed evidence that this diagnostic executed on the console, took SGDK's
+hard-start entry, and observed initialized DATA `1234` / BSS `0000` before
+mutating those globals. The agent did not directly view the TV.
+
+This validates one hard-reset upload from the cartridge's ROM-selection screen
+on this device. Replacing a running/hung ROM, repeated uploads, soft reset,
+audio/timing behavior, other console/firmware combinations, and actual electrical
+power-off/on were not tested by this trial.
