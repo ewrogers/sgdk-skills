@@ -66,6 +66,10 @@ Other installed skills are optional: `sgdk-debug` for investigating failures,
 `sgdk-performance` for measured frame costs, and `sgdk-release` for packaging
 the exact tested candidate. This skill and its Lab work independently.
 
+## Emulator review
+
+Use [ares launch and observation](references/emulator.md) to load a known build through the CLI with an explicit system and image path. Verify the active build/window before capturing or sending input; use Load menus only when the CLI cannot do the job.
+
 ## Optional USB input for development ROMs
 
 When the user wants agent-driven real-console input, use [cooperative USB input](references/usb-input.md). The bundled portable C module and host client support two independent pad/mouse slots, gated by EverDrive EDIO detection, with bounded leases and physical fallback. Install it only into an opted-in ROM and connect it after the game's existing physical sampler; gameplay must read the resulting logical snapshot. Keep one FIFO owner, preserve SDK polling/interrupts and never claim physical-controller or BIOS-input emulation. Hardware Lab includes the hook and an input view; use direct capture plus ACKs to verify both ports, one-shot mouse movement and expiry.
